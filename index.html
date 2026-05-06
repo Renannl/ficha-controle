@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a4b50" />
+  <meta name="description" content="Sistema de Fichas de Controle IndusPower" />
+
+  <!-- ─── PWA ─── -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="IndusPower" />
+  <link rel="apple-touch-icon" href="/ip.jpeg" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- ─── Segurança: CSP ─── -->
+  <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' data: blob:;
+        connect-src 'self' ws://localhost:* ws://127.0.0.1:* wss://localhost:* http://localhost:* http://127.0.0.1:* ws://192.168.*.* http://192.168.*.* ws://10.*.*.* http://10.*.*.*;
+        frame-src 'none';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+      " />
+
+  <!-- ─── Segurança: Políticas adicionais ─── -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />
+
+  <!-- ─── PWA ─── -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <title>Ficha de Controle – IndusPower</title>
+
+  <!-- ─── Fonts (único recurso externo permitido pelo CSP) ─── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <!-- ─── PDF Generation ─── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+</head>
+
+<body>
+  <noscript>
+    <div
+      style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0f1e;color:#EF5350;font-family:sans-serif;text-align:center;padding:20px;">
+      <div>
+        <h1>⚠ JavaScript Necessário</h1>
+        <p style="color:#7A8FA6;margin-top:8px;">Ative o JavaScript para usar o sistema.</p>
+      </div>
+    </div>
+  </noscript>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

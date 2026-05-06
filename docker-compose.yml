@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  ficha-app:
+    build: .
+    container_name: ficha-controle-dev
+    ports:
+      - "5173:5173" # Para o modo Dev (npm run dev)
+      - "5174:5174" # Para o modo Preview (se quiserem rodar npm run build && npm run preview)
+    volumes:
+      - .:/app
+      - /app/node_modules # Impede que o node_modules local apague o do container (alpine vs host windows)
+    environment:
+      - VITE_APP_HOST=0.0.0.0
+      - VITE_APP_PORT=5173
+    # Reinicia se o container falhar
+    restart: unless-stopped
