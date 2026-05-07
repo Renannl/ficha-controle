@@ -45,6 +45,8 @@ export function useFichas(currentUser) {
       status: nova.status,
       criado_por: nova.criadoPor,
       user_id: nova.userId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       dados: nova
     })
     .select('*')
@@ -87,6 +89,7 @@ export function useFichas(currentUser) {
         status: fichaAtualizada.status,
         criado_por: fichaAtualizada.criadoPor,
         user_id: fichaAtualizada.userId,
+        updated_at: new Date().toISOString(),
         dados: fichaAtualizada,
       })
       .eq('id', fichaAtual.dbId)

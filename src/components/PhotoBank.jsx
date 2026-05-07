@@ -8,9 +8,11 @@ export default function PhotoBank({ fichas }) {
   // Filtra apenas fichas que possuem pelo menos uma foto
   const fichasWithPhotos = fichas.filter(f => {
     const hasPhotos = f.items.some(item => item.foto);
+    
     if (!hasPhotos) return false;
 
     const term = searchTerm.toLowerCase();
+
     const matchesSearch = !searchTerm || 
                          (f.nomeEquipamento || '').toLowerCase().includes(term) ||
                          (f.id || '').toLowerCase().includes(term) ||
@@ -20,7 +22,12 @@ export default function PhotoBank({ fichas }) {
 
   if (selectedFichaId) {
     const ficha = fichas.find(f => f.id === selectedFichaId);
-    const photos = ficha.items.filter(i => i.foto);
+
+    if (!ficha) {
+      setSelectedFichaId(null);
+      return null;
+    }
+    const photos = ficha.items.filter(i => i.foto) || [];
 
     return (
       <div className="photo-bank-detail animate-fadeIn">
@@ -91,7 +98,7 @@ export default function PhotoBank({ fichas }) {
 
           <div className="photo-album-grid">
             {fichasWithPhotos.map(ficha => {
-              const photoCount = ficha.items.filter(i => i.foto).length;
+              const photoCount = ficha.items.filter(i => i.foto).length || 0;
               const coverPhoto = ficha.items.find(i => i.foto)?.foto;
 
               return (
@@ -110,7 +117,7 @@ export default function PhotoBank({ fichas }) {
                   </div>
                   <div className="album-info">
                     <div className="album-title">{ficha.nomeEquipamento || 'Sem Nome'}</div>
-                    <div className="album-sub">{ficha.cliente} · {new Date(ficha.createdAt).toLocaleDateString()}</div>
+                    <div className="album-sub">{ficha.cliente} · {ficha.createdAt ? new Date(ficha.createdAt).toLocaleDateString() : '--'}</div>
                   </div>
                 </div>
               );
