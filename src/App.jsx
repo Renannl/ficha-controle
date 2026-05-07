@@ -61,7 +61,7 @@ export default function App() {
         height: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)', gap: '16px'
       }}>
         <div className="login-spinner" />
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Desencriptando dados seguros...</p>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Carregando fichas...</p>
       </div>
     )
   }
@@ -71,9 +71,12 @@ export default function App() {
     return <LoginScreen onLogin={login} />
   }
 
-  function handleNova(operacaoCodigo) {
-    const id = criarFicha(operacaoCodigo)
+  async function handleNova(operacaoCodigo) {
+    const id = await criarFicha(operacaoCodigo)
     setCurrentFichaId(id)
+
+    if (!id) return
+
     // Se for TAF (50), abre direto em testes, senão em dados
     setActiveTab(operacaoCodigo === '50' ? 'taf' : 'info')
   }
@@ -128,9 +131,12 @@ export default function App() {
       equipe: op.equipe,
       objetivo: op.objetivo,
       items: op.items.map(item => ({
-        id:           item.id,
+        id: item.id,
+        descricao: item.descricao,
+        sessao: item.sessao || '',
         sessionMarks: Array(15).fill(''),
-        resultado:    '',
+        resultado: '',
+        foto: '',
       })),
     }))
   }
@@ -319,7 +325,12 @@ export default function App() {
         {activeTab === 'taf' && isTaf && (
           <TafPanel
             ficha={ficha}
-            onUpdate={(newData) => atualizarFicha(ficha.id, newData)}
+            onUpdate={(newData) =>
+            atualizarFicha(ficha.id, prev => ({
+              ...prev,
+              ...newData
+            }))
+          }
           />
         )}
         {activeTab === 'fotos' && isFoto && (
@@ -372,9 +383,11 @@ export default function App() {
         Colocada em uma div separada FORA da .app para garantir que o background
         da .app seja renderizado POR CIMA disto no DOM, mantendo-o invisível ao usuário,
         mas perfeitamente no topo e renderizável para o html2canvas. */}
+  {ficha && (
     <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -9999 }}>
       <PrintView ficha={ficha} />
     </div>
+    )}
 
     {/* Modal de Sucesso/Alerta Geral */}
     <ConfirmModal 

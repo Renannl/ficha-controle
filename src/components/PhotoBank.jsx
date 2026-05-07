@@ -5,8 +5,6 @@ export default function PhotoBank({ fichas }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   
-
-
   // Filtra apenas fichas que possuem pelo menos uma foto
   const fichasWithPhotos = fichas.filter(f => {
     const hasPhotos = f.items.some(item => item.foto);

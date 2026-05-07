@@ -30,9 +30,6 @@ export function useFichas(currentUser) {
       loadFichas()
     }, [])
 
-  // ─── Salvamento Síncrono ───
-
-
   const criarFicha = useCallback(async (operacaoCodigo) => {
     const nova = {
       ...createEmptyFicha(operacaoCodigo),
@@ -42,8 +39,13 @@ export function useFichas(currentUser) {
     
     const { data, error } = await supabase
     .from('fichas')
-    .insert({ 
-      dados: nova 
+    .insert({
+      codigo: nova.codigo,
+      operacao: nova.operacao,
+      status: nova.status,
+      criado_por: nova.criadoPor,
+      user_id: nova.userId,
+      dados: nova
     })
     .select('*')
     .single()
@@ -80,6 +82,11 @@ export function useFichas(currentUser) {
     const { error } = await supabase
       .from('fichas')
       .update({
+        codigo: fichaAtualizada.codigo,
+        operacao: fichaAtualizada.operacao,
+        status: fichaAtualizada.status,
+        criado_por: fichaAtualizada.criadoPor,
+        user_id: fichaAtualizada.userId,
         dados: fichaAtualizada,
       })
       .eq('id', fichaAtual.dbId)
