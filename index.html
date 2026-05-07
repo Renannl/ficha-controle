@@ -17,17 +17,29 @@
 
   <!-- ─── Segurança: CSP ─── -->
   <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        font-src 'self' https://fonts.gstatic.com;
-        img-src 'self' data: blob:;
-        connect-src 'self' ws://localhost:* ws://127.0.0.1:* wss://localhost:* http://localhost:* http://127.0.0.1:* ws://192.168.*.* http://192.168.*.* ws://10.*.*.* http://10.*.*.*;
-        frame-src 'none';
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
-      " />
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' data: blob: https:;
+    connect-src
+      'self'
+      https://rljrobqmttdvhcwqhihp.supabase.co
+      wss://rljrobqmttdvhcwqhihp.supabase.co
+      ws://localhost:*
+      ws://127.0.0.1:*
+      wss://localhost:*
+      http://localhost:*
+      http://127.0.0.1:*
+      ws://192.168.*.*
+      http://192.168.*.*
+      ws://10.*.*.*
+      http://10.*.*.*;
+    frame-src 'none';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  "/>
 
   <!-- ─── Segurança: Políticas adicionais ─── -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />

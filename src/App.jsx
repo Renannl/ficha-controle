@@ -19,6 +19,7 @@ import ConfirmModal from './components/ConfirmModal'
 import RejectModal from './components/RejectModal'
 import { exportFicha } from './services/sharepointService'
 import './App-v2.css'
+import { testSupabase } from './testSupabase'
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth()
@@ -30,6 +31,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('showAdmin', showAdmin)
   }, [showAdmin])
+
+  useEffect(() => {
+    testSupabase()
+  }, [])
 
   useEffect(() => {
     if (currentFichaId) localStorage.setItem('currentFichaId', currentFichaId)

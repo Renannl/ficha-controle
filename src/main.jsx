@@ -2,9 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 // ─── Segurança (inicializar ANTES do app) ───
-import { initNetworkGuard } from './security/networkGuard'
+// import { initNetworkGuard } from './security/networkGuard'
 
-initNetworkGuard()
+// initNetworkGuard()
 
 // ─── App ───
 import './index.css'
