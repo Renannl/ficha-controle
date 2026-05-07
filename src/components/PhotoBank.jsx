@@ -5,10 +5,7 @@ export default function PhotoBank({ fichas }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   
-  useEffect(() => {
-    if (selectedFichaId) localStorage.setItem('photoBankSelectedId', selectedFichaId)
-    else localStorage.removeItem('photoBankSelectedId')
-  }, [selectedFichaId])
+
 
   // Filtra apenas fichas que possuem pelo menos uma foto
   const fichasWithPhotos = fichas.filter(f => {

@@ -31,17 +31,7 @@ export function useFichas(currentUser) {
     }, [])
 
   // ─── Salvamento Síncrono ───
-  useEffect(() => {
-    if (!isLoaded) return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(fichas))
-    } catch (err) {
-      console.error('[Storage] Erro ao salvar:', err)
-      if (err.name === 'QuotaExceededError') {
-        alert('Memória do navegador cheia! Por favor, exclua fichas antigas.')
-      }
-    }
-  }, [fichas, isLoaded])
+
 
   const criarFicha = useCallback(async (operacaoCodigo) => {
     const nova = {
@@ -52,14 +42,9 @@ export function useFichas(currentUser) {
     
     const { data, error } = await supabase
     .from('fichas')
-    .insert([{ 
-      codigo: nova.codigo, 
-      operacao: nova.operacao, 
-      status: nova.status, 
-      criado_por: nova.criadoPor, 
-      user_id: nova.userId, 
-      dados: nova }
-    ])
+    .insert({ 
+      dados: nova 
+    })
     .select('*')
     .single()
 
@@ -96,8 +81,6 @@ export function useFichas(currentUser) {
       .from('fichas')
       .update({
         dados: fichaAtualizada,
-        status: fichaAtualizada.status,
-        operacao: fichaAtualizada.operacao
       })
       .eq('id', fichaAtual.dbId)
 

@@ -37,11 +37,6 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (currentFichaId) localStorage.setItem('currentFichaId', currentFichaId)
-    else localStorage.removeItem('currentFichaId')
-  }, [currentFichaId])
-
-  useEffect(() => {
     localStorage.setItem('activeTab', activeTab)
   }, [activeTab])
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
