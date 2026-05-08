@@ -6,7 +6,7 @@ import { useRef } from 'react'
 export function useFichas(currentUser) {
   const [fichas, setFichas] = useState([])
   const [isLoaded, setIsLoaded] = useState(false)
-  
+
   const saveTimeouts = useRef({})
 
   useEffect(() => {
@@ -34,6 +34,45 @@ export function useFichas(currentUser) {
 
     loadFichas()
   }, [])
+
+  async function gerarCodigo(operacao) {
+  const prefixos = {
+    '10': 'PRO',
+    '50': 'TAF',
+    '80': 'INDUS',
+    '90': 'QUA',
+  }
+
+  const prefixo = prefixos[operacao] || 'GEN'
+
+  // Busca último código dessa operação
+  const { data, error } = await supabase
+    .from('fichas')
+    .select('codigo')
+    .eq('operacao', operacao)
+    .like('codigo', `${prefixo}-%`)
+    .order('codigo', { ascending: false })
+    .limit(1)
+
+  if (error) {
+    console.error(error)
+    return `${prefixo}-0001`
+  }
+
+  let numero = 1
+
+  if (data.length > 0) {
+    const ultimoCodigo = data[0].codigo
+
+    const ultimoNumero = parseInt(
+      ultimoCodigo.split('-')[1]
+    )
+
+    numero = ultimoNumero + 1
+  }
+
+  return `${prefixo}-${String(numero).padStart(4, '0')}`
+}
 
   // ─────────────────────────────────────────────
   // REALTIME
@@ -120,8 +159,11 @@ export function useFichas(currentUser) {
   // CRIAR
   // ─────────────────────────────────────────────
   const criarFicha = useCallback(async (operacaoCodigo) => {
+    const codigoGerado = await gerarCodigo(operacaoCodigo)
+
     const nova = {
       ...createEmptyFicha(operacaoCodigo),
+      codigo: codigoGerado,
       criadoPor:
         currentUser?.displayName ||
         currentUser?.username ||
@@ -140,8 +182,6 @@ export function useFichas(currentUser) {
         status: nova.status,
         criado_por: nova.criadoPor,
         user_id: nova.userId,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
         dados: nova
       })
       .select('*')
@@ -188,12 +228,10 @@ export function useFichas(currentUser) {
     const { error } = await supabase
       .from('fichas')
       .update({
-        codigo: fichaAtualizada.codigo,
         operacao: fichaAtualizada.operacao,
         status: fichaAtualizada.status,
         criado_por: fichaAtualizada.criadoPor,
         user_id: fichaAtualizada.userId,
-        updated_at: new Date().toISOString(),
         dados: fichaAtualizada,
       })
       .eq('id', fichaAtual.dbId)

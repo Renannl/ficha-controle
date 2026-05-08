@@ -21,15 +21,15 @@ export default function InfoCard({ ficha, onChange, onOperacaoChange }) {
         <div className="form-grid form-grid-3">
           <div className="field">
             <label>Código</label>
-            <input value={ficha.codigo} onChange={handle('codigo')} placeholder="PRO-001" />
+            <input disabled value={ficha.codigo} onChange={handle('codigo')} placeholder="PRO-001" />
           </div>
           <div className="field">
             <label>Folha</label>
-            <input value={ficha.folha} onChange={handle('folha')} placeholder="1/1" />
+            <input onChange={handle('folha')} placeholder="1/1" />
           </div>
           <div className="field">
             <label>Revisão</label>
-            <input value={ficha.revisao} onChange={handle('revisao')} placeholder="01" />
+            <input onChange={handle('revisao')} placeholder="01" />
           </div>
         </div>
       </div>
