@@ -14,6 +14,7 @@ export function useFichas(currentUser) {
       const { data, error } = await supabase
         .from('fichas')
         .select('*')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -116,6 +117,19 @@ export function useFichas(currentUser) {
           table: 'fichas',
         },
         payload => {
+
+          // SOFT DELETE
+          if (payload.new.deleted_at) {
+            setFichas(prev =>
+              prev.filter(
+                f => f.dbId !== payload.new.id
+              )
+            )
+
+            return
+          }
+
+          // UPDATE NORMAL
           const fichaAtualizada = {
             ...payload.new.dados,
             dbId: payload.new.id,
@@ -185,6 +199,7 @@ export function useFichas(currentUser) {
         dados: nova
       })
       .select('*')
+      .is('deleted_at', null)
       .single()
 
     if (error) {
@@ -249,24 +264,29 @@ export function useFichas(currentUser) {
   // EXCLUIR
   // ─────────────────────────────────────────────
   const excluirFicha = useCallback(async (id) => {
-    const ficha = fichas.find(f => f.id === id)
+  const ficha = fichas.find(f => f.id === id)
 
-    if (!ficha) return
+  if (!ficha) return
 
-    // Remove instantaneamente da UI
-    setFichas(prev =>
-      prev.filter(f => f.id !== id)
+  // remove da interface
+  setFichas(prev =>
+    prev.filter(f => f.id !== id)
+  )
+
+  // soft delete
+  const { error } = await supabase
+    .from('fichas')
+    .update({
+      deleted_at: new Date().toISOString()
+    })
+    .eq('id', ficha.dbId)
+
+  if (error) {
+    console.error(
+      '[Supabase] Erro ao mover para lixeira:',
+      error
     )
-
-    const { error } = await supabase
-      .from('fichas')
-      .delete()
-      .eq('id', ficha.dbId)
-
-    if (error) {
-      console.error('[Supabase] Erro ao excluir:', error)
-    }
-  }, [fichas])
+  }}, [fichas])
 
   // ─────────────────────────────────────────────
   // PERMISSÕES

@@ -1,28 +1,50 @@
 import { supabase } from '../lib/supabase'
 
-export async function uploadFoto(file, fichaId) {
+export async function uploadFoto(file, ficha) {
   try {
+
     const ext = file.name.split('.').pop()
 
-    const fileName = `${fichaId}/${Date.now()}.${ext}`
+    // lista fotos da ficha
+    const { data: files, error: listError } =
+      await supabase.storage
+        .from('fotos-fichas')
+        .list(ficha.codigo, {
+          limit: 1000
+        })
 
-    const { error } = await supabase.storage
-      .from('fotos-fichas')
-      .upload(fileName, file)
+    if (listError) throw listError
+
+    // próxima versão
+    const nextVersion =
+      (files?.length || 0) + 1
+
+    // nome final
+    const fileName =
+      `${ficha.codigo}/` +
+      `${ficha.codigo}_(${nextVersion}).${ext}`
+
+    // upload
+    const { error } =
+      await supabase.storage
+        .from('fotos-fichas')
+        .upload(fileName, file)
 
     if (error) throw error
 
-    const { data } = supabase.storage
-      .from('fotos-fichas')
-      .getPublicUrl(fileName)
+    // url pública
+    const { data } =
+      supabase.storage
+        .from('fotos-fichas')
+        .getPublicUrl(fileName)
 
     return data.publicUrl
+
   } catch (err) {
     console.error('[Upload] Erro:', err)
     return null
   }
 }
-
 // ======================================
 // PDF
 // ======================================

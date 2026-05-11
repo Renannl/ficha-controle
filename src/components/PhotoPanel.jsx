@@ -1,7 +1,7 @@
 import React from 'react';
 import { uploadFoto } from '../services/uploadService'
 
-export default function PhotoPanel({ items, onUpdate }) {
+export default function PhotoPanel({ ficha, items, onUpdate }) {
   const handlePhotoUpload = async (idx, file) => {
   if (!file) return;
 
@@ -42,7 +42,10 @@ export default function PhotoPanel({ items, onUpdate }) {
             { type: 'image/jpeg' }
           );
 
-          const url = await uploadFoto(compressedFile, 'ficha');
+          const url = await uploadFoto(
+            compressedFile,
+            ficha
+          );
 
           if (!url) {
             alert('Erro ao enviar foto');
