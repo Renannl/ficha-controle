@@ -76,7 +76,7 @@ export default function PhotoPanel({ ficha, items, onUpdate }) {
     <div className="photo-panel bg-card card-glow" style={{ padding: '16px', borderRadius: '12px' }}>
       <h2 style={{ color: 'var(--blue-light)', marginBottom: '16px', fontSize: '20px' }}>Relatório Fotográfico</h2>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', gap: '16px', flexWrap: 'wrap' }}>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', flex: 1, margin: 0 }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>
           Tire fotos direto da câmera com seu celular ou carregue imagens da galeria. Você pode modificar a descrição de cada foto, se necessário.
         </p>
         <label style={{ 

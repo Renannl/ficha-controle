@@ -37,7 +37,7 @@ export default function PhotoBank({ fichas }) {
     const photos = ficha.items.filter(i => i.foto) || [];
 
     return (
-      <div className="photo-bank-detail animate-fadeIn">
+      <div className="photo-bank-detail animate-fadeIn" style={{ padding: '20px 16px 100px' }}>
         <div className="flex items-center gap-3 mb-4">
           <button
             className="btn-icon"
