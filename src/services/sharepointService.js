@@ -1,3 +1,4 @@
+import { uploadPdf } from './uploadService'
 /**
  * Serviço de Integração com SharePoint e Exportação de PDF
  * Preparado para Power Automate / Microsoft Flow.
@@ -97,13 +98,26 @@ export async function exportFicha(ficha, elementId = 'print-view-root') {
         margin: finalMargin,
         filename: safeFilename,
         image: { type: 'jpeg', quality: 0.90 },
-        html2canvas: { scale: 1.2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'avoid-all'], avoid: ['.foto-frame', 'tr'] }
+        html2canvas: {
+          scale: 1.2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        },
+        pagebreak: {
+          mode: ['css', 'avoid-all'],
+          avoid: ['.foto-frame', 'tr']
+        }
       })
       .from(printClone)
       .output('blob')
 
+      await uploadPdf(pdfBlob, ficha)
+      
     clearTimeout(timeoutId) // Cancela o timeout se der certo
     if (statusText) statusText.innerText = 'Iniciando download...'
 
