@@ -91,6 +91,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
     const searchMatch = !searchTerm ||
       (f.nomeEquipamento || '').toLowerCase().includes(term) ||
       (f.id || '').toLowerCase().includes(term) ||
+      (f.codigo || '').toLowerCase().includes(term) ||
       (f.cliente || '').toLowerCase().includes(term);
 
     return statusMatch && typeMatch && searchMatch
@@ -265,7 +266,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                       <input
                         className="search-input animate-slideInRight"
                         type="text"
-                        placeholder="Nome ou ID..."
+                        placeholder="Nome ou código..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         autoFocus
@@ -323,7 +324,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                 </div>
               </div>
               {filteredFichas.length === 0 ? (
-                <div className="text-center py-12 opacity-60 text-sm card-glow-none" style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border)' }}>
+                <div className="text-center py-12 opacity-60 text-sm card-glow-none" style={{padding: '20px 20px', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)'}}>
                   Nenhuma ficha encontrada para estes filtros.
                 </div>
               ) : (
