@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { OPERACOES } from '../data/fichaTemplate'
+import { ROLES } from '../data/users'
 import PhotoBank from './PhotoBank'
 import Dashboard from './Dashboard'
 import ConfirmModal from './ConfirmModal'
@@ -150,7 +151,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
           </div>
           <div>
             <div className="user-name">{user?.displayName || 'Usuário'}</div>
-            <div className="user-role">Operador</div>
+            <div className="user-role">{user?.role ? ROLES[user.role] : ''}</div>
           </div>
         </div>
         <div className="flex items-center gap-2">

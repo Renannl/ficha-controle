@@ -26,43 +26,56 @@ export function useAuth() {
 
   async function login(username, password) {
 
-  const response = await fetch(
-    'http://localhost:3001/login',
-    {
-      method: 'POST',
+    try {
 
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      const response = await fetch(
+        'http://localhost:3001/login',
+        {
+          method: 'POST',
 
-      body: JSON.stringify({
-        username,
-        password
-      })
+          headers: {
+            'Content-Type': 'application/json'
+          },
+
+          body: JSON.stringify({
+            username,
+            password
+          })
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(data.error)
+        return false
+      }
+
+      localStorage.setItem(
+        'token',
+        data.token
+      )
+
+      localStorage.setItem(
+        'user',
+        JSON.stringify(data.user)
+      )
+
+      setUser(data.user)
+
+      setIsAuthenticated(true)
+
+      return true
+
+    } catch (err) {
+
+      console.error(err)
+
+      alert('Erro conexão backend')
+
+      return false
     }
-  )
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    alert(data.error)
-    return false
   }
-
-  localStorage.setItem(
-    'token',
-    data.token
-  )
-
-  localStorage.setItem(
-    'user',
-    JSON.stringify(data.user)
-  )
-
-  setUser(data.user)
-
-  return true
-}
 
   function logout() {
 
