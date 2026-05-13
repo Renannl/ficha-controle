@@ -49,8 +49,9 @@ export default defineConfig(({ mode }) => {
 
     // ─── Servidor de Desenvolvimento ───
     server: {
-      host: HOST,
-      port: PORT,
+      host: '0.0.0.0',
+      port: 5173,
+      https: true,
       strictPort: true,
       // Bloqueia acesso de origens não autorizadas
       cors: {
