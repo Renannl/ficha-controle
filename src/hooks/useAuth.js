@@ -29,7 +29,7 @@ export function useAuth() {
     try {
 
       const response = await fetch(
-        'https://192.168.101.112:3001/login',
+        `${import.meta.env.VITE_API_URL}/login`,
         {
           method: 'POST',
 

@@ -30,14 +30,11 @@
       ws://localhost:*
       ws://127.0.0.1:*
       wss://localhost:*
-      https://192.168.101.112:3001/login
+      http://192.168.101.112:3001
       ws://192.168.101.112:5173
+      http://192.168.101.112:5173
       http://localhost:*
-      http://127.0.0.1:*
-      ws://192.168.*.*
-      http://192.168.*.*
-      ws://10.*.*.*
-      http://10.*.*.*;
+      http://127.0.0.1:*;
     frame-src 'none';
     object-src 'none';
     base-uri 'self';
@@ -46,7 +43,6 @@
 
   <!-- ─── Segurança: Políticas adicionais ─── -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta http-equiv="X-Frame-Options" content="DENY" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />
 
