@@ -20,9 +20,70 @@ export function useAuth() {
       setUser(JSON.parse(savedUser))
 
       setIsAuthenticated(true)
+
+      perfil()
+
+      const interval = setInterval(() => {
+
+        perfil()
+
+      }, 5000)
+
+      return () => clearInterval(interval)
     }
 
   }, [])
+
+  async function authFetch(url, options = {}) {
+
+    const token =
+      localStorage.getItem('token')
+
+    const response = await fetch(url, {
+
+      ...options,
+
+      headers: {
+        ...options.headers,
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (response.status === 401) {
+
+      logout()
+
+      alert('Sessão expirada')
+
+      window.location.href = '/login'
+
+      return null
+    }
+
+    return response
+  }
+
+  async function perfil() {
+
+    try {
+
+      const response = await authFetch(
+        `${import.meta.env.VITE_API_URL}/perfil`
+      )
+
+      if (!response) return null
+
+      const data = await response.json()
+
+      return data
+
+    } catch (err) {
+
+      console.error(err)
+
+      return null
+    }
+  }
 
   async function login(username, password) {
 

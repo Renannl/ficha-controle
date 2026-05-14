@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function LoginScreen({ onLogin }) {
+
+  const navigate = useNavigate()
 
   const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
@@ -14,7 +17,9 @@ export default function LoginScreen({ onLogin }) {
     setErro('')
 
     if (!usuario.trim() || !senha.trim()) {
+
       setErro('Preencha todos os campos.')
+
       return
     }
 
@@ -26,7 +31,12 @@ export default function LoginScreen({ onLogin }) {
         await onLogin(usuario, senha)
 
       if (!success) {
+
         setErro('Usuário inválido')
+
+      } else {
+
+        navigate('/dashboard')
       }
 
     } catch (err) {

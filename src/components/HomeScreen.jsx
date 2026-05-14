@@ -57,13 +57,38 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
     localStorage.setItem('homeViewMode', viewMode)
   }, [viewMode])
 
-  const hasPerm = (perm) => user?.role === 'admin' || (user?.permissions || []).includes(perm);
+  const hasPerm = (roles = []) => {
+    return roles.includes(user?.role)
+  }
 
-  const availableOps = Object.values(OPERACOES).filter(op => {
-    if (op.codigo === '50') return hasPerm('taf');
-    if (op.codigo === '80') return hasPerm('fotos');
-    return hasPerm('controle');
-  });
+  const availableOps =
+    Object.values(OPERACOES).filter(op => {
+
+      // TAF
+      if (op.codigo === '50') {
+
+        return hasPerm([
+          'admin',
+          'qualidade'
+        ])
+      }
+
+      // FOTO
+      if (op.codigo === '80') {
+
+        return hasPerm([
+          'admin',
+          'engenharia'
+        ])
+      }
+
+      // CONTROLE NORMAL
+      return hasPerm([
+        'admin',
+        'producao',
+        'qualidade'
+      ])
+    })
 
   const total = fichas.length
   const emAndamento = fichas.filter(f => {
