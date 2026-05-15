@@ -197,6 +197,22 @@ export default function AdminPanel({ onBack }) {
                 </select>
               </div>
 
+              <div className="form-row">
+                <label className="field-label">Status do Usuário</label>
+                <label className="switch-toggle">
+                  <input
+                    type="checkbox"
+                    checked={active}
+                    onChange={e =>
+                      setActive(e.target.checked)}
+                  />
+                <span className="switch-slider"></span>
+                  <span className="switch-label">
+                    {active ? 'Ativo' : 'Desativado'}
+                  </span>
+                </label>
+              </div>
+
               <div className="permissions-box">
                 <label className="field-label mb-3 block">Módulos de Execução</label>
                 <div className="permissions-grid mb-4">

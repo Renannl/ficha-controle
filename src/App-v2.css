@@ -4732,3 +4732,57 @@
 [data-theme='dark'] .admin-table tbody tr:hover {
   background: rgba(45, 124, 132, 0.08);
 }
+
+/* ──────────────────────────────────────────────
+   USER STATUS SWITCH
+────────────────────────────────────────────── */
+
+.switch-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch-toggle input {
+  display: none;
+}
+
+.switch-slider {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  transition: var(--transition);
+}
+
+.switch-slider::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.switch-toggle input:checked + .switch-slider {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.switch-toggle input:checked + .switch-slider::before {
+  transform: translateX(24px);
+}
+
+.switch-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
