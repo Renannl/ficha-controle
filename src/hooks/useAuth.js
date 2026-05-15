@@ -4,35 +4,30 @@ export function useAuth() {
 
   const [user, setUser] = useState(null)
 
-  const [isAuthenticated, setIsAuthenticated] =
-    useState(false)
-
   useEffect(() => {
 
-    const savedUser =
-      localStorage.getItem('user')
-
-    const token =
-      localStorage.getItem('token')
+    const savedUser = localStorage.getItem('user')
+    const token = localStorage.getItem('token')
 
     if (savedUser && token) {
-
       setUser(JSON.parse(savedUser))
-
-      setIsAuthenticated(true)
-
-      perfil()
-
-      const interval = setInterval(() => {
-
-        perfil()
-
-      }, 5000)
-
-      return () => clearInterval(interval)
     }
 
   }, [])
+
+  useEffect(() => {
+
+    if (!user) return
+
+    perfil()
+
+    const interval = setInterval(() => {
+      perfil()
+    }, 5000)
+
+    return () => clearInterval(interval)
+
+  }, [user])
 
   async function authFetch(url, options = {}) {
 
@@ -55,8 +50,6 @@ export function useAuth() {
 
       alert('Sessão expirada')
 
-      window.location.href = '/login'
-
       return null
     }
 
@@ -74,6 +67,10 @@ export function useAuth() {
       if (!response) return null
 
       const data = await response.json()
+
+      if (data.user) {
+        setUser(data.user)
+      }
 
       return data
 
@@ -124,8 +121,6 @@ export function useAuth() {
 
       setUser(data.user)
 
-      setIsAuthenticated(true)
-
       return true
 
     } catch (err) {
@@ -146,7 +141,6 @@ export function useAuth() {
 
     setUser(null)
 
-    setIsAuthenticated(false)
   }
 
   return {

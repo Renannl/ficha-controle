@@ -20,17 +20,13 @@ import RejectModal from './components/RejectModal'
 import { exportFicha } from './services/sharepointService'
 import './App-v2.css'
 import { testSupabase } from './testSupabase'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth()
   const { fichas, isLoading, criarFicha, atualizarFicha, excluirFicha, getFicha } = useFichas(user)
-  const [currentFichaId, setCurrentFichaId] = useState(() => localStorage.getItem('currentFichaId') || null)
+  const [currentFichaId, setCurrentFichaId] = useState(null)
   const [activeTab, setActiveTab ] = useState(() => localStorage.getItem('activeTab') || 'info')
-  const [showAdmin, setShowAdmin] = useState(() => localStorage.getItem('showAdmin') === 'true')
-
-  useEffect(() => {
-    localStorage.setItem('showAdmin', showAdmin)
-  }, [showAdmin])
 
   useEffect(() => {
     testSupabase()
@@ -47,11 +43,11 @@ export default function App() {
   }, [theme])
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light')
-
+  const navigate = useNavigate()
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' })
   const [rejectInfo, setRejectInfo] = useState(null)
   
-  const ficha = currentFichaId ? getFicha(currentFichaId) : null
+  const ficha = currentFichaId ? getFicha(currentFichaId) || null : null
 
   // ─── LOADING ───
   if (isLoading) {
@@ -68,7 +64,36 @@ export default function App() {
 
   // ─── LOGIN ───
   if (!isAuthenticated) {
-    return <LoginScreen onLogin={login} />
+
+    return (
+      <Routes>
+
+        <Route
+          path="/login"
+          element={
+            <LoginScreen
+              onLogin={async (u, s) => {
+
+                const success =
+                  await login(u, s)
+
+                if (success) {
+                  navigate('/dashboard')
+                }
+
+                return success
+              }}
+            />
+          }
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/login" />}
+        />
+
+      </Routes>
+    )
   }
 
   async function handleNova(operacaoCodigo) {
@@ -230,186 +255,311 @@ export default function App() {
   }
 
   function getProgress() {
-    if (!ficha) return 0
-    const total = ficha.items.length
-    const done = ficha.items.filter(i => i.resultado === 'ok' || i.resultado === 'na').length
-    return Math.round((done / total) * 100)
-  }
+  if (!ficha) return 0
 
-  // ─── HOME ───
-  if (showAdmin && user?.role === 'admin') {
-    return <AdminPanel onBack={() => setShowAdmin(false)} />
-  }
+  const total = ficha?.items?.length || 0
 
-  if (!ficha) {
-    return (
-      <div className="app">
-        <HomeScreen
-          fichas={fichas}
-          onNova={handleNova}
-          onOpen={handleOpen}
-          onDelete={handleDelete}
-          user={user}
-          onLogout={logout}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-          onOpenAdmin={() => setShowAdmin(true)}
-          onApprove={handleApprove}
-        />
-      </div>
-    )
-  }
+  const done =
+    ficha?.items?.filter(
+      i =>
+        i.resultado === 'ok' ||
+        i.resultado === 'na'
+    ).length || 0
 
-  // ─── FICHA ───
-  const isTaf = !!ficha.tafData
-  const isFoto = ficha.operacao === '80'
+  return total > 0
+    ? Math.round((done / total) * 100)
+    : 0
+  } 
 
-  const tabs = isTaf 
+
+  const isTaf = !!ficha?.tafData
+  const isFoto = ficha?.operacao === '80'
+
+  const tabs = isTaf
     ? [
-        { id: 'taf',        icon: '⚡', label: 'Testes' },
-        { id: 'checklist',  icon: '✅', label: 'Funcionais e Visuais' },
+        { id: 'taf', icon: '⚡', label: 'Testes' },
+        { id: 'checklist', icon: '✅', label: 'Funcionais e Visuais' },
         { id: 'signatures', icon: '✍️', label: 'Assinaturas' },
       ]
     : isFoto
       ? [
-          { id: 'info',       icon: '📋', label: 'Dados' },
-          { id: 'fotos',      icon: '📸', label: 'Fotos' },
-          { id: 'notes',      icon: '📝', label: 'Notas' },
+          { id: 'info', icon: '📋', label: 'Dados' },
+          { id: 'fotos', icon: '📸', label: 'Fotos' },
+          { id: 'notes', icon: '📝', label: 'Notas' },
         ]
       : [
-          { id: 'info',       icon: '📋', label: 'Dados' },
-          { id: 'checklist',  icon: '✅', label: 'Checklist' },
-          { id: 'sessions',   icon: '🕐', label: 'Sessões' },
-          { id: 'notes',      icon: '📝', label: 'Notas' },
+          { id: 'info', icon: '📋', label: 'Dados' },
+          { id: 'checklist', icon: '✅', label: 'Checklist' },
+          { id: 'sessions', icon: '🕐', label: 'Sessões' },
+          { id: 'notes', icon: '📝', label: 'Notas' },
           { id: 'signatures', icon: '✍️', label: 'Assinaturas' },
         ]
 
-  const checklistItems = getChecklistItems(ficha.operacao)
+  const checklistItems = ficha
+    ? getChecklistItems(ficha.operacao)
+    : []
 
   return (
-    <>
-    <div className="app">
-      <Header
-        ficha={ficha}
-        user={user}
-        progress={getProgress()}
-        onBack={handleBack}
-        onApprove={(estado) => handleApprove(currentFichaId, estado)}
+    <Routes>
+
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to={
+              isAuthenticated
+                ? '/dashboard'
+                : '/login'
+            }
+          />
+        }
       />
 
-      <main className="main-content">
-        {activeTab === 'info' && (!isFoto ? (
-          <InfoCard
-            ficha={ficha}
-            onChange={updateField}
-            onOperacaoChange={handleOperacaoChange}
-          />
-        ) : (
-          <ConsideracoesPanel
-            ficha={ficha}
-            onUpdateHeader={updateField}
-            onUpdateFotoData={(newData) => atualizarFicha(ficha.id, { fotoData: { ...ficha.fotoData, ...newData } })}
-          />
-        ))}
-        {activeTab === 'checklist' && (
-          <ChecklistTable
-            ficha={ficha}
-            checklistItems={checklistItems}
-            onToggleMark={updateItemSessionMark}
-            onSetResultado={(idx, val) => updateItem(idx, 'resultado', val)}
-            isTaf={isTaf}
-            tafData={ficha.tafData}
-            onUpdateTaf={(newData) => atualizarFicha(ficha.id, { tafData: { ...ficha.tafData, ...newData } })}
-          />
-        )}
-        {activeTab === 'taf' && isTaf && (
-          <TafPanel
-            ficha={ficha}
-            onUpdate={(newData) =>
-            atualizarFicha(ficha.id, prev => ({
-              ...prev,
-              ...newData
-            }))
-          }
-          />
-        )}
-        {activeTab === 'fotos' && isFoto && (
-          <PhotoPanel
-            ficha={ficha}
-            items={ficha.items}
-            onUpdate={(idx, key, val) => updateItem(idx, key, val)}
-          />
-        )}
-        {activeTab === 'sessions' && (
-          <SessionsPanel
-            sessions={ficha.sessions}
-            onUpdate={updateSession}
-          />
-        )}
-        {activeTab === 'notes' && (
-          <NotesSection
-            ficha={ficha}
-            observacoes={ficha.observacoes}
-            onChange={val => updateField('observacoes', val)}
-            onChangeAlteracoes={val => updateField('alteracoesFeitas', val)}
-            isFoto={isFoto}
-            onFinalizar={handleFinalizar}
-          />
-        )}
-        {activeTab === 'signatures' && (
-          <SignatureSection
-            assinaturas={ficha.assinaturas}
-            onSign={updateSignature}
-            onNameChange={updateSignatureName}
-            onFinalizar={handleFinalizar}
-          />
-        )}
-      </main>
+      <Route
+        path="/login"
+        element={
+          !isAuthenticated ? (
+            <LoginScreen
+              onLogin={async (u, s) => {
+                const success = await login(u, s)
 
-      <nav className="tab-bar">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            <span className="tab-icon">{tab.icon}</span>
-            <span className="tab-label">{tab.label}</span>
-          </button>
-        ))}
-      </nav>
-    </div>
-    
-    {/* Camada Oculta Real de Impressão
-        Colocada em uma div separada FORA da .app para garantir que o background
-        da .app seja renderizado POR CIMA disto no DOM, mantendo-o invisível ao usuário,
-        mas perfeitamente no topo e renderizável para o html2canvas. */}
-  {ficha && (
-    <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -9999 }}>
-      <PrintView ficha={ficha} />
-    </div>
-    )}
+                if (success) {
+                  navigate('/dashboard')
+                }
 
-    {/* Modal de Sucesso/Alerta Geral */}
-    <ConfirmModal 
-      isOpen={successModal.isOpen}
-      title={successModal.title}
-      message={successModal.message}
-      type={successModal.type || 'success'}
-      confirmText="Entendido"
-      showCancel={false}
-      onConfirm={() => {
-        setSuccessModal({ ...successModal, isOpen: false })
-        if (successModal.title === 'Sucesso!') {
-          handleBack()
+                return success
+              }}
+            />
+          ) : (
+            <Navigate to="/dashboard" />
+          )
         }
-      }}
-    />
-    <RejectModal
-      isOpen={!!rejectInfo}
-      onClose={() => setRejectInfo(null)}
-      onConfirm={confirmReject}
-    />
-    </>
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          !ficha ? (
+
+            <div className="app">
+              <HomeScreen
+                fichas={fichas}
+                onNova={handleNova}
+                onOpen={handleOpen}
+                onDelete={handleDelete}
+                user={user}
+                onLogout={() => {
+                  logout()
+                  navigate('/login')
+                }}
+                theme={theme}
+                onToggleTheme={toggleTheme}
+                onOpenAdmin={() => navigate('/admin')}
+                onApprove={handleApprove}
+              />
+            </div>
+
+          ) : (
+
+            <>
+              <div className="app">
+
+                <Header
+                  ficha={ficha}
+                  user={user}
+                  progress={getProgress()}
+                  onBack={handleBack}
+                  onApprove={(estado) =>
+                    handleApprove(currentFichaId, estado)
+                  }
+                />
+
+                <main className="main-content">
+
+                  {activeTab === 'info' && (!isFoto ? (
+                    <InfoCard
+                      ficha={ficha}
+                      onChange={updateField}
+                      onOperacaoChange={handleOperacaoChange}
+                    />
+                  ) : (
+                    <ConsideracoesPanel
+                      ficha={ficha}
+                      onUpdateHeader={updateField}
+                      onUpdateFotoData={(newData) =>
+                        atualizarFicha(ficha.id, {
+                          fotoData: {
+                            ...ficha.fotoData,
+                            ...newData
+                          }
+                        })
+                      }
+                    />
+                  ))}
+
+                  {activeTab === 'checklist' && (
+                    <ChecklistTable
+                      ficha={ficha}
+                      checklistItems={checklistItems}
+                      onToggleMark={updateItemSessionMark}
+                      onSetResultado={(idx, val) =>
+                        updateItem(idx, 'resultado', val)
+                      }
+                      isTaf={isTaf}
+                      tafData={ficha.tafData}
+                      onUpdateTaf={(newData) =>
+                        atualizarFicha(ficha.id, {
+                          tafData: {
+                            ...ficha.tafData,
+                            ...newData
+                          }
+                        })
+                      }
+                    />
+                  )}
+
+                  {activeTab === 'taf' && isTaf && (
+                    <TafPanel
+                      ficha={ficha}
+                      onUpdate={(newData) =>
+                        atualizarFicha(ficha.id, prev => ({
+                          ...prev,
+                          ...newData
+                        }))
+                      }
+                    />
+                  )}
+
+                  {activeTab === 'fotos' && isFoto && (
+                    <PhotoPanel
+                      ficha={ficha}
+                      items={ficha.items}
+                      onUpdate={(idx, key, val) =>
+                        updateItem(idx, key, val)
+                      }
+                    />
+                  )}
+
+                  {activeTab === 'sessions' && (
+                    <SessionsPanel
+                      sessions={ficha.sessions}
+                      onUpdate={updateSession}
+                    />
+                  )}
+
+                  {activeTab === 'notes' && (
+                    <NotesSection
+                      ficha={ficha}
+                      observacoes={ficha.observacoes}
+                      onChange={(val) =>
+                        updateField('observacoes', val)
+                      }
+                      onChangeAlteracoes={(val) =>
+                        updateField('alteracoesFeitas', val)
+                      }
+                      isFoto={isFoto}
+                      onFinalizar={handleFinalizar}
+                    />
+                  )}
+
+                  {activeTab === 'signatures' && (
+                    <SignatureSection
+                      assinaturas={ficha.assinaturas}
+                      onSign={updateSignature}
+                      onNameChange={updateSignatureName}
+                      onFinalizar={handleFinalizar}
+                    />
+                  )}
+
+                </main>
+
+                <nav className="tab-bar">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
+                      onClick={() => setActiveTab(tab.id)}
+                    >
+                      <span className="tab-icon">
+                        {tab.icon}
+                      </span>
+
+                      <span className="tab-label">
+                        {tab.label}
+                      </span>
+                    </button>
+                  ))}
+                </nav>
+
+              </div>
+
+              {ficha && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    zIndex: -9999
+                  }}
+                >
+                  <PrintView ficha={ficha} />
+                </div>
+              )}
+
+              <ConfirmModal
+                isOpen={successModal.isOpen}
+                title={successModal.title}
+                message={successModal.message}
+                type={successModal.type || 'success'}
+                confirmText="Entendido"
+                showCancel={false}
+                onConfirm={() => {
+
+                  setSuccessModal({
+                    ...successModal,
+                    isOpen: false
+                  })
+
+                  if (successModal.title === 'Sucesso!') {
+                    handleBack()
+                  }
+                }}
+              />
+
+              <RejectModal
+                isOpen={!!rejectInfo}
+                onClose={() => setRejectInfo(null)}
+                onConfirm={confirmReject}
+              />
+
+            </>
+
+          )
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          user?.role === 'admin'
+            ? (
+                <AdminPanel
+                  onBack={() =>
+                    navigate('/dashboard')
+                  }
+                />
+              )
+            : (
+                <Navigate to="/dashboard" />
+              )
+        }
+      />
+
+      <Route
+        path="*"
+        element={<Navigate to="/dashboard" />}
+      />
+
+    </Routes>
   )
-}
+  }
