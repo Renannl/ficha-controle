@@ -350,7 +350,6 @@ export default function App() {
                 user={user}
                 onLogout={() => {
                   logout()
-                  navigate('/login')
                 }}
                 theme={theme}
                 onToggleTheme={toggleTheme}

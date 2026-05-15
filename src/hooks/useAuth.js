@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function useAuth() {
 
   const [user, setUser] = useState(null)
+
+  const isManualLogoutRef = useRef(false)
 
   useEffect(() => {
 
@@ -31,13 +33,18 @@ export function useAuth() {
 
   async function authFetch(url, options = {}) {
 
-    const token =
-      localStorage.getItem('token')
+    if (isManualLogoutRef.current) {
+      return null
+    }
+
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      return null
+    }
 
     const response = await fetch(url, {
-
       ...options,
-
       headers: {
         ...options.headers,
         Authorization: `Bearer ${token}`
@@ -46,9 +53,9 @@ export function useAuth() {
 
     if (response.status === 401) {
 
-      logout()
-
-      alert('Sessão expirada')
+      if (!isManualLogoutRef.current) {
+        logout(true)
+      }
 
       return null
     }
@@ -109,10 +116,9 @@ export function useAuth() {
         return false
       }
 
-      localStorage.setItem(
-        'token',
-        data.token
-      )
+      isManualLogoutRef.current = false
+
+      localStorage.setItem('token', data.token)
 
       localStorage.setItem(
         'user',
@@ -133,14 +139,20 @@ export function useAuth() {
     }
   }
 
-  function logout() {
+  function logout(showAlert = false) {
+
+    isManualLogoutRef.current = true
 
     localStorage.removeItem('token')
-
     localStorage.removeItem('user')
 
     setUser(null)
 
+    if (showAlert) {
+      alert('Sessão expirada')
+    }
+
+    window.location.href = '/login'
   }
 
   return {
