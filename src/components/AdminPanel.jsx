@@ -1,96 +1,146 @@
-import React, { useState, useEffect } from 'react';
-import { ROLES, INITIAL_USERS } from '../data/users';
+import React, { useState, useEffect } from 'react'
+import { ROLES } from '../data/users'
 
 export default function AdminPanel({ onBack }) {
-  const [users, setUsers] = useState(() => {
-    const saved = localStorage.getItem('ficha-controle-users');
-    return saved ? JSON.parse(saved) : [];
-  });
 
-  const [editingUsername, setEditingUsername] = useState(null);
-  const [newDisplayName, setNewDisplayName] = useState('');
-  const [newUserName, setNewUserName] = useState('');
-  const [newUserPass, setNewUserPass] = useState('');
-  const [newUserRole, setNewUserRole] = useState('producao');
-  const [newPermissions, setNewPermissions] = useState(['taf', 'controle', 'fotos']);
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const saveUsers = (updated) => {
-    setUsers(updated);
-    localStorage.setItem('ficha-controle-users', JSON.stringify(updated));
-  };
+  const [editingUser, setEditingUser] = useState(null)
 
-  const resetForm = () => {
-    setNewUserName('');
-    setNewUserPass('');
-    setNewDisplayName('');
-    setNewUserRole('producao');
-    setNewPermissions(['taf', 'controle', 'fotos']);
-    setEditingUsername(null);
-  };
+  const [nome, setNome] = useState('')
+  const [role, setRole] = useState('producao')
+  const [permissoes, setPermissoes] = useState([])
+  const [active, setActive] = useState(true)
 
-  const handleEdit = (u) => {
-    setEditingUsername(u.username);
-    setNewUserName(u.username);
-    setNewUserPass(u.password);
-    setNewDisplayName(u.displayName);
-    setNewUserRole(u.role);
-    setNewPermissions(u.permissions || []);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  useEffect(() => {
+    loadUsers()
+  }, [])
 
-  const togglePermission = (perm) => {
-    setNewPermissions(prev => 
-      prev.includes(perm) ? prev.filter(p => p !== perm) : [...prev, perm]
-    );
-  };
+  async function loadUsers() {
 
-  const handleSubmit = () => {
-    if (!newUserName || !newUserPass) return;
+    try {
 
-    if (editingUsername) {
-      // Editar (pode ser um usuário de INITIAL_USERS ou um já em users)
-      const userToUpdate = [...INITIAL_USERS, ...users].find(u => u.username === editingUsername);
-      const updatedInfo = {
-        ...userToUpdate,
-        username: newUserName,
-        password: newUserPass,
-        displayName: newDisplayName || newUserName,
-        role: newUserRole,
-        permissions: newPermissions
-      };
-      
-      const newUsersList = users.some(u => u.username === editingUsername)
-        ? users.map(u => u.username === editingUsername ? updatedInfo : u)
-        : [...users, updatedInfo];
-        
-      saveUsers(newUsersList);
-      resetForm();
-    } else {
-      // Adicionar
-      const isTaken = [...INITIAL_USERS, ...users].some(u => u.username.toLowerCase() === newUserName.toLowerCase());
-      if (isTaken) {
-        alert('Este nome de usuário já existe!');
-        return;
+      const token =
+        localStorage.getItem('token')
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      const data = await response.json()
+
+      const roleOrder = {
+        admin: 1,
+        operador: 2,
+        projetos: 3,
+        aprovacao: 4,
+        corretor: 5,
+        producao: 6
       }
 
-      const newUser = {
-        username: newUserName,
-        password: newUserPass,
-        displayName: newDisplayName || (newUserName.charAt(0).toUpperCase() + newUserName.slice(1)),
-        role: newUserRole,
-        permissions: newPermissions
-      };
+      const sortedUsers = [...data].sort((a, b) => {
 
-      saveUsers([...users, newUser]);
-      resetForm();
-    }
-  };
+        const roleA =
+          roleOrder[a.role] || 999
 
-  const handleDeleteUser = (username) => {
-    if (confirm(`Excluir usuário ${username}?`)) {
-      saveUsers(users.filter(u => u.username !== username));
+        const roleB =
+          roleOrder[b.role] || 999
+
+        // primeiro ordena cargo
+        if (roleA !== roleB) {
+          return roleA - roleB
+        }
+
+        // depois ordena nome
+        return (a.nome || '')
+          .localeCompare(b.nome || '')
+      })
+
+      setUsers(sortedUsers)
+
+    } catch (err) {
+
+      console.error(err)
+
+    } finally {
+
+      setLoading(false)
     }
-  };
+  }
+
+  function editarUsuario(user) {
+
+    setEditingUser(user)
+
+    setNome(user.nome || '')
+
+    setRole(user.role || 'producao')
+
+    setPermissoes(user.permissoes || [])
+
+    setActive(user.active)
+  }
+
+  function togglePermission(perm) {
+
+    setPermissoes(prev =>
+      prev.includes(perm)
+        ? prev.filter(p => p !== perm)
+        : [...prev, perm]
+    )
+  }
+
+  async function salvarUsuario() {
+
+    if (!editingUser) return
+
+    try {
+
+      const token =
+        localStorage.getItem('token')
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/${editingUser.id}`,
+        {
+          method: 'PUT',
+
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+
+          body: JSON.stringify({
+            nome,
+            role,
+            permissoes,
+            active
+          })
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Erro atualizar')
+      }
+
+      await loadUsers()
+
+      alert('Usuário atualizado')
+
+      setEditingUser(null)
+
+    } catch (err) {
+
+      console.error(err)
+
+      alert('Erro atualizar usuário')
+    }
+  }
 
   return (
     <div className="admin-panel animate-fadeIn">
@@ -118,7 +168,9 @@ export default function AdminPanel({ onBack }) {
           <section className="admin-card card-glow">
             <div className="admin-card-header">
               <div className="card-icon">👤</div>
-              <h3 className="text-md font-bold">{editingUsername ? 'Editar Perfil' : 'Novo Colaborador'}</h3>
+              <h3 className="text-md font-bold">
+                {editingUser ? 'Editar Usuário' : 'Selecione um usuário'}
+              </h3>
             </div>
             
             <div className="admin-form-body">
@@ -126,41 +178,17 @@ export default function AdminPanel({ onBack }) {
                 <label className="field-label">Nome de Exibição</label>
                 <input 
                   type="text" 
-                  value={newDisplayName} 
-                  onChange={e => setNewDisplayName(e.target.value)}
+                  value={nome}
+                  onChange={e => setNome(e.target.value)}
                   placeholder="Ex: João Silva"
                   className="admin-input"
                 />
               </div>
-
-              <div className="form-group-row">
-                <div className="form-row flex-1">
-                  <label className="field-label">Login</label>
-                  <input 
-                    type="text" 
-                    value={newUserName}
-                    onChange={e => setNewUserName(e.target.value)}
-                    placeholder="usuario.indus"
-                    className="admin-input"
-                  />
-                </div>
-                <div className="form-row flex-1">
-                  <label className="field-label">Senha</label>
-                  <input 
-                    type="text" 
-                    value={newUserPass} 
-                    onChange={e => setNewUserPass(e.target.value)}
-                    placeholder="••••"
-                    className="admin-input"
-                  />
-                </div>
-              </div>
-
               <div className="form-row">
                 <label className="field-label">Cargo / Função</label>
                 <select 
-                  value={newUserRole} 
-                  onChange={e => setNewUserRole(e.target.value)}
+                  value={role}
+                  onChange={e => setRole(e.target.value)}
                   className="admin-select"
                 >
                   {Object.entries(ROLES).map(([val, label]) => (
@@ -172,18 +200,18 @@ export default function AdminPanel({ onBack }) {
               <div className="permissions-box">
                 <label className="field-label mb-3 block">Módulos de Execução</label>
                 <div className="permissions-grid mb-4">
-                  <label className={`perm-item ${newPermissions.includes('taf') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('taf')} onChange={() => togglePermission('taf')} />
+                  <label className={`perm-item ${permissoes.includes('taf') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('taf')} onChange={() => togglePermission('taf')} />
                     <span className="perm-icon">⚡</span>
                     <span className="perm-text">TAF</span>
                   </label>
-                  <label className={`perm-item ${newPermissions.includes('controle') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('controle')} onChange={() => togglePermission('controle')} />
+                  <label className={`perm-item ${permissoes.includes('controle') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('controle')} onChange={() => togglePermission('controle')} />
                     <span className="perm-icon">📋</span>
                     <span className="perm-text">Controle</span>
                   </label>
-                  <label className={`perm-item ${newPermissions.includes('fotos') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('fotos')} onChange={() => togglePermission('fotos')} />
+                  <label className={`perm-item ${permissoes.includes('fotos') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('fotos')} onChange={() => togglePermission('fotos')} />
                     <span className="perm-icon">📸</span>
                     <span className="perm-text">Fotos</span>
                   </label>
@@ -191,28 +219,28 @@ export default function AdminPanel({ onBack }) {
 
                 <label className="field-label mb-3 block">Permissões de Visibilidade e Gestão</label>
                 <div className="permissions-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
-                  <label className={`perm-item ${newPermissions.includes('ver_tudo') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('ver_tudo')} onChange={() => togglePermission('ver_tudo')} />
+                  <label className={`perm-item ${permissoes.includes('ver_tudo') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('ver_tudo')} onChange={() => togglePermission('ver_tudo')} />
                     <span className="perm-icon">👁️</span>
                     <span className="perm-text">Ver todas as fichas</span>
                   </label>
-                  <label className={`perm-item ${newPermissions.includes('ver_enviadas') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('ver_enviadas')} onChange={() => togglePermission('ver_enviadas')} />
+                  <label className={`perm-item ${permissoes.includes('ver_enviadas') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('ver_enviadas')} onChange={() => togglePermission('ver_enviadas')} />
                     <span className="perm-icon">📩</span>
                     <span className="perm-text">Ver só enviadas</span>
                   </label>
-                  <label className={`perm-item ${newPermissions.includes('ver_aprovacao') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('ver_aprovacao')} onChange={() => togglePermission('ver_aprovacao')} />
+                  <label className={`perm-item ${permissoes.includes('ver_aprovacao') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('ver_aprovacao')} onChange={() => togglePermission('ver_aprovacao')} />
                     <span className="perm-icon">⏳</span>
                     <span className="perm-text">Ver de aprovação</span>
                   </label>
-                  <label className={`perm-item ${newPermissions.includes('aprovar') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('aprovar')} onChange={() => togglePermission('aprovar')} />
+                  <label className={`perm-item ${permissoes.includes('aprovar') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('aprovar')} onChange={() => togglePermission('aprovar')} />
                     <span className="perm-icon">✅</span>
                     <span className="perm-text">Aprovar Fichas</span>
                   </label>
-                  <label className={`perm-item ${newPermissions.includes('rejeitar') ? 'active' : ''}`}>
-                    <input type="checkbox" checked={newPermissions.includes('rejeitar')} onChange={() => togglePermission('rejeitar')} />
+                  <label className={`perm-item ${permissoes.includes('rejeitar') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('rejeitar')} onChange={() => togglePermission('rejeitar')} />
                     <span className="perm-icon">❌</span>
                     <span className="perm-text">Rejeitar Fichas</span>
                   </label>
@@ -220,11 +248,19 @@ export default function AdminPanel({ onBack }) {
               </div>
 
               <div className="form-actions mt-6">
-                <button className="btn-admin-submit" onClick={handleSubmit}>
-                  {editingUsername ? 'Salvar Alterações' : 'Criar Conta'}
+                <button
+                  className="btn-admin-submit"
+                  onClick={salvarUsuario}
+                >
+                  Salvar Alterações
                 </button>
-                {editingUsername && (
-                  <button className="btn-admin-cancel" onClick={resetForm}>Cancelar</button>
+                {editingUser && (
+                  <button
+                    className="btn-admin-cancel"
+                    onClick={() => setEditingUser(null)}
+                  >
+                    Cancelar
+                  </button>
                 )}
               </div>
             </div>
@@ -270,44 +306,71 @@ export default function AdminPanel({ onBack }) {
                 <thead>
                   <tr>
                     <th>Colaborador</th>
-                    <th>Acesso</th>
+                    <th>Usuário</th>
+                    <th>Cargo</th>
+                    <th>Status</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...INITIAL_USERS.filter(iu => !users.some(u => u.username === iu.username)), ...users].map(u => {
-                    const isInitial = INITIAL_USERS.some(iu => iu.username === u.username);
-                    const isProtected = u.username === 'zuerlan';
+                  {users.map(user => (
+                    <tr key={user.id}>
 
-                    return (
-                      <tr key={u.username}>
-                        <td>
-                          <div className="user-info-cell">
-                            <div className="user-avatar">
-                              {u.displayName.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="user-name-cell">{u.displayName}</div>
-                              <div className="user-login-cell">@{u.username} {isInitial && <span className="sys-label">SISTEMA</span>}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <span className={`role-badge ${u.role}`}>
-                            {ROLES[u.role] ? ROLES[u.role].split(' ')[0] : u.role}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="flex gap-2">
-                             <button className="action-btn-edit" onClick={() => handleEdit(u)} title="Editar">✏️</button>
-                             {!isProtected && (
-                                <button className="action-btn-delete" onClick={() => handleDeleteUser(u.username)} title="Excluir">🗑</button>
-                             )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                      {/* COLABORADOR */}
+                      <td>
+                        {
+                          user.nome
+                          ||
+                          user.username
+                            ?.split('.')
+                            .map(
+                              parte =>
+                                parte.charAt(0).toUpperCase() +
+                                parte.slice(1).toLowerCase()
+                            )
+                            .join(' ')
+                        }
+                      </td>
+
+                      {/* USUÁRIO */}
+                      <td className="user-column">
+                        {user.username}
+                      </td>
+
+                      {/* CARGO */}
+                      <td>
+                        <span className={`role-badge role-${user.role}`}>
+                          {user.role}
+                        </span>
+                      </td>
+
+                      {/* STATUS */}
+                      <td>
+                        <span
+                          className={`status-badge ${
+                            user.active
+                              ? 'status-active'
+                              : 'status-disabled'
+                          }`}
+                        >
+                          {user.active ? 'ATIVO' : 'DESATIVADO'}
+                        </span>
+                      </td>
+
+                      {/* AÇÕES */}
+                      <td>
+                        {user.username !== 'master' && (
+                          <button
+                            className="btn-edit-user"
+                            onClick={() => editarUsuario(user)}
+                          >
+                            Editar
+                          </button>
+                        )}
+                      </td>
+
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
