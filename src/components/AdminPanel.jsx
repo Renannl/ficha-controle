@@ -134,6 +134,11 @@ export default function AdminPanel({ onBack }) {
 
       setEditingUser(null)
 
+      setNome('')
+      setRole('producao')
+      setPermissoes([])
+      setActive(true)
+
     } catch (err) {
 
       console.error(err)

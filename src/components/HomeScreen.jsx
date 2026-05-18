@@ -175,7 +175,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
             {(user?.displayName || '?')[0].toUpperCase()}
           </div>
           <div>
-            <div className="user-name">{user?.displayName || 'Usuário'}</div>
+            <div className="user-name">{user?.nome || 'Usuário'}</div>
             <div className="user-role">{user?.role ? ROLES[user.role] : ''}</div>
           </div>
         </div>

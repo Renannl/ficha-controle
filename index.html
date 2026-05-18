@@ -17,29 +17,23 @@
   <meta name="mobile-web-app-capable" content="yes" />
 
   <!-- ─── Segurança: CSP ─── -->
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' data: blob: https:;
-    connect-src
-      'self'
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      connect-src 'self'
       https://rljrobqmttdvhcwqhihp.supabase.co
       wss://rljrobqmttdvhcwqhihp.supabase.co
       ws://localhost:*
       ws://127.0.0.1:*
       wss://localhost:*
+      http://192.168.101.110:3001
       http://192.168.101.112:3001
       ws://192.168.101.112:5173
       http://192.168.101.112:5173
       http://localhost:*
       http://127.0.0.1:*;
-    frame-src 'none';
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-  "/>
+    "
+  />
 
   <!-- ─── Segurança: Políticas adicionais ─── -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
