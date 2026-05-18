@@ -172,7 +172,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
       <div className="user-bar">
         <div className="user-info">
           <div className="user-avatar">
-            {(user?.displayName || '?')[0].toUpperCase()}
+            {(user?.nome || '?')[0].toUpperCase()}
           </div>
           <div>
             <div className="user-name">{user?.nome || 'Usuário'}</div>

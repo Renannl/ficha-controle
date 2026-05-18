@@ -278,7 +278,13 @@ export default function AdminPanel({ onBack }) {
                 {editingUser && (
                   <button
                     className="btn-admin-cancel"
-                    onClick={() => setEditingUser(null)}
+                    onClick={() => {
+                    setEditingUser(null)
+                    setNome('')
+                    setRole('producao')
+                    setPermissoes([])
+                    setActive(true)
+                  }}
                   >
                     Cancelar
                   </button>
