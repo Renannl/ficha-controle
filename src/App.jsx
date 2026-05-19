@@ -107,22 +107,52 @@ export default function App() {
   }
 
   function handleApprove(id, estado) {
+
     if (estado === 'reprovado') {
+
       setRejectInfo({ id })
-    } else {
-      atualizarFicha(id, { statusAprovacao: estado })
+
+      return
     }
+
+    atualizarFicha(id, {
+      statusAprovacao: 'aprovado',
+
+      aprovadoPor:
+        user?.nome ||
+        user?.username,
+
+      aprovadoEm:
+        new Date().toISOString(),
+
+      // limpa reprovação anterior
+      reprovadoPor: '',
+      reprovadoEm: '',
+      motivoReprovacao: ''
+    })
   }
 
   function confirmReject(reason) {
+
     if (!rejectInfo) return
 
     atualizarFicha(rejectInfo.id, {
       statusAprovacao: 'reprovado',
       status: 'andamento',
+
       motivoReprovacao: reason,
 
-      // limpa alterações anteriores
+      reprovadoPor:
+        user?.nome ||
+        user?.username,
+
+      reprovadoEm:
+        new Date().toISOString(),
+
+      // limpa aprovação anterior
+      aprovadoPor: '',
+      aprovadoEm: '',
+
       alteracoesFeitas: ''
     })
 
@@ -199,7 +229,7 @@ export default function App() {
     if (!podeEditarFicha(ficha)) {
       return
     }
-    
+
     atualizarFicha(currentFichaId, prev => {
       const items = [...prev.items]
       items[itemIndex] = { ...items[itemIndex], [key]: value }

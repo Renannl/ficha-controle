@@ -20,11 +20,17 @@ export default function NotesSection({ ficha, observacoes, onChange, onChangeAlt
         {/* Motivo da Reprovação (se houver) */}
         {ficha?.statusAprovacao === 'reprovado' && ficha?.motivoReprovacao && (
           <div className="rejection-note" style={{ background: 'var(--red-glow)', borderLeft: '4px solid var(--red)', padding: '16px', borderRadius: '4px', marginBottom: '16px' }}>
-            <h4 style={{ color: 'var(--red)', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>⚠️ Motivo da Reprovação</h4>
+            <h4 style={{ color: 'var(--red)', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>⚠️ Motivo da Reprovação — {ficha.reprovadoPor || '-'}</h4>
             <p style={{ color: 'var(--red)', fontSize: '13px', whiteSpace: 'pre-wrap' }}>{ficha.motivoReprovacao}</p>
           </div>
         )}
 
+        {ficha?.statusAprovacao === 'aprovado' && (
+          <div className="approval-note" style={{ background: 'var(--green-glow)', borderLeft: '4px solid var(--green)', padding: '16px', borderRadius: '4px', marginBottom: '16px' }}>
+            <h4 style={{ color: 'var(--green)', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>✅ Ficha Aprovada — {ficha.aprovadoPor || '-'}</h4>
+          </div>
+        )}
+        
         {/* Container de observações */}
         <div style={{ display: 'flex', gap: '20px', flexDirection: (ficha?.status === 'finalizada' || ficha?.statusAprovacao === 'reprovado') ? 'row' : 'column' }}>
           

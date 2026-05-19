@@ -189,7 +189,7 @@ export function useFichas(currentUser) {
       ...createEmptyFicha(operacaoCodigo),
       codigo: codigoGerado,
       criadoPor:
-        currentUser?.displayName ||
+        currentUser?.nome ||
         currentUser?.username ||
         'Sistema',
 

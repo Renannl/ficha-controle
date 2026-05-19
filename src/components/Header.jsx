@@ -21,6 +21,7 @@ export default function Header({ ficha, user, progress, onBack, onApprove }) {
           <div className="header-sub">
             {ficha.codigo} · {opLabel}
           </div>
+          <span className="header-sub">Criada por: {ficha.criadoPor || '-'} </span>
         </div>
       </div>
       
@@ -30,8 +31,7 @@ export default function Header({ ficha, user, progress, onBack, onApprove }) {
           <div className="approval-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '16px' }}>
             {/* Status atual visível */}
             {ficha.statusAprovacao === 'aprovado' && <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--green)', marginRight: '8px' }}>APROVADO ✓</span>}
-            {ficha.statusAprovacao === 'reprovado' && <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--red)', marginRight: '8px' }}>REPROVADO ✗</span>}
-            
+            {ficha.statusAprovacao === 'reprovado' && <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--red)', marginRight: '8px' }}>REPROVADO ✗</span>}       
             {/* Botões de Ação para Privilegiados */}
             {user?.permissoes?.includes('aprovar') && ficha.statusAprovacao !== 'aprovado' && (
               <button onClick={() => onApprove('aprovado')} className="btn" style={{ background: 'var(--green)', color: '#fff', border: 'none', padding: '6px 14px', fontSize: '12px', borderRadius: '4px', fontWeight: 'bold' }}>
