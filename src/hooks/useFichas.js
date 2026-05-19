@@ -189,7 +189,7 @@ export function useFichas(currentUser) {
       ...createEmptyFicha(operacaoCodigo),
       codigo: codigoGerado,
       criadoPor:
-        currentUser?.nome ||
+        currentUser?.displayName ||
         currentUser?.username ||
         'Sistema',
 
@@ -315,42 +315,37 @@ const visibleFichas = useMemo(() => {
     currentUser.role === 'admin' ||
     permissoes.includes('ver_tudo')
 
+  const verAprovacao =
+    permissoes.includes('ver_aprovacao')
+
+  const verEnviadas =
+    permissoes.includes('ver_enviadas')
+
+  // ADMIN
   if (podeVerTudo) {
     return fichas
   }
 
-  const verAprovacao = permissoes.includes('ver_aprovacao')
-  const verEnviadas = permissoes.includes('ver_enviadas')
+  // VER ENVIADAS (APROVADAS OU REJEITADAS)
+  if (verEnviadas) {
+    return fichas.filter(f =>
+      f.statusAprovacao === 'aprovado' ||
+      f.statusAprovacao === 'reprovado'
+    )
+  }
 
-  const resultado = []
+  // VER EM APROVAÇÃO (PENDENTES)
+  if (verAprovacao) {
+    return fichas.filter(f =>
+      f.statusAprovacao === 'aguardando'
+    )
+  }
 
-  // sempre começa com minhas fichas
-  resultado.push(
-    ...fichas.filter(f => f.userId === currentUser.username)
+  // PADRÃO: só próprias fichas
+  return fichas.filter(
+    f => f.userId === currentUser.username
   )
 
-  // pendentes de aprovação
-  if (verAprovacao) {
-    resultado.push(
-      ...fichas.filter(f => f.statusAprovacao === 'aguardando')
-    )
-  }
-
-  // enviadas (aprovadas/rejeitadas)
-  if (verEnviadas) {
-    resultado.push(
-      ...fichas.filter(f =>
-        f.statusAprovacao === 'aprovado' ||
-        f.statusAprovacao === 'reprovado'
-      )
-    )
-  }
-
-  // remove duplicados
-  const unique = new Map()
-  resultado.forEach(f => unique.set(f.id, f))
-
-  return Array.from(unique.values())
 }, [fichas, currentUser])
 
 const getFicha = useCallback((id) => {
