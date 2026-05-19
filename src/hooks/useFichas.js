@@ -291,7 +291,8 @@ export function useFichas(currentUser) {
   const { error } = await supabase
     .from('fichas')
     .update({
-      deleted_at: new Date().toISOString()
+      deleted_at: new Date().toISOString(),
+      deleted_by: currentUser?.username
     })
     .eq('id', ficha.dbId)
 
