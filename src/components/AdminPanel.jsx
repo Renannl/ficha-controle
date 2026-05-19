@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ROLES } from '../data/users'
+import { ROLES, ROLE_PRESETS } from '../data/users'
 
 export default function AdminPanel({ onBack }) {
 
@@ -37,11 +37,9 @@ export default function AdminPanel({ onBack }) {
 
       const roleOrder = {
         admin: 1,
-        operador: 2,
+        corretor: 2,
         projetos: 3,
-        aprovacao: 4,
-        corretor: 5,
-        producao: 6
+        producao: 4
       }
 
       const sortedUsers = [...data].sort((a, b) => {
@@ -94,6 +92,16 @@ export default function AdminPanel({ onBack }) {
         ? prev.filter(p => p !== perm)
         : [...prev, perm]
     )
+  }
+
+  function handleRoleChange(newRole) {
+
+  setRole(newRole)
+
+  const preset =
+    ROLE_PRESETS[newRole] || []
+
+  setPermissoes(preset)
   }
 
   async function salvarUsuario() {
@@ -193,7 +201,7 @@ export default function AdminPanel({ onBack }) {
                 <label className="field-label">Cargo / Função</label>
                 <select 
                   value={role}
-                  onChange={e => setRole(e.target.value)}
+                  onChange={e => handleRoleChange(e.target.value)}
                   className="admin-select"
                 >
                   {Object.entries(ROLES).map(([val, label]) => (
@@ -248,12 +256,17 @@ export default function AdminPanel({ onBack }) {
                   <label className={`perm-item ${permissoes.includes('ver_enviadas') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('ver_enviadas')} onChange={() => togglePermission('ver_enviadas')} />
                     <span className="perm-icon">📩</span>
-                    <span className="perm-text">Ver só enviadas</span>
+                    <span className="perm-text">Ver concluídas</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('ver_aprovacao') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('ver_aprovacao')} onChange={() => togglePermission('ver_aprovacao')} />
                     <span className="perm-icon">⏳</span>
-                    <span className="perm-text">Ver de aprovação</span>
+                    <span className="perm-text">Ver aprovação</span>
+                  </label>
+                  <label className={`perm-item ${permissoes.includes('editar_ficha') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('editar_ficha')} onChange={() => togglePermission('editar_ficha')} />
+                    <span className="perm-icon">✏️</span>
+                    <span className="perm-text">Editar ficha</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('aprovar') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('aprovar')} onChange={() => togglePermission('aprovar')} />
@@ -391,7 +404,7 @@ export default function AdminPanel({ onBack }) {
                             className="btn-edit-user"
                             onClick={() => editarUsuario(user)}
                           >
-                            Editar
+                            ⚙️
                           </button>
                         )}
                       </td>

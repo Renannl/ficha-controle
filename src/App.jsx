@@ -116,11 +116,16 @@ export default function App() {
 
   function confirmReject(reason) {
     if (!rejectInfo) return
+
     atualizarFicha(rejectInfo.id, {
       statusAprovacao: 'reprovado',
-      status: 'andamento', 
-      motivoReprovacao: reason
+      status: 'andamento',
+      motivoReprovacao: reason,
+
+      // limpa alterações anteriores
+      alteracoesFeitas: ''
     })
+
     setRejectInfo(null)
   }
 

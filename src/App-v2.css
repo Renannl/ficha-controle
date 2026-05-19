@@ -4620,14 +4620,14 @@
 }
 
 /* ENGENHARIA */
-.role-engenharia {
+.role-corretor {
   background: rgba(37, 99, 235, 0.12);
   color: #2563EB;
   border-color: rgba(37, 99, 235, 0.25);
 }
 
-/* QUALIDADE */
-.role-qualidade {
+/* PROJETOS */
+.role-projetos {
   background: rgba(147, 51, 234, 0.12);
   color: #9333EA;
   border-color: rgba(147, 51, 234, 0.25);
@@ -4681,19 +4681,14 @@
 
 .btn-edit-user {
   border: none;
-  background: linear-gradient(
-    135deg,
-    #1A4B50,
-    #2D7C84
-  );
-  color: white;
+  background: transparent;
+  color: rgb(255, 255, 255);
   padding: 8px 14px;
   border-radius: var(--radius-sm);
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition);
-  box-shadow: 0 4px 12px rgba(26, 75, 80, 0.2);
 }
 
 .user-column {
@@ -4705,7 +4700,6 @@
 
 .btn-edit-user:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(26, 75, 80, 0.3);
 }
 
 .btn-edit-user:active {

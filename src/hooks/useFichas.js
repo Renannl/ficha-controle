@@ -307,11 +307,9 @@ export function useFichas(currentUser) {
   // PERMISSÕES
   // ─────────────────────────────────────────────
 const visibleFichas = useMemo(() => {
-
   if (!currentUser) return []
 
-  const permissoes =
-    currentUser.permissoes || []
+  const permissoes = currentUser.permissoes || []
 
   const podeVerTudo =
     currentUser.role === 'admin' ||
@@ -321,10 +319,38 @@ const visibleFichas = useMemo(() => {
     return fichas
   }
 
-  return fichas.filter(
-    f => f.userId === currentUser.username
+  const verAprovacao = permissoes.includes('ver_aprovacao')
+  const verEnviadas = permissoes.includes('ver_enviadas')
+
+  const resultado = []
+
+  // sempre começa com minhas fichas
+  resultado.push(
+    ...fichas.filter(f => f.userId === currentUser.username)
   )
 
+  // pendentes de aprovação
+  if (verAprovacao) {
+    resultado.push(
+      ...fichas.filter(f => f.statusAprovacao === 'aguardando')
+    )
+  }
+
+  // enviadas (aprovadas/rejeitadas)
+  if (verEnviadas) {
+    resultado.push(
+      ...fichas.filter(f =>
+        f.statusAprovacao === 'aprovado' ||
+        f.statusAprovacao === 'reprovado'
+      )
+    )
+  }
+
+  // remove duplicados
+  const unique = new Map()
+  resultado.forEach(f => unique.set(f.id, f))
+
+  return Array.from(unique.values())
 }, [fichas, currentUser])
 
 const getFicha = useCallback((id) => {

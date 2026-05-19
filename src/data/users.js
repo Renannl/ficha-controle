@@ -18,9 +18,33 @@ export const INITIAL_USERS = [
 export const ROLES = {
   admin: 'Administrador (SuperAdmin)',
   producao: 'Produção (Campo)',
-  operador: 'Operador',
   projetos: 'Projetos (Aprovação)',
-  aprovacao: 'Aprovação',
   corretor: 'Corretor (Revisão Final)'
 };
+
+export const ROLE_PRESETS = {
+  producao: [],
+
+  projetos: [
+    'aprovar',
+    'rejeitar',
+    'ver_aprovacao'
+  ],
+
+  corretor: [
+    'ver_enviadas',
+    'rejeitar'
+  ],
+
+  admin: [
+    'taf',
+    'controle',
+    'fotos',
+    'aprovar',
+    'rejeitar',
+    'ver_aprovacao',
+    'ver_enviadas',
+    'ver_tudo'
+  ]
+}
  
