@@ -33,7 +33,8 @@ export const ROLE_PRESETS = {
 
   corretor: [
     'ver_enviadas',
-    'rejeitar'
+    'rejeitar',
+    'editar_ficha'
   ],
 
   admin: [

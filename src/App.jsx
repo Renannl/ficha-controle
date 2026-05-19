@@ -146,9 +146,32 @@ export default function App() {
       setCurrentFichaId(null)
     }
   }
+  const podeEditarFicha = (ficha) => {
+
+    // admin sempre pode
+    if (user?.role === 'admin') {
+      return true
+    }
+
+    // dono da ficha pode editar
+    if (ficha?.userId === user?.username) {
+      return true
+    }
+
+    // permissão especial
+    return user?.permissoes?.includes('editar_ficha')
+  }
 
   function updateField(field, value) {
-    atualizarFicha(currentFichaId, prev => ({ ...prev, [field]: value }))
+
+    if (!podeEditarFicha(ficha)) {
+      return
+    }
+
+    atualizarFicha(currentFichaId, prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   function handleOperacaoChange(novoCodigo) {
@@ -172,6 +195,11 @@ export default function App() {
   }
 
   function updateItem(itemIndex, key, value) {
+
+    if (!podeEditarFicha(ficha)) {
+      return
+    }
+    
     atualizarFicha(currentFichaId, prev => {
       const items = [...prev.items]
       items[itemIndex] = { ...items[itemIndex], [key]: value }
@@ -180,6 +208,11 @@ export default function App() {
   }
 
   function updateItemSessionMark(itemIndex, sessionIndex, value) {
+
+    if (!podeEditarFicha(ficha)) {
+      return
+    }
+
     atualizarFicha(currentFichaId, prev => {
       const items = [...prev.items]
       const marks = [...items[itemIndex].sessionMarks]
@@ -190,6 +223,10 @@ export default function App() {
   }
 
   function updateSession(sessionIndex, field, value) {
+    if (!podeEditarFicha(ficha)) {
+      return
+    }
+
     atualizarFicha(currentFichaId, prev => {
       const sessions = [...prev.sessions]
       sessions[sessionIndex] = { ...sessions[sessionIndex], [field]: value }
@@ -198,6 +235,11 @@ export default function App() {
   }
 
   function updateSignature(role, dataUrl) {
+
+    if (!podeEditarFicha(ficha)) {
+      return
+    }
+
     atualizarFicha(currentFichaId, prev => ({
       ...prev,
       assinaturas: {
@@ -212,6 +254,10 @@ export default function App() {
   }
 
   function updateSignatureName(role, nome) {
+    if (!podeEditarFicha(ficha)) {
+      return
+    }
+
     atualizarFicha(currentFichaId, prev => ({
       ...prev,
       assinaturas: {
