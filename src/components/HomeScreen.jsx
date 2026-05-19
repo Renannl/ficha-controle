@@ -395,8 +395,19 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                           <div className="ficha-card-title">
                             {ficha.nomeEquipamento || 'Sem nome'}
                           </div>
+
                           <div className="ficha-card-sub">
                             {OPERACOES[ficha.operacao]?.nome || '—'} · {ficha.cliente || '—'}
+                          </div>
+
+                          <div className="ficha-card-meta">
+                            <span className="ficha-meta-user">
+                              👤 {ficha.criadoPor || ficha.userId || '-'}
+                            </span>
+
+                            <span className="ficha-meta-code">
+                              🏷️ {ficha.codigo || '-'}
+                            </span>
                           </div>
                         </div>
                         <button

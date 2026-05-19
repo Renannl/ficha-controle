@@ -560,6 +560,34 @@
   background: var(--red-bg);
 }
 
+.ficha-card-meta {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.ficha-meta-user,
+.ficha-meta-code {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.ficha-meta-user {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.ficha-meta-code {
+  background: var(--blue-glow);
+  border: 1px solid var(--blue-accent);
+  color: var(--blue-primary);
+}
+
 .home-empty {
   flex: 1;
   display: flex;
