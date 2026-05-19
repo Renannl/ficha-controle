@@ -45,7 +45,8 @@ export const ROLE_PRESETS = {
     'rejeitar',
     'ver_aprovacao',
     'ver_enviadas',
-    'ver_tudo'
+    'ver_tudo',
+    'editar_ficha'
   ]
 }
  
