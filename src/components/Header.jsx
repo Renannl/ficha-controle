@@ -33,12 +33,12 @@ export default function Header({ ficha, user, progress, onBack, onApprove }) {
             {ficha.statusAprovacao === 'reprovado' && <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--red)', marginRight: '8px' }}>REPROVADO ✗</span>}
             
             {/* Botões de Ação para Privilegiados */}
-            {user?.permissions?.includes('aprovar') && ficha.statusAprovacao !== 'aprovado' && (
+            {user?.permissoes?.includes('aprovar') && ficha.statusAprovacao !== 'aprovado' && (
               <button onClick={() => onApprove('aprovado')} className="btn" style={{ background: 'var(--green)', color: '#fff', border: 'none', padding: '6px 14px', fontSize: '12px', borderRadius: '4px', fontWeight: 'bold' }}>
                 Aprovar
               </button>
             )}
-            {user?.permissions?.includes('rejeitar') && ficha.statusAprovacao !== 'reprovado' && (
+            {user?.permissoes?.includes('rejeitar') && ficha.statusAprovacao !== 'reprovado' && (
               <button onClick={() => onApprove('reprovado')} className="btn" style={{ background: 'var(--red)', color: '#fff', border: 'none', padding: '6px 14px', fontSize: '12px', borderRadius: '4px', fontWeight: 'bold' }}>
                 Rejeitar
               </button>

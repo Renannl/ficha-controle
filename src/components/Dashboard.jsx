@@ -339,10 +339,10 @@ export default function Dashboard({ fichas, user, onApprove }) {
                          f.statusAprovacao === 'reprovado' ? 'REPROVADO' : 
                          f.statusAprovacao === 'aguardando' ? 'AGUARDANDO APROVAÇÃO' : '—'}
                       </span>
-                      {f.statusAprovacao === 'aguardando' && user?.permissions?.includes('aprovar') && (
+                      {f.statusAprovacao === 'aguardando' && user?.permissoes?.includes('aprovar') && (
                         <button onClick={() => onApprove(f.id, 'aprovado')} style={{ fontSize: '14px', background: 'transparent', border: 'none', cursor: 'pointer' }} title="Aprovar">✅</button>
                       )}
-                      {f.statusAprovacao === 'aguardando' && user?.permissions?.includes('rejeitar') && (
+                      {f.statusAprovacao === 'aguardando' && user?.permissoes?.includes('rejeitar') && (
                         <button onClick={() => onApprove(f.id, 'reprovado')} style={{ fontSize: '14px', background: 'transparent', border: 'none', cursor: 'pointer' }} title="Rejeitar">❌</button>
                       )}
                     </div>

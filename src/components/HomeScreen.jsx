@@ -57,8 +57,17 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
     localStorage.setItem('homeViewMode', viewMode)
   }, [viewMode])
 
-  const hasPerm = (roles = []) => {
-    return roles.includes(user?.role)
+  const hasPerm = (perms = []) => {
+
+    // ADMIN vê tudo
+    if (user?.role === 'admin') {
+      return true
+    }
+
+    // Verifica permissões do usuário
+    return perms.some(p =>
+      user?.permissoes?.includes(p)
+    )
   }
 
   const availableOps =
@@ -66,28 +75,16 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
 
       // TAF
       if (op.codigo === '50') {
-
-        return hasPerm([
-          'admin',
-          'qualidade'
-        ])
+        return hasPerm(['taf'])
       }
 
       // FOTO
       if (op.codigo === '80') {
-
-        return hasPerm([
-          'admin',
-          'engenharia'
-        ])
+        return hasPerm(['fotos'])
       }
 
-      // CONTROLE NORMAL
-      return hasPerm([
-        'admin',
-        'producao',
-        'qualidade'
-      ])
+      // CONTROLE
+      return hasPerm(['controle'])
     })
 
   const total = fichas.length
@@ -101,26 +98,55 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
   }).length
 
   const filteredFichas = fichas.filter(f => {
-    // Filtro de Status
-    const statusMatch = filterStatus === 'all' ? true : getStatus(f) === filterStatus
 
-    // Filtro de Tipo (TAF ou Controle ou Foto)
+    const statusMatch =
+      filterStatus === 'all'
+        ? true
+        : getStatus(f) === filterStatus
+
     const isTaf = f.operacao === '50'
     const isFoto = f.operacao === '80'
-    let typeMatch = true;
-    if (filterType === 'taf') typeMatch = isTaf;
-    else if (filterType === 'controle') typeMatch = !isTaf && !isFoto;
-    else if (filterType === 'foto') typeMatch = isFoto;
 
-    // Filtro de Pesquisa
+    let typeMatch = true
+
+    if (filterType === 'taf') {
+      typeMatch = isTaf
+    }
+
+    else if (filterType === 'controle') {
+      typeMatch = !isTaf && !isFoto
+    }
+
+    else if (filterType === 'foto') {
+      typeMatch = isFoto
+    }
+
     const term = searchTerm.toLowerCase()
-    const searchMatch = !searchTerm ||
-      (f.nomeEquipamento || '').toLowerCase().includes(term) ||
-      (f.id || '').toLowerCase().includes(term) ||
-      (f.codigo || '').toLowerCase().includes(term) ||
-      (f.cliente || '').toLowerCase().includes(term);
 
-    return statusMatch && typeMatch && searchMatch
+    const searchMatch =
+      !searchTerm ||
+
+      (f.nomeEquipamento || '')
+        .toLowerCase()
+        .includes(term) ||
+
+      (f.id || '')
+        .toLowerCase()
+        .includes(term) ||
+
+      (f.codigo || '')
+        .toLowerCase()
+        .includes(term) ||
+
+      (f.cliente || '')
+        .toLowerCase()
+        .includes(term)
+
+    return (
+      statusMatch &&
+      typeMatch &&
+      searchMatch
+    )
   })
 
   function getStatus(ficha) {

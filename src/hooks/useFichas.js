@@ -22,6 +22,10 @@ export function useFichas(currentUser) {
       } else {
         const fichasConvertidas = data.map(f => ({
           ...f.dados,
+
+          userId: f.user_id,
+          criadoPor: f.criado_por,
+
           dbId: f.id,
           created_at: f.created_at,
           updated_at: f.updated_at,
@@ -93,6 +97,10 @@ export function useFichas(currentUser) {
         payload => {
           const novaFicha = {
             ...payload.new.dados,
+
+            userId: payload.new.user_id,
+            criadoPor: payload.new.criado_por,
+
             dbId: payload.new.id,
             created_at: payload.new.created_at,
             updated_at: payload.new.updated_at,
@@ -132,6 +140,8 @@ export function useFichas(currentUser) {
           // UPDATE NORMAL
           const fichaAtualizada = {
             ...payload.new.dados,
+            userId: payload.new.user_id,
+            criadoPor: payload.new.criado_por,
             dbId: payload.new.id,
             created_at: payload.new.created_at,
             updated_at: payload.new.updated_at,
@@ -247,7 +257,11 @@ export function useFichas(currentUser) {
         status: fichaAtualizada.status,
         criado_por: fichaAtualizada.criadoPor,
         user_id: fichaAtualizada.userId,
-        dados: fichaAtualizada,
+        dados: {
+              ...fichaAtualizada,
+              userId: fichaAtualizada.userId,
+              criadoPor: fichaAtualizada.criadoPor,
+            },
       })
       .eq('id', fichaAtual.dbId)
 
@@ -256,7 +270,7 @@ export function useFichas(currentUser) {
     }
 
     delete saveTimeouts.current[id]
-  }, 10000)
+  }, 8000)
 
   }, [fichas])
 
@@ -291,38 +305,39 @@ export function useFichas(currentUser) {
   // ─────────────────────────────────────────────
   // PERMISSÕES
   // ─────────────────────────────────────────────
-  const visibleFichas = useMemo(() => {
-    if (!currentUser) return []
+const visibleFichas = useMemo(() => {
 
-    const cargosGlobais = [
-      'admin',
-      'projetos',
-      'aprovacao',
-      'corretor'
-    ]
+  if (!currentUser) return []
 
-    if (cargosGlobais.includes(currentUser.role)) {
-      return fichas
-    }
+  const permissoes =
+    currentUser.permissoes || []
 
-    return fichas.filter(
-      f => f.userId === currentUser.username
-    )
-  }, [fichas, currentUser])
+  const podeVerTudo =
+    currentUser.role === 'admin' ||
+    permissoes.includes('ver_tudo')
 
-  // ─────────────────────────────────────────────
-  // GET FICHA
-  // ─────────────────────────────────────────────
-  const getFicha = useCallback((id) => {
-    return visibleFichas.find(f => f.id === id) || null
-  }, [visibleFichas])
-
-  return {
-    fichas: visibleFichas,
-    isLoading: !isLoaded,
-    criarFicha,
-    atualizarFicha,
-    excluirFicha,
-    getFicha
+  if (podeVerTudo) {
+    return fichas
   }
+
+  return fichas.filter(
+    f => f.userId === currentUser.username
+  )
+
+}, [fichas, currentUser])
+
+const getFicha = useCallback((id) => {
+  return visibleFichas.find(
+    f => f.id === id
+  ) || null
+}, [visibleFichas])
+
+return {
+  fichas: visibleFichas,
+  isLoading: !isLoaded,
+  criarFicha,
+  atualizarFicha,
+  excluirFicha,
+  getFicha
+}
 }
