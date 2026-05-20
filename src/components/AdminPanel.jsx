@@ -305,32 +305,6 @@ export default function AdminPanel({ onBack }) {
               </div>
             </div>
           </section>
-
-          {/* NOVO BOX: SINCRONIZAÇÃO DE DOMÍNIO (Movido para cá) */}
-          <section className="admin-card domain-sync-card card-glow-amber mt-6">
-            <div className="admin-card-header" style={{ borderBottomColor: 'rgba(255, 193, 7, 0.2)' }}>
-              <div className="card-icon">🌐</div>
-              <div>
-                <h3 className="text-md font-bold">Sincronização de Domínio</h3>
-                <span className="badge-setup">EM BREVE</span>
-              </div>
-            </div>
-            <div className="admin-form-body">
-              <p className="text-xs text-muted mb-4">
-                Prepare a integração com o Active Directory/SharePoint. Os usuários serão buscados automaticamente no domínio da empresa.
-              </p>
-              <div className="sync-placeholder">
-                <div className="sync-icon-group">
-                  <span className="sync-icon">🏢</span>
-                  <span className="sync-arrow">↔</span>
-                  <span className="sync-icon">☁️</span>
-                </div>
-                <button className="btn-sync-disabled" disabled>
-                  Configurar Integração
-                </button>
-              </div>
-            </div>
-          </section>
         </div>
 
         {/* LADO DIREITO: LISTA */}
