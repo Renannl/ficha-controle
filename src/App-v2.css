@@ -3036,13 +3036,6 @@
   .perm-item .perm-icon { font-size: 16px; } /* Retornado ao original */
   .perm-item .perm-text { font-size: 9px; }
   
-  .admin-table-wrap { 
-    margin: 0 -4px; /* Pequena compensação para ganhar espaço lateral */
-    padding: 0;
-    overflow-x: auto;
-    width: calc(100% + 8px);
-  }
-  
   .admin-table { min-width: 400px; }
   .admin-table th, .admin-table td { padding: 8px; font-size: 12px; }
   
@@ -4580,11 +4573,32 @@
 ────────────────────────────────────────────── */
 
 .admin-table-wrap {
+  max-height: 60vh;
+  overflow-y: auto;
   overflow-x: auto;
+
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.75);
   backdrop-filter: blur(10px);
+}
+
+/* cabeçalho fixo */
+.admin-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+
+  background: var(--bg-elevated);
+
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .admin-table {
@@ -4594,17 +4608,6 @@
 
 .admin-table thead {
   background: var(--bg-elevated);
-}
-
-.admin-table th {
-  padding: 14px 16px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border);
 }
 
 .admin-table td {
@@ -4621,6 +4624,21 @@
 
 .admin-table tbody tr:hover {
   background: rgba(26, 75, 80, 0.04);
+}
+
+/* scrollbar */
+.admin-table-wrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(120,120,120,0.5);
+  border-radius: 999px;
+}
+
+.admin-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(120,120,120,0.8);
 }
 
 /* ──────────────────────────────────────────────
