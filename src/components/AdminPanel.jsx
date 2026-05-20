@@ -42,23 +42,25 @@ export default function AdminPanel({ onBack }) {
         producao: 4
       }
 
-      const sortedUsers = [...data].sort((a, b) => {
+    const sortedUsers = [...data].sort((a, b) => {
 
-        const roleA =
-          roleOrder[a.role] || 999
+      if (a.username === 'master') return -1
+      if (b.username === 'master') return 1
 
-        const roleB =
-          roleOrder[b.role] || 999
+      const roleA = roleOrder[a.role] || 999
+      const roleB = roleOrder[b.role] || 999
 
-        // primeiro ordena cargo
-        if (roleA !== roleB) {
-          return roleA - roleB
-        }
+      // ordena por cargo
+      if (roleA !== roleB) {
+        return roleA - roleB
+      }
 
-        // depois ordena nome
-        return (a.nome || '')
-          .localeCompare(b.nome || '')
-      })
+      // ordena alfabeticamente
+      const nomeA = (a.nome || a.username || '').toLowerCase()
+      const nomeB = (b.nome || b.username || '').toLowerCase()
+
+      return nomeA.localeCompare(nomeB, 'pt-BR')
+    })
 
       setUsers(sortedUsers)
 
