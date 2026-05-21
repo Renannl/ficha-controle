@@ -23,9 +23,16 @@ export const ROLES = {
 };
 
 export const ROLE_PRESETS = {
-  producao: [],
+  producao: [
+    'taf', 
+    'controle', 
+    'fotos'
+  ],
 
   projetos: [
+    'taf', 
+    'controle', 
+    'fotos',
     'aprovar',
     'rejeitar',
     'ver_aprovacao'
