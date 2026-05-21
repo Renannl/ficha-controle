@@ -27,6 +27,8 @@ export default function App() {
   const { fichas, isLoading, criarFicha, atualizarFicha, excluirFicha, getFicha } = useFichas(user)
   const [currentFichaId, setCurrentFichaId] = useState(null)
   const [activeTab, setActiveTab ] = useState(() => localStorage.getItem('activeTab') || 'info')
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [welcomeUser, setWelcomeUser] = useState('')
 
   useEffect(() => {
     testSupabase()
@@ -41,6 +43,29 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    if (!showWelcome) return
+
+    const t = setTimeout(() => {
+      setShowWelcome(false)
+      navigate('/dashboard')
+    }, 2000)
+
+    return () => clearTimeout(t)
+  }, [showWelcome])
+
+  function formatNome(username) {
+    if (!username) return ''
+
+    return username
+      .split('.')
+      .map(p =>
+        p.charAt(0).toLocaleUpperCase('pt-BR') +
+        p.slice(1).toLocaleLowerCase('pt-BR')
+      )
+      .join(' ')
+  }
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light')
   const navigate = useNavigate()
@@ -62,6 +87,17 @@ export default function App() {
     )
   }
 
+  if (showWelcome) {
+    return (
+      <div className="welcome-screen">
+        <img src="/ip.png" className="welcome-logo" />
+
+        <h1 className="welcome-text">
+          Bem-vindo, {welcomeUser}
+        </h1>
+      </div>
+    )
+  }
   // ─── LOGIN ───
   if (!isAuthenticated) {
 
@@ -78,7 +114,8 @@ export default function App() {
                   await login(u, s)
 
                 if (success) {
-                  navigate('/dashboard')
+                  setWelcomeUser(formatNome(u))
+                  setShowWelcome(true)
                 }
 
                 return success
