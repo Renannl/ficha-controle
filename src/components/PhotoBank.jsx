@@ -99,7 +99,7 @@ export default function PhotoBank({ fichas }) {
   return (
     <div
       className="photo-bank-list animate-fadeIn"
-      style={{ padding: '20px 16px 100px' }}
+      style={{ padding: '20px 24px 100px' }}
     >
       {allFichasWithPhotos.length > 0 ? (
         <>

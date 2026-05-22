@@ -4,6 +4,10 @@ import { ROLES } from '../data/users'
 import PhotoBank from './PhotoBank'
 import Dashboard from './Dashboard'
 import ConfirmModal from './ConfirmModal'
+import {
+  getFichaStatus,
+  getProgressPct
+} from '../utils/fichaStatus'
 
 export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onLogout, theme, onToggleTheme, onOpenAdmin, onApprove }) {
   const [filterStatus, setFilterStatus] = useState(() => localStorage.getItem('homeFilterStatus') || 'all')
@@ -88,21 +92,26 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
     })
 
   const total = fichas.length
-  const emAndamento = fichas.filter(f => {
-    const done = f.items.length > 0 ? f.items.filter(i => i.resultado === 'ok' || i.resultado === 'na').length : 0
-    return done > 0 && done < f.items.length
-  }).length
-  const concluidas = fichas.filter(f => {
-    const done = f.items.length > 0 ? f.items.filter(i => i.resultado === 'ok' || i.resultado === 'na').length : 0
-    return done === f.items.length && f.items.length > 0
-  }).length
+  const emAndamento = fichas.filter(f =>
+    [
+      'progress',
+      'waiting'
+    ].includes(getFichaStatus(f))
+  ).length
+
+  const concluidas = fichas.filter(f =>
+    [
+      'done',
+      'approved'
+    ].includes(getFichaStatus(f))
+  ).length
 
   const filteredFichas = fichas.filter(f => {
 
     const statusMatch =
       filterStatus === 'all'
         ? true
-        : getStatus(f) === filterStatus
+        : getFichaStatus(f) === filterStatus
 
     const isTaf = f.operacao === '50'
     const isFoto = f.operacao === '80'
@@ -148,25 +157,6 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
       searchMatch
     )
   })
-
-  function getStatus(ficha) {
-    if (ficha.statusAprovacao === 'reprovado') return 'rejected'
-    if (ficha.status === 'finalizada' && (!ficha.statusAprovacao || ficha.statusAprovacao === 'aguardando')) return 'aguardando'
-    if (ficha.statusAprovacao === 'aprovado') return 'approved'
-    const total = ficha.items.length
-    if (total === 0) return 'empty'
-    const done = ficha.items.filter(i => i.resultado === 'ok' || i.resultado === 'na').length
-    if (done === 0) return 'empty'
-    if (done === total) return 'done'
-    return 'progress'
-  }
-
-  function getProgressPct(ficha) {
-    const total = ficha.items.length
-    if (total === 0) return 0
-    const done = ficha.items.filter(i => i.resultado === 'ok' || i.resultado === 'na').length
-    return Math.round((done / total) * 100)
-  }
 
   function handleDelete(e, id) {
     e.stopPropagation()
@@ -368,10 +358,19 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
                   >
-                    <option value="all">Status</option>
-                    <option value="progress">Andamento</option>
-                    <option value="done">Concluídas</option>
-                    <option value="empty">Novas</option>
+                    <option value="all">Todos Status</option>
+
+                    <option value="progress">🟡 Andamento</option>
+
+                    <option value="done">🔵 Preenchida</option>
+
+                    <option value="waiting">🟠 Aguardando</option>
+
+                    <option value="approved">🟢 Aprovada</option>
+
+                    <option value="rejected">🔴 Reprovada</option>
+
+                    <option value="empty">⚪ Nova</option>
                   </select>
                 </div>
               </div>
@@ -381,7 +380,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                 </div>
               ) : (
                 filteredFichas.map((ficha, i) => {
-                  const status = getStatus(ficha)
+                  const status = getFichaStatus(ficha)
                   const pct = getProgressPct(ficha)
                   return (
                     <div
@@ -418,12 +417,41 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                       </div>
                       <div className="ficha-card-bottom">
                         <div className="flex items-center gap-2">
-                          {status === 'rejected' && <span className="badge badge-danger" style={{ background: 'var(--red)', color: 'white', fontWeight: 'bold' }}>⚠️ REFAZER</span>}
-                          {status === 'aguardando' && <span className="badge badge-amber" style={{ background: 'var(--amber)', color: '#000', fontWeight: 'bold' }}>⏳ Aguardando Aprovação</span>}
-                          {status === 'approved' && <span className="badge badge-green" style={{ background: 'var(--green)', color: 'white', fontWeight: 'bold' }}>✓ Aprovada</span>}
-                          {status === 'done' && <span className="badge badge-blue" style={{ background: 'var(--blue)', color: 'white' }}>📋 Preenchida</span>}
-                          {status === 'progress' && <span className="badge badge-amber">Em andamento</span>}
-                          {status === 'empty' && <span className="badge badge-muted">Nova</span>}
+                          {status === 'rejected' && (
+                            <span className="badge badge-red">
+                            Reprovada
+                            </span>
+                          )}
+
+                          {status === 'waiting' && (
+                            <span className="badge badge-amber">
+                            Aguardando análise
+                            </span>
+                          )}
+
+                          {status === 'approved' && (
+                            <span className="badge badge-green">
+                            Aprovada
+                            </span>
+                          )}
+
+                          {status === 'done' && (
+                            <span className="badge badge-blue">
+                              📋 Preenchida
+                            </span>
+                          )}
+
+                          {status === 'progress' && (
+                            <span className="badge badge-amber">
+                              Em andamento
+                            </span>
+                          )}
+
+                          {status === 'empty' && (
+                            <span className="badge badge-muted">
+                              Nova
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="progress-bar" style={{ width: 50 }}>

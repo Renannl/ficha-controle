@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react'
 import { OPERACOES } from '../data/fichaTemplate'
+import {
+  getFichaStatus,
+  getProgressPct
+} from '../utils/fichaStatus'
 
 export default function Dashboard({ fichas, user, onApprove }) {
   const [searchTerm, setSearchTerm] = useState('')
   const metrics = useMemo(() => {
     const total = fichas.length
     let concluidas = 0
+    let reprovadas = 0
     let emAndamento = 0
     let novas = 0
     let totalItems = 0
@@ -37,12 +42,42 @@ export default function Dashboard({ fichas, user, onApprove }) {
       }
 
       // Status
-      const done = itemCount > 0 ? f.items.filter(i => i.resultado === 'ok' || i.resultado === 'na').length : 0
-      const pct = itemCount > 0 ? Math.round((done / itemCount) * 100) : 0
+      const done = itemCount > 0
+        ? f.items.filter(i =>
+            i.resultado === 'ok' ||
+            i.resultado === 'na'
+          ).length
+        : 0
 
-      if (done === 0) novas++
-      else if (done === itemCount && itemCount > 0) concluidas++
-      else emAndamento++
+      const pct = getProgressPct(f)
+
+      const status = getFichaStatus(f)
+
+      if (status === 'empty') {
+        novas++
+      }
+
+      else if (
+        [
+          'progress',
+          'waiting'
+        ].includes(status)
+      ) {
+        emAndamento++
+      }
+
+      else if (status === 'rejected') {
+        reprovadas++
+      }
+
+      else if (
+        [
+          'done',
+          'approved'
+        ].includes(status)
+      ) {
+        concluidas++
+      }
 
       fichaProgress.push({
         id: f.id,
@@ -52,8 +87,8 @@ export default function Dashboard({ fichas, user, onApprove }) {
         pct,
         done,
         total: itemCount,
-        status: f.status === 'finalizada' ? 'finalizada' : done === 0 ? 'nova' : (done === itemCount && itemCount > 0) ? 'concluida' : 'andamento',
-        statusAprovacao: f.status === 'finalizada' ? (f.statusAprovacao || 'aguardando') : 'nao_enviado',
+        status,
+        statusAprovacao: f.statusAprovacao || null,
         criadoEm: f.criadoEm,
         finalizadaAt: f.finalizadaAt,
       })
@@ -65,7 +100,7 @@ export default function Dashboard({ fichas, user, onApprove }) {
     fichaProgress.sort((a, b) => b.pct - a.pct)
 
     return {
-      total, concluidas, emAndamento, novas,
+      total, concluidas, emAndamento, novas, reprovadas,
       totalItems, itemsOk, itemsNa, totalFotos,
       taf, controle, fotos,
       pctGeral,
@@ -73,7 +108,7 @@ export default function Dashboard({ fichas, user, onApprove }) {
     }
   }, [fichas])
 
-  const { total, concluidas, emAndamento, novas, totalItems, itemsOk, itemsNa, totalFotos, taf, controle, fotos, pctGeral, fichaProgress } = metrics
+  const { total, concluidas, emAndamento, novas, reprovadas, totalItems, itemsOk, itemsNa, totalFotos, taf, controle, fotos, pctGeral, fichaProgress } = metrics
 
   const filteredFichas = useMemo(() => {
     if (!searchTerm) return fichaProgress
@@ -89,13 +124,24 @@ export default function Dashboard({ fichas, user, onApprove }) {
   const donutConcluida = total > 0 ? (concluidas / total) * 100 : 0
   const donutAndamento = total > 0 ? (emAndamento / total) * 100 : 0
   const donutNova = total > 0 ? (novas / total) * 100 : 0
+  const donutReprovadas = total > 0 ? (reprovadas / total) * 100 : 0
 
   // Conic gradient for donut
   const conicGradient = total > 0
     ? `conic-gradient(
-        var(--green) 0% ${donutConcluida}%, 
-        var(--amber) ${donutConcluida}% ${donutConcluida + donutAndamento}%, 
-        var(--text-muted) ${donutConcluida + donutAndamento}% 100%
+        var(--green) 0% ${donutConcluida}%,
+
+        var(--amber)
+        ${donutConcluida}%
+        ${donutConcluida + donutAndamento}%,
+
+        var(--red)
+        ${donutConcluida + donutAndamento}%
+        ${donutConcluida + donutAndamento + donutReprovadas}%,
+
+        var(--text-muted)
+        ${donutConcluida + donutAndamento + donutReprovadas}%
+        100%
       )`
     : `conic-gradient(var(--border) 0% 100%)`
 
@@ -104,7 +150,12 @@ export default function Dashboard({ fichas, user, onApprove }) {
 
   // Recent finalized
   const recentFinalized = fichaProgress
-    .filter(f => f.status === 'concluida')
+    .filter(f =>
+      [
+        'done',
+        'approved'
+      ].includes(f.status)
+    )
     .slice(0, 5)
 
   return (
@@ -156,6 +207,13 @@ export default function Dashboard({ fichas, user, onApprove }) {
             <div className="dash-legend-item">
               <span className="dash-legend-dot" style={{ background: 'var(--amber)' }} />
               <span>Andamento ({emAndamento})</span>
+            </div>
+            <div className="dash-legend-item">
+              <span
+                className="dash-legend-dot"
+                style={{ background: 'var(--red)' }}
+              />
+              <span>Reprovadas ({reprovadas})</span>
             </div>
             <div className="dash-legend-item">
               <span className="dash-legend-dot" style={{ background: 'var(--text-muted)' }} />
@@ -243,7 +301,23 @@ export default function Dashboard({ fichas, user, onApprove }) {
                       className="dash-rank-bar-fill"
                       style={{
                         width: `${f.pct}%`,
-                        background: f.status === 'concluida' ? 'var(--green)' : f.status === 'andamento' ? 'var(--amber)' : 'var(--border-light)'
+                        background:
+                          f.status === 'approved'
+                            ? 'var(--green)'
+
+                            : f.status === 'waiting'
+                            ? 'var(--amber)'
+
+                            : f.status === 'done'
+                            ? 'var(--blue)'
+
+                            : f.status === 'progress'
+                            ? 'var(--amber)'
+
+                            : f.status === 'rejected'
+                            ? 'var(--red)'
+
+                            : 'var(--border-light)'
                       }}
                     />
                   </div>
@@ -312,19 +386,51 @@ export default function Dashboard({ fichas, user, onApprove }) {
                        <span style={{ fontSize: '12px' }}>{f.done}/{f.total}</span>
                      </div>
                   </td>
-                  <td style={{ padding: '10px' }}>
-                    <span style={{ 
-                      padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 600,
-                      background: f.status === 'finalizada' ? 'var(--green)' : 
-                                  f.status === 'concluida' ? 'var(--blue)' : 
-                                  f.status === 'andamento' ? 'var(--amber)' : 'var(--bg-secondary)',
-                      color: (f.status === 'finalizada' || f.status === 'concluida') ? '#fff' : 'var(--text-main)'
-                    }}>
-                      {f.status === 'finalizada' ? 'FINALIZADO / ENVIADO' : 
-                       f.status === 'concluida' ? '100% PREENCHIDO' : 
-                       f.status === 'andamento' ? 'EM ANDAMENTO' : 'NOVA / VAZIA'}
-                    </span>
-                  </td>
+                    <td style={{ padding: '10px' }}>
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+
+                        background:
+                          f.status === 'approved'
+                            ? 'var(--green)'
+                            : f.status === 'waiting'
+                            ? 'var(--amber)'
+                            : f.status === 'done'
+                            ? 'var(--blue)'
+                            : f.status === 'progress'
+                            ? 'var(--amber)'
+                            : f.status === 'rejected'
+                            ? 'var(--red)'
+                            : 'var(--bg-secondary)',
+
+                        color:
+                          f.status === 'empty'
+                            ? 'var(--text-main)'
+                            : '#fff'
+                      }}>
+                        {
+                          f.status === 'approved'
+                            ? 'APROVADA'
+
+                            : f.status === 'waiting'
+                            ? 'AGUARDANDO'
+
+                            : f.status === 'done'
+                            ? 'PREENCHIDA'
+
+                            : f.status === 'progress'
+                            ? 'EM ANDAMENTO'
+
+                            : f.status === 'rejected'
+                            ? 'REPROVADA'
+
+                            : 'NOVA'
+                        }
+                      </span>
+                    </td>
                   <td style={{ padding: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ 
