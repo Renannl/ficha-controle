@@ -1785,6 +1785,8 @@
   height: 40px;
   background: var(--bg-card);
   border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  color: var(--blue-primary);
   display: flex;
   align-items: center;
   justify-content: center;

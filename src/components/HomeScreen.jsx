@@ -530,9 +530,9 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                 >
                   <div className="opt-icon">
                     {op.codigo === '50' ? (
-                      <Zap size={22} />
+                      <Zap color="currentColor" size={22} />
                     ) : op.codigo === '80' ? (
-                      <Camera size={22} />
+                      <Camera color="currentColor" size={22} />
                     ) : (
                       <ClipboardList size={22} />
                     )}
