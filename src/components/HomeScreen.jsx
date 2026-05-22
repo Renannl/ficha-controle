@@ -8,6 +8,29 @@ import {
   getFichaStatus,
   getProgressPct
 } from '../utils/fichaStatus'
+import {
+  Moon,
+  Sun,
+  Settings,
+  LogOut,
+  LayoutList,
+  Images,
+  BarChart3,
+  ClipboardList,
+  Search,
+  X,
+  Zap,
+  Camera,
+  User,
+  Tag,
+  Trash2,
+  Plus,
+  FileText,
+  CheckCircle2,
+  Clock3,
+  AlertCircle,
+  Circle
+} from 'lucide-react'
 
 export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onLogout, theme, onToggleTheme, onOpenAdmin, onApprove }) {
   const [filterStatus, setFilterStatus] = useState(() => localStorage.getItem('homeFilterStatus') || 'all')
@@ -197,15 +220,18 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
         </div>
         <div className="flex items-center gap-2">
           <button className="logout-btn" onClick={onToggleTheme} title="Alternar Tema">
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === 'light'
+              ? <Moon size={18} />
+              : <Sun size={18} />
+            }
           </button>
           {user?.role === 'admin' && (
-            <button className="logout-btn" onClick={onOpenAdmin} title="Administração">
-              ⚙️
-            </button>
+          <button className="logout-btn" onClick={onOpenAdmin} title="Administração">
+            <Settings size={18} />
+          </button>
           )}
           <button className="logout-btn" onClick={onLogout} title="Sair do Sistema">
-            🚪
+            <LogOut size={18} />
           </button>
         </div>
       </div>
@@ -257,19 +283,22 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
           className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
           onClick={() => setViewMode('list')}
         >
-          📋 Relatórios
+          <LayoutList size={16} />
+          Relatórios
         </button>
         <button
           className={`view-toggle-btn ${viewMode === 'gallery' ? 'active' : ''}`}
           onClick={() => setViewMode('gallery')}
         >
-          🖼️ Banco de Fotos
+          <Images size={16} />
+          Banco de Fotos
         </button>
         <button
           className={`view-toggle-btn ${viewMode === 'dashboard' ? 'active' : ''}`}
           onClick={() => setViewMode('dashboard')}
         >
-          📊 Métricas
+          <BarChart3 size={16} />
+          Métricas
         </button>
       </div>
 
@@ -285,7 +314,9 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
           {/* Lista */}
           {fichas.length === 0 && !showNewMenu ? (
             <div className="home-empty" style={{ paddingBottom: 120 }}>
-              <div className="empty-icon">📋</div>
+              <div className="empty-icon">
+                <ClipboardList size={42} strokeWidth={1.8} />
+              </div>
               <p>Nenhuma ficha criada ainda. Toque no botão + para começar.</p>
             </div>
           ) : (
@@ -302,7 +333,10 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                         if (showSearch) setSearchTerm('')
                       }}
                     >
-                      {showSearch ? '✕' : '🔍'}
+                      {showSearch
+                        ? <X size={18} />
+                        : <Search size={18} />
+                      }
                     </button>
                     {showSearch && (
                       <input
@@ -336,9 +370,9 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                     onChange={(e) => setFilterType(e.target.value)}
                   >
                     <option value="all">Todos</option>
-                    <option value="taf">⚡ TAF</option>
-                    <option value="controle">📋 Controle</option>
-                    <option value="foto">📸 Fotos</option>
+                    <option value="taf">TAF</option>
+                    <option value="controle">Controle</option>
+                    <option value="foto">Fotos</option>
                   </select>
 
                   {/* Filtro de Status */}
@@ -401,11 +435,13 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
 
                           <div className="ficha-card-meta">
                             <span className="ficha-meta-user">
-                              👤 {ficha.criadoPor || ficha.userId || '-'}
+                              <User size={14} />
+                              {ficha.criadoPor || ficha.userId || '-'}
                             </span>
 
                             <span className="ficha-meta-code">
-                              🏷️ {ficha.codigo || '-'}
+                              <Tag size={14} />
+                              {ficha.codigo || '-'}
                             </span>
                           </div>
                         </div>
@@ -413,42 +449,50 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                           className="delete-btn"
                           onClick={(e) => handleDelete(e, ficha.id)}
                           title="Excluir"
-                        >🗑</button>
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                       <div className="ficha-card-bottom">
                         <div className="flex items-center gap-2">
                           {status === 'rejected' && (
-                            <span className="badge badge-red">
+                          <span className="badge badge-red">
+                            <AlertCircle size={14} />
                             Reprovada
-                            </span>
+                          </span>
                           )}
 
                           {status === 'waiting' && (
-                            <span className="badge badge-amber">
+                          <span className="badge badge-amber">
+                            <Clock3 size={14} />
                             Aguardando análise
-                            </span>
+                          </span>
                           )}
 
                           {status === 'approved' && (
-                            <span className="badge badge-green">
+                          <span className="badge badge-green">
+                            <CheckCircle2 size={14} />
                             Aprovada
-                            </span>
+                          </span>
                           )}
 
                           {status === 'done' && (
                             <span className="badge badge-blue">
-                              📋 Preenchida
+                              <FileText size={14} />
+                              Preenchida
                             </span>
                           )}
 
                           {status === 'progress' && (
                             <span className="badge badge-amber">
+                              <Clock3 size={14} />
                               Em andamento
                             </span>
                           )}
 
                           {status === 'empty' && (
                             <span className="badge badge-muted">
+                              <Circle size={12} />
                               Nova
                             </span>
                           )}
@@ -484,7 +528,15 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                   className="new-ficha-opt-btn"
                   onClick={() => handleCreateNew(op.codigo)}
                 >
-                  <div className="opt-icon">📝</div>
+                  <div className="opt-icon">
+                    {op.codigo === '50' ? (
+                      <Zap size={22} />
+                    ) : op.codigo === '80' ? (
+                      <Camera size={22} />
+                    ) : (
+                      <ClipboardList size={22} />
+                    )}
+                  </div>
                   <div className="opt-text">
                     <div className="opt-title">{op.nome}</div>
                     <div className="opt-desc">{op.objetivo}</div>
@@ -505,7 +557,10 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
         onClick={() => setShowNewMenu(!showNewMenu)}
         title="Nova Ficha"
       >
-        {showNewMenu ? '✕' : '+'}
+        {showNewMenu
+          ? <X size={26} />
+          : <Plus size={26} />
+        }
       </button>
       {/* Modal de Confirmação de Exclusão */}
       <ConfirmModal 

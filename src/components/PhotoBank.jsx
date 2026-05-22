@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import {
+  Search,
+  X,
+} from 'lucide-react'
 
 export default function PhotoBank({ fichas }) {
   const [selectedFichaId, setSelectedFichaId] = useState(
@@ -129,7 +133,10 @@ export default function PhotoBank({ fichas }) {
                     }
                   }}
                 >
-                  {showSearch ? '✕' : '🔍'}
+                {showSearch
+                ? <X size={18} />
+                : <Search size={18} />
+                }
                 </button>
 
                 {showSearch && (

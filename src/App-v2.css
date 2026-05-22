@@ -2166,9 +2166,8 @@
 }
 
 .logout-btn:hover {
-  background: var(--red-bg);
-  border-color: var(--red-border);
-  color: var(--red);
+  border-color: var(--blue-accent);
+  color: var(--blue-accent);
 }
 
 /* TAF Panel Styles */
@@ -4947,4 +4946,20 @@ tbody tr:hover {
   transition: 0.4s;
   box-shadow:
     0 10px 30px rgba(0,0,0,0.12);
+}
+
+.view-toggle-btn,
+.badge,
+.ficha-meta-user,
+.ficha-meta-code,
+.logout-btn,
+.search-toggle-btn,
+.opt-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+svg {
+  stroke: currentColor;
 }
