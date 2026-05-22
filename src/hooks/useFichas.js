@@ -3,6 +3,18 @@ import { createEmptyFicha } from '../data/fichaTemplate'
 import { supabase } from '../lib/supabase'
 import { useRef } from 'react'
 
+function formatarNome(username) {
+  if (!username) return 'Sistema'
+
+  return username
+    .split('.')
+    .map(parte =>
+      parte.charAt(0).toUpperCase() +
+      parte.slice(1).toLowerCase()
+    )
+    .join(' ')
+}
+
 export function useFichas(currentUser) {
   const [fichas, setFichas] = useState([])
   const [isLoaded, setIsLoaded] = useState(false)
@@ -190,7 +202,7 @@ export function useFichas(currentUser) {
       codigo: codigoGerado,
       criadoPor:
         currentUser?.displayName ||
-        currentUser?.username ||
+        formatarNome(currentUser?.username) ||
         'Sistema',
 
       userId:
@@ -326,24 +338,41 @@ const visibleFichas = useMemo(() => {
     return fichas
   }
 
-  // VER ENVIADAS (APROVADAS OU REJEITADAS)
-  if (verEnviadas) {
-    return fichas.filter(f =>
-      f.statusAprovacao === 'aprovado' ||
-      f.statusAprovacao === 'reprovado'
-    )
-  }
-
-  // VER EM APROVAÇÃO (PENDENTES)
-  if (verAprovacao) {
-    return fichas.filter(f =>
-      f.statusAprovacao === 'aguardando'
-    )
-  }
-
-  // PADRÃO: só próprias fichas
-  return fichas.filter(
+  // Começa com fichas do próprio usuário
+  let fichasVisiveis = fichas.filter(
     f => f.userId === currentUser.username
+  )
+
+  // Adiciona aguardando aprovação
+  if (verAprovacao) {
+    const aguardando = fichas.filter(
+      f => f.statusAprovacao === 'aguardando'
+    )
+
+    fichasVisiveis = [
+      ...fichasVisiveis,
+      ...aguardando
+    ]
+  }
+
+  // Adiciona aprovadas/reprovadas
+  if (verEnviadas) {
+    const enviadas = fichas.filter(
+      f =>
+        f.statusAprovacao === 'aprovado' ||
+        f.statusAprovacao === 'reprovado'
+    )
+
+    fichasVisiveis = [
+      ...fichasVisiveis,
+      ...enviadas
+    ]
+  }
+
+  // Remove duplicados
+  return fichasVisiveis.filter(
+    (f, index, self) =>
+      index === self.findIndex(x => x.id === f.id)
   )
 
 }, [fichas, currentUser])
