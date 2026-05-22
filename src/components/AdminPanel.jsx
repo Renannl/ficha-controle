@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { ROLES, ROLE_PRESETS } from '../data/users'
+import {
+  LogOut,
+  User,
+  Users,
+  Bell,
+  Settings,
+  ShieldCheck,
+  ShieldX,
+  Pencil,
+  Eye,
+  Mail,
+  Clock3,
+  ClipboardList,
+  Camera,
+  Zap
+} from 'lucide-react'
 
 export default function AdminPanel({ onBack }) {
 
@@ -163,7 +179,7 @@ export default function AdminPanel({ onBack }) {
         <div className="container flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button className="back-button-circular" onClick={onBack} title="Sair da Administração">
-              🚪
+              <LogOut size={18} />
             </button>
             <div className="admin-title-group">
               <h1 className="text-xl font-bold">Configurações do Sistema</h1>
@@ -182,7 +198,7 @@ export default function AdminPanel({ onBack }) {
         <div className="admin-col-form">
           <section className="admin-card card-glow">
             <div className="admin-card-header">
-              <div className="card-icon">👤</div>
+              <div className="card-icon"><User size={18} /></div>
               <h3 className="text-md font-bold">
                 {editingUser ? 'Editar Usuário' : 'Selecione um usuário'}
               </h3>
@@ -233,17 +249,17 @@ export default function AdminPanel({ onBack }) {
                 <div className="permissions-grid mb-4">
                   <label className={`perm-item ${permissoes.includes('taf') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('taf')} onChange={() => togglePermission('taf')} />
-                    <span className="perm-icon">⚡</span>
+                    <span className="perm-icon"><Zap size={16} /></span>
                     <span className="perm-text">TAF</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('controle') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('controle')} onChange={() => togglePermission('controle')} />
-                    <span className="perm-icon">📋</span>
+                    <span className="perm-icon"><ClipboardList size={16} /></span>
                     <span className="perm-text">Controle</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('fotos') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('fotos')} onChange={() => togglePermission('fotos')} />
-                    <span className="perm-icon">📸</span>
+                    <span className="perm-icon"><Camera size={16} /></span>
                     <span className="perm-text">Fotos</span>
                   </label>
                 </div>
@@ -252,32 +268,32 @@ export default function AdminPanel({ onBack }) {
                 <div className="permissions-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
                   <label className={`perm-item ${permissoes.includes('ver_tudo') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('ver_tudo')} onChange={() => togglePermission('ver_tudo')} />
-                    <span className="perm-icon">👁️</span>
+                    <span className="perm-icon"><Eye size={16} /></span>
                     <span className="perm-text">Ver todas as fichas</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('ver_enviadas') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('ver_enviadas')} onChange={() => togglePermission('ver_enviadas')} />
-                    <span className="perm-icon">📩</span>
+                    <span className="perm-icon"><Mail size={16} /></span>
                     <span className="perm-text">Ver concluídas</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('ver_aprovacao') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('ver_aprovacao')} onChange={() => togglePermission('ver_aprovacao')} />
-                    <span className="perm-icon">⏳</span>
+                    <span className="perm-icon"><Clock3 size={16} /></span>
                     <span className="perm-text">Ver aprovação</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('editar_ficha') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('editar_ficha')} onChange={() => togglePermission('editar_ficha')} />
-                    <span className="perm-icon">✏️</span>
+                    <span className="perm-icon"><Pencil size={16} /></span>
                     <span className="perm-text">Editar ficha</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('aprovar') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('aprovar')} onChange={() => togglePermission('aprovar')} />
-                    <span className="perm-icon">✅</span>
+                    <span className="perm-icon"><ShieldCheck size={16} /></span>
                     <span className="perm-text">Aprovar Fichas</span>
                   </label>
                   <label className={`perm-item ${permissoes.includes('rejeitar') ? 'active' : ''}`}>
                     <input type="checkbox" checked={permissoes.includes('rejeitar')} onChange={() => togglePermission('rejeitar')} />
-                    <span className="perm-icon">❌</span>
+                    <span className="perm-icon"><ShieldX size={16} /></span>
                     <span className="perm-text">Rejeitar Fichas</span>
                   </label>
                 </div>
@@ -313,7 +329,7 @@ export default function AdminPanel({ onBack }) {
         <div className="admin-col-list">
           <section className="admin-card">
             <div className="admin-card-header">
-              <div className="card-icon">👥</div>
+              <div className="card-icon"><User size={18} /></div>
               <h3 className="text-md font-bold">Equipe Cadastrada</h3>
             </div>
             
@@ -380,7 +396,7 @@ export default function AdminPanel({ onBack }) {
                             className="btn-edit-user"
                             onClick={() => editarUsuario(user)}
                           >
-                            ⚙️
+                            <Settings color="currentColor" size={16} />
                           </button>
                         )}
                       </td>
@@ -395,7 +411,7 @@ export default function AdminPanel({ onBack }) {
           {/* NOVO BOX: SOLICITAÇÕES DE ACESSO */}
           <section className="admin-card mt-6 card-glow-blue">
             <div className="admin-card-header" style={{ borderBottomColor: 'rgba(21, 101, 192, 0.1)' }}>
-              <div className="card-icon">🔔</div>
+              <div className="card-icon"><Bell size={18} /></div>
               <div>
                 <h3 className="text-md font-bold">Solicitações de Acesso</h3>
                 <p className="text-[10px] text-muted">Pendentes de aprovação do domínio</p>
