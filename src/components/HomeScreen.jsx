@@ -320,7 +320,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
               <p>Nenhuma ficha criada ainda. Toque no botão + para começar.</p>
             </div>
           ) : (
-            <div className="home-list">
+            <div className="home-list animate-scaleIn">
               <div className="home-list-header flex items-center justify-between mb-3" style={{ flexWrap: 'wrap', gap: '8px', gridColumn: '1 / -1', width: '100%' }}>
                 <div className="flex items-center gap-2">
                   {!showSearch && <div className="home-list-title" style={{ marginBottom: 0 }}>Fichas Recentes</div>}

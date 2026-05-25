@@ -102,7 +102,7 @@ export default function PhotoBank({ fichas }) {
   // LISTA DE ÁLBUNS
   return (
     <div
-      className="photo-bank-list animate-fadeIn"
+      className="photo-bank-list animate-scaleIn"
       style={{ padding: '20px 24px 100px' }}
     >
       {allFichasWithPhotos.length > 0 ? (

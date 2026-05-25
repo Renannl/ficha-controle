@@ -350,7 +350,7 @@
 
 .home-list-title {
   grid-column: 1 / -1;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 4px;
@@ -456,7 +456,7 @@
 
 .home-list-title {
   grid-column: 1 / -1;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 4px;
@@ -3762,6 +3762,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin: 8px 8px;
 }
 
 /* ─── Título ─── */
@@ -3769,6 +3770,7 @@
   display: flex;
   align-items: baseline;
   gap: 12px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 

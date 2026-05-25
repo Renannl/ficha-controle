@@ -159,7 +159,7 @@ export default function Dashboard({ fichas, user, onApprove }) {
     .slice(0, 5)
 
   return (
-    <div className="dashboard">
+    <div className="dashboard animate-scaleIn">
       {/* ─── Título ─── */}
       <div className="dash-title-row">
         <h2 className="dash-title">Dashboard</h2>
