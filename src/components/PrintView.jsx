@@ -179,14 +179,27 @@ export default function PrintView({ ficha }) {
       <table className="print-signatures-table" style={{ width: '100%', marginTop: '10px', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
         <tbody>
           <tr>
+          {ficha.operacao !== '50' && (
             <td className="sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
               <div className="sig-line">
-                {ficha.assinaturas.executante.dataUrl ? <img src={ficha.assinaturas.executante.dataUrl} alt="Assinatura" /> : <div style={{ height: '35px' }}></div>}
+                {ficha.assinaturas.producao.dataUrl ? (
+                  <img src={ficha.assinaturas.producao.dataUrl} alt="Assinatura" />
+                ) : (
+                  <div style={{ height: '35px' }}></div>
+                )}
               </div>
-              <div className="sig-label">Executante</div>
-              <div className="sig-name">{ficha.assinaturas.executante.nome || '____________________'}</div>
-              <div className="sig-date">Data: {ficha.assinaturas.executante.data || '__/__/____'}</div>
+
+              <div className="sig-label">Produção</div>
+
+              <div className="sig-name">
+                {ficha.assinaturas.producao.nome || '____________________'}
+              </div>
+
+              <div className="sig-date">
+                Data: {ficha.assinaturas.producao.data || '__/__/____'}
+              </div>
             </td>
+          )}
             <td className="sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
               <div className="sig-line">
                 {ficha.assinaturas.tecnico.dataUrl ? <img src={ficha.assinaturas.tecnico.dataUrl} alt="Assinatura" /> : <div style={{ height: '35px' }}></div>}
@@ -202,6 +215,14 @@ export default function PrintView({ ficha }) {
               <div className="sig-label">Supervisor IndusPower</div>
               <div className="sig-name">{ficha.assinaturas.supervisor.nome || '____________________'}</div>
               <div className="sig-date">Data: {ficha.assinaturas.supervisor.data || '__/__/____'}</div>
+            </td>
+            <td className="sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
+              <div className="sig-line">
+                {ficha.assinaturas.qualidade.dataUrl ? <img src={ficha.assinaturas.qualidade.dataUrl} alt="Assinatura" /> : <div style={{ height: '35px' }}></div>}
+              </div>
+              <div className="sig-label">Qualidade</div>
+              <div className="sig-name">{ficha.assinaturas.qualidade.nome || '____________________'}</div>
+              <div className="sig-date">Data: {ficha.assinaturas.qualidade.data || '__/__/____'}</div>
             </td>
           </tr>
         </tbody>
@@ -409,21 +430,21 @@ function PrintViewTaf({ ficha, op }) {
           <tr>
             <td className="taf-sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
               <div className="sig-line">
-                {ficha.assinaturas.supervisor.dataUrl ? <img src={ficha.assinaturas.supervisor.dataUrl} alt="Assinatura" /> : <div style={{ height: '70px' }}></div>}
-              </div>
-              <p>SUP. DE MONTAGEM</p>
-            </td>
-            <td className="taf-sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
-              <div className="sig-line">
-                {ficha.assinaturas.executante.dataUrl ? <img src={ficha.assinaturas.executante.dataUrl} alt="Assinatura" /> : <div style={{ height: '70px' }}></div>}
-              </div>
-              <p>TESTADOR</p>
-            </td>
-            <td className="taf-sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
-              <div className="sig-line">
                 {ficha.assinaturas.tecnico.dataUrl ? <img src={ficha.assinaturas.tecnico.dataUrl} alt="Assinatura" /> : <div style={{ height: '70px' }}></div>}
               </div>
-              <p>CLIENTE</p>
+              <p>TÉCNICO</p>
+            </td>
+            <td className="taf-sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
+              <div className="sig-line">
+                {ficha.assinaturas.supervisor.dataUrl ? <img src={ficha.assinaturas.supervisor.dataUrl} alt="Assinatura" /> : <div style={{ height: '70px' }}></div>}
+              </div>
+              <p>SUPERVISOR</p>
+            </td>
+            <td className="taf-sig-box" style={{ width: '33.33%', padding: '5px', overflow: 'hidden' }}>
+              <div className="sig-line">
+                {ficha.assinaturas.qualidade.dataUrl ? <img src={ficha.assinaturas.qualidade.dataUrl} alt="Assinatura" /> : <div style={{ height: '70px' }}></div>}
+              </div>
+              <p>RESP. QUALIDADE</p>
             </td>
           </tr>
         </tbody>

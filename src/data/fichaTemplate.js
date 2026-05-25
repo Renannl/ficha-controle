@@ -198,9 +198,10 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
     // Rodapé
     observacoes: '',
     assinaturas: {
-      executante: { nome: '', data: '', dataUrl: '' },
+      producao: { nome: '', data: '', dataUrl: '' },
       tecnico:    { nome: '', data: '', dataUrl: '' },
       supervisor: { nome: '', data: '', dataUrl: '' },
+      qualidade:  { nome: '', data: '', dataUrl: '' },
     },
     status: 'aberta', // aberta | finalizada
     finalizadaAt: null,

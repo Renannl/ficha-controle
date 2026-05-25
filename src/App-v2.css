@@ -1029,12 +1029,16 @@
 .signature-canvas-wrap {
   position: relative;
   background: var(--bg-base);
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
   min-height: 120px;
 }
 
 .signature-canvas {
   display: block;
   width: 100%;
+  max-width: 620px;
   height: 120px;
   cursor: crosshair;
   touch-action: none;
@@ -1068,9 +1072,12 @@
 }
 
 .signature-preview img {
+  max-width: 620px;
   width: 100%;
   height: 100px;
   object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
 
 /* ──────────────────────────────────────────────

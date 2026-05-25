@@ -581,6 +581,7 @@ export default function App() {
 
                   {activeTab === 'signatures' && (
                     <SignatureSection
+                      ficha={ficha}
                       assinaturas={ficha.assinaturas}
                       onSign={updateSignature}
                       onNameChange={updateSignatureName}

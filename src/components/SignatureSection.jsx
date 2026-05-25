@@ -125,12 +125,13 @@ function SignatureCanvas({ dataUrl, onSave, onClear }) {
 }
 
 const ROLES = [
-  { key: 'executante', label: 'Executante' },
+  { key: 'producao', label: 'Produção' },
   { key: 'tecnico',    label: 'Técnico Responsável' },
-  { key: 'supervisor', label: 'Supervisor IndusPower' },
+  { key: 'supervisor', label: 'Supervisor de Produção' },
+  { key: 'qualidade',  label: 'Responsável pela Qualidade' },
 ]
 
-export default function SignatureSection({ assinaturas, onSign, onNameChange, onFinalizar }) {
+export default function SignatureSection({ ficha, assinaturas, onSign, onNameChange, onFinalizar }) {
   return (
     <div className="signatures-section">
       <div className="card mb-3" style={{ padding: 0, overflow: 'visible', background: 'transparent', border: 'none', boxShadow: 'none' }}>
@@ -138,12 +139,14 @@ export default function SignatureSection({ assinaturas, onSign, onNameChange, on
           <div className="section-icon">✍️</div>
           <div>
             <h2>Assinaturas</h2>
-            <p>Executante, Técnico e Supervisor</p>
+            <p>Executante, Técnico, Supervisor e Responsável pela Qualidade</p>
           </div>
         </div>
       </div>
 
-      {ROLES.map(role => {
+      {ROLES
+        .filter(role => !(ficha?.tafData && role.key === 'producao'))
+        .map(role => {
         const sig = assinaturas[role.key]
         return (
           <div key={role.key} className="signature-block animate-fadeIn">
