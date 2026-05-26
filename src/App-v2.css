@@ -368,7 +368,7 @@
   flex-direction: column;
   gap: 8px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: var(--shadow-card);
 }
 
@@ -474,10 +474,9 @@
   flex-direction: column;
   gap: 8px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: var(--shadow-card);
 }
-
 
 .ficha-card::before {
   content: '';

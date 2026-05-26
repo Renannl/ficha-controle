@@ -29,10 +29,12 @@ import {
   CheckCircle2,
   Clock3,
   AlertCircle,
-  Circle
+  Circle,
+  UserPlus
 } from 'lucide-react'
 
-export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onLogout, theme, onToggleTheme, onOpenAdmin, onApprove }) {
+// ADICIONADO: 'listaUsuarios' e 'onAtualizarOperadores' nas propriedades recebidas
+export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onLogout, theme, onToggleTheme, onOpenAdmin, onApprove, listaUsuarios = [], onAtualizarOperadores }) {
   const [filterStatus, setFilterStatus] = useState(() => localStorage.getItem('homeFilterStatus') || 'all')
   const [filterType, setFilterType] = useState(() => localStorage.getItem('homeFilterType') || 'all')
 
@@ -48,6 +50,9 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
   const [searchTerm, setSearchTerm] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [deleteId, setDeleteId] = useState(null) // ID da ficha para deletar
+
+  // ADICIONADO: Estado para controlar qual menu drop-down de usuário está aberto (guarda o ID da ficha)
+  const [activeDropdownFichaId, setActiveDropdownFichaId] = useState(null)
 
   // ─── Drag Logic for Tabs ───
   const toggleRef = useRef(null)
@@ -85,12 +90,10 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
   }, [viewMode])
 
   const hasPerm = (perms = []) => {
-
     // ADMIN vê tudo
     if (user?.role === 'admin') {
       return true
     }
-
     // Verifica permissões do usuário
     return perms.some(p =>
       user?.permissoes?.includes(p)
@@ -99,17 +102,14 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
 
   const availableOps =
     Object.values(OPERACOES).filter(op => {
-
       // TAF
       if (op.codigo === '50') {
         return hasPerm(['taf'])
       }
-
       // FOTO
       if (op.codigo === '80') {
         return hasPerm(['fotos'])
       }
-
       // CONTROLE
       return hasPerm(['controle'])
     })
@@ -130,7 +130,6 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
   ).length
 
   const filteredFichas = fichas.filter(f => {
-
     const statusMatch =
       filterStatus === 'all'
         ? true
@@ -144,11 +143,9 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
     if (filterType === 'taf') {
       typeMatch = isTaf
     }
-
     else if (filterType === 'controle') {
       typeMatch = !isTaf && !isFoto
     }
-
     else if (filterType === 'foto') {
       typeMatch = isFoto
     }
@@ -157,19 +154,15 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
 
     const searchMatch =
       !searchTerm ||
-
       (f.nomeEquipamento || '')
         .toLowerCase()
         .includes(term) ||
-
       (f.id || '')
         .toLowerCase()
         .includes(term) ||
-
       (f.codigo || '')
         .toLowerCase()
         .includes(term) ||
-
       (f.cliente || '')
         .toLowerCase()
         .includes(term)
@@ -197,6 +190,27 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
     setShowNewMenu(false)
     onNova(code)
   }
+
+  // ADICIONADO: Gerencia a atribuição de operadores à ficha
+  const handleToggleOperadorFicha = (e, ficha, usuario) => {
+    e.stopPropagation(); // Não abre a ficha ao clicar no item da lista
+    
+    const operadoresAtuais = ficha.operadores || [];
+    const jaExiste = operadoresAtuais.some(op => op.id === usuario.id || op.username === usuario.username);
+    
+    let novosOperadores;
+    if (jaExiste) {
+      // Remove se clicar em alguém que já está ativo
+      novosOperadores = operadoresAtuais.filter(op => op.id !== usuario.id && op.username !== usuario.username);
+    } else {
+      // Adiciona o novo operador
+      novosOperadores = [...operadoresAtuais, { id: usuario.id, nome: usuario.nome, username: usuario.username }];
+    }
+
+    if (onAtualizarOperadores) {
+      onAtualizarOperadores(ficha.id, novosOperadores);
+    }
+  };
 
   return (
     <div className="home">
@@ -393,17 +407,11 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                     onChange={(e) => setFilterStatus(e.target.value)}
                   >
                     <option value="all">Todos Status</option>
-
                     <option value="progress">🟡 Andamento</option>
-
                     <option value="done">🔵 Preenchida</option>
-
                     <option value="waiting">🟠 Aguardando</option>
-
                     <option value="approved">🟢 Aprovada</option>
-
                     <option value="rejected">🔴 Reprovada</option>
-
                     <option value="empty">⚪ Nova</option>
                   </select>
                 </div>
@@ -416,11 +424,16 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                 filteredFichas.map((ficha, i) => {
                   const status = getFichaStatus(ficha)
                   const pct = getProgressPct(ficha)
+                  const operadores = ficha.operadores || [] // Garante o array de operadores ativos no card
+
                   return (
                     <div
                       key={ficha.id}
                       className={`ficha-card status-${status}`}
-                      style={{ animationDelay: `${i * 0.05}s` }}
+                      style={{
+                        animationDelay: `${i * 0.05}s`,
+                        zIndex: activeDropdownFichaId === ficha.id ? 999 : 1
+                      }}
                       onClick={() => onOpen(ficha.id)}
                     >
                       <div className="ficha-card-top">
@@ -453,6 +466,144 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                           <Trash2 size={16} />
                         </button>
                       </div>
+
+                      {/* ─── MODIFICAÇÃO: AREA DE OPERADORES ATIVOS NO CARD (Entre o topo e a barra de progresso) ─── */}
+                      <div 
+                        className="ficha-card-operators-section"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginTop: '10px',
+                          marginBottom: '6px',
+                          paddingTop: '8px',
+                          borderTop: '1px solid var(--border)',
+                          position: 'relative'
+                        }}
+                        onClick={(e) => e.stopPropagation()} // Impede que o clique nesta área abra a ficha inteira
+                      >
+                        {/* Lista de Avatares Pilhados */}
+                        <div style={{ display: 'flex', itemsCenter: 'center', flex: 1, overflow: 'hidden' }}>
+                          {operadores.length === 0 ? (
+                            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                              Nenhum operador atribuído
+                            </span>
+                          ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '4px' }}>
+                              {operadores.map((op, idx) => (
+                              <div
+                                key={op.id || idx}
+                                title={op.nome}
+                                style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'var(--blue-accent)',
+                                  color: 'var(--blue-primary)',
+                                  border: '2px solid var(--bg-card)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '10px',
+                                  fontWeight: 'bold',
+                                  marginLeft: idx === 0 ? 0 : -8,
+                                  position: 'relative',
+                                  zIndex: operadores.length - idx,
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                  flexShrink: 0
+                                }}
+                              >
+                                  {(op.nome || '?')[0].toUpperCase()}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Botão de Adicionar (+) com Dropdown Absoluto */}
+                        <div style={{ position: 'relative' }}>
+                          <button
+                            style={{
+                              width: '26px',
+                              height: '26px',
+                              borderRadius: '50%',
+                              border: '1px dashed var(--text-secondary)',
+                              background: 'transparent',
+                              color: 'var(--text-secondary)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              outline: 'none'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveDropdownFichaId(activeDropdownFichaId === ficha.id ? null : ficha.id);
+                            }}
+                            title="Vincular Operadores"
+                          >
+                            <UserPlus size={13} />
+                          </button>
+
+                          {/* Menu Dropdown Suspenso por Card */}
+                          {activeDropdownFichaId === ficha.id && (
+                            <div 
+                              className="animate-scaleIn"
+                              style={{
+                                position: 'absolute',
+                                right: 0,
+                                top: '30px',
+                                width: '180px',
+                                maxHeight: '160px',
+                                backgroundColor: 'var(--bg-elevated)',
+                                border: '1px solid var(--border)',
+                                borderRadius: 'var(--radius-xs)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                zIndex: 99,
+                                overflowY: 'auto',
+                                padding: '4px 0'
+                              }}
+                            >
+                              <div style={{ padding: '4px 10px', fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 'bold', borderBottom: '1px solid var(--border)', textTransform: 'uppercase' }}>
+                                Escalar Equipe
+                              </div>
+                              {listaUsuarios.map(u => {
+                                const ativo = operadores.some(op => op.id === u.id || op.username === u.username);
+                                return (
+                                  <button
+                                    key={u.id}
+                                    onClick={(e) => handleToggleOperadorFicha(e, ficha, u)}
+                                    style={{
+                                      width: '100%',
+                                      padding: '6px 10px',
+                                      fontSize: '12px',
+                                      textAlign: 'left',
+                                      background: ativo ? 'var(--blue-glow)' : 'transparent',
+                                      color: ativo ? 'var(--blue-primary)' : 'var(--text-secondary)',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'space-between'
+                                    }}
+                                  >
+                                    <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flex: 1 }}>
+                                      {u.nome || u.username}
+                                    </span>
+                                    {ativo && <span style={{ fontSize: '9px' }}>🟢</span>}
+                                  </button>
+                                );
+                              })}
+                              {listaUsuarios.length === 0 && (
+                                <div style={{ padding: '6px 10px', fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                                  Sem usuários carregados
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="ficha-card-bottom">
                         <div className="flex items-center gap-2">
                           {status === 'rejected' && (

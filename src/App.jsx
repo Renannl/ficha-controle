@@ -21,14 +21,16 @@ import { exportFicha } from './services/sharepointService'
 import './App-v2.css'
 import { testSupabase } from './testSupabase'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { supabase } from './lib/supabase'
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth()
-  const { fichas, isLoading, criarFicha, atualizarFicha, excluirFicha, getFicha } = useFichas(user)
+  const { fichas, isLoading, criarFicha, atualizarFicha, excluirFicha, getFicha, atualizarOperadores } = useFichas(user)
   const [currentFichaId, setCurrentFichaId] = useState(null)
   const [activeTab, setActiveTab ] = useState(() => localStorage.getItem('activeTab') || 'info')
   const [showWelcome, setShowWelcome] = useState(false)
   const [welcomeUser, setWelcomeUser] = useState('')
+  const [usuarios, setUsuarios] = useState([])
 
   useEffect(() => {
     testSupabase()
@@ -43,6 +45,40 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    async function carregarUsuarios() {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+
+      console.log('DATA USERS:', data)
+      console.log('ERROR USERS:', error)
+
+      if (error) return
+      console.log(data)
+      setUsuarios(data || [])
+    }
+
+    carregarUsuarios()
+  }, [])
+
+  useEffect(() => {
+    async function carregarUsuarios() {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+
+      if (error) {
+        console.error('Erro ao carregar usuários:', error)
+        return
+      }
+
+      setUsuarios(data || [])
+    }
+
+    carregarUsuarios()
+  }, [])
 
   useEffect(() => {
     if (!showWelcome) return
@@ -463,8 +499,10 @@ export default function App() {
               <HomeScreen
                 fichas={fichas}
                 onNova={handleNova}
+                listaUsuarios={usuarios}
                 onOpen={handleOpen}
                 onDelete={handleDelete}
+                onAtualizarOperadores={atualizarOperadores}
                 user={user}
                 onLogout={() => {
                   logout()

@@ -21,6 +21,8 @@ export function useFichas(currentUser) {
 
   const saveTimeouts = useRef({})
 
+
+
   useEffect(() => {
     async function loadFichas() {
       const { data, error } = await supabase
@@ -200,6 +202,7 @@ export function useFichas(currentUser) {
     const nova = {
       ...createEmptyFicha(operacaoCodigo),
       codigo: codigoGerado,
+      operadores: [],
       criadoPor:
         currentUser?.displayName ||
         formatarNome(currentUser?.username) ||
@@ -207,7 +210,7 @@ export function useFichas(currentUser) {
 
       userId:
         currentUser?.username ||
-        'system'
+        'system',
     }
 
     const { data, error } = await supabase
@@ -286,6 +289,13 @@ export function useFichas(currentUser) {
 
   }, [fichas])
 
+    const atualizarOperadores = useCallback((fichaId, operadores) => {
+      atualizarFicha(fichaId, ficha => ({
+        ...ficha,
+        operadores
+      }))
+    }, [atualizarFicha])
+
   // ─────────────────────────────────────────────
   // EXCLUIR
   // ─────────────────────────────────────────────
@@ -339,9 +349,17 @@ const visibleFichas = useMemo(() => {
   }
 
   // Começa com fichas do próprio usuário
-  let fichasVisiveis = fichas.filter(
-    f => f.userId === currentUser.username
-  )
+  let fichasVisiveis = fichas.filter(f => {
+    const ehCriador =
+      f.userId === currentUser.username
+
+    const ehOperador =
+      (f.operadores || []).some(
+        op => op.username === currentUser.username
+      )
+
+    return ehCriador || ehOperador
+  })
 
   // Adiciona aguardando aprovação
   if (verAprovacao) {
@@ -388,6 +406,7 @@ return {
   isLoading: !isLoaded,
   criarFicha,
   atualizarFicha,
+  atualizarOperadores,
   excluirFicha,
   getFicha
 }
