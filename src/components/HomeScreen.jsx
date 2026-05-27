@@ -527,7 +527,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                                   height: '24px',
                                   borderRadius: '50%',
                                   backgroundColor: 'var(--blue-accent)',
-                                  color: 'var(--blue-primary)',
+                                  color: 'var(--bg-card)',
                                   border: '2px solid var(--bg-card)',
                                   display: 'flex',
                                   alignItems: 'center',
