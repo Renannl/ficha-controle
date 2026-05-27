@@ -14,7 +14,8 @@ import {
   Clock3,
   ClipboardList,
   Camera,
-  Zap
+  Zap,
+  UserPlus
 } from 'lucide-react'
 
 export default function AdminPanel({ onBack }) {
@@ -295,6 +296,11 @@ export default function AdminPanel({ onBack }) {
                     <input type="checkbox" checked={permissoes.includes('rejeitar')} onChange={() => togglePermission('rejeitar')} />
                     <span className="perm-icon"><ShieldX size={16} /></span>
                     <span className="perm-text">Rejeitar Fichas</span>
+                  </label>
+                  <label className={`perm-item ${permissoes.includes('alocar_usuario') ? 'active' : ''}`}>
+                    <input type="checkbox" checked={permissoes.includes('alocar_usuario')} onChange={() => togglePermission('alocar_usuario')} />
+                    <span className="perm-icon"><UserPlus size={16} /></span>
+                    <span className="perm-text">Alocar Usuários</span>
                   </label>
                 </div>
               </div>

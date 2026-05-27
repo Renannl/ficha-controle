@@ -193,24 +193,52 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
 
   // ADICIONADO: Gerencia a atribuição de operadores à ficha
   const handleToggleOperadorFicha = (e, ficha, usuario) => {
-    e.stopPropagation(); // Não abre a ficha ao clicar no item da lista
-    
+    e.stopPropagation();
+
     const operadoresAtuais = ficha.operadores || [];
-    const jaExiste = operadoresAtuais.some(op => op.id === usuario.id || op.username === usuario.username);
-    
+
+    const jaExiste = operadoresAtuais.some(
+      op => op.id === usuario.id || op.username === usuario.username
+    );
+
+    // quem pode gerenciar operadores
+    const podeGerenciar =
+      user?.role === 'admin' ||
+      user?.permissoes?.includes('alocar_usuario');
+
+    // impede DESALOCAR
+    if (jaExiste && !podeGerenciar) {
+      return;
+    }
+
     let novosOperadores;
+
     if (jaExiste) {
-      // Remove se clicar em alguém que já está ativo
-      novosOperadores = operadoresAtuais.filter(op => op.id !== usuario.id && op.username !== usuario.username);
+      // remove operador
+      novosOperadores = operadoresAtuais.filter(
+        op => op.id !== usuario.id &&
+        op.username !== usuario.username
+      );
     } else {
-      // Adiciona o novo operador
-      novosOperadores = [...operadoresAtuais, { id: usuario.id, nome: usuario.nome, username: usuario.username }];
+      // adiciona operador
+      novosOperadores = [
+        ...operadoresAtuais,
+        {
+          id: usuario.id,
+          nome: usuario.nome,
+          username: usuario.username
+        }
+      ];
     }
 
     if (onAtualizarOperadores) {
       onAtualizarOperadores(ficha.id, novosOperadores);
     }
   };
+
+  const podeGerenciarOperadores =
+  user?.role === 'admin' ||
+  user?.permissoes?.includes('alocar_usuario');
 
   return (
     <div className="home">
@@ -443,7 +471,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                           </div>
 
                           <div className="ficha-card-sub">
-                            {OPERACOES[ficha.operacao]?.nome || '—'} · {ficha.cliente || '—'}
+                            <strong>{ficha.nrInd || '—'}</strong> · {OPERACOES[ficha.operacao]?.nome || '—'} · {ficha.cliente || '—'}
                           </div>
 
                           <div className="ficha-card-meta">
@@ -521,6 +549,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                         </div>
 
                         {/* Botão de Adicionar (+) com Dropdown Absoluto */}
+                        {podeGerenciarOperadores && (
                         <div style={{ position: 'relative' }}>
                           <button
                             style={{
@@ -568,7 +597,12 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                                 Escalar Equipe
                               </div>
                               {listaUsuarios.map(u => {
-                                const ativo = operadores.some(op => op.id === u.id || op.username === u.username);
+                                const ativo = operadores.some(
+                                  op => op.id === u.id || op.username === u.username
+                                );
+
+                                const podeGerenciar = user?.role === 'admin' || user?.permissoes?.includes('alocar_usuario');
+                                
                                 return (
                                   <button
                                     key={u.id}
@@ -578,10 +612,10 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                                       padding: '6px 10px',
                                       fontSize: '12px',
                                       textAlign: 'left',
-                                      background: ativo ? 'var(--blue-glow)' : 'transparent',
+                                      background: ativo && !podeGerenciar ? 'transparent' : ativo ? 'var(--blue-glow)' : 'transparent',
                                       color: ativo ? 'var(--blue-primary)' : 'var(--text-secondary)',
                                       border: 'none',
-                                      cursor: 'pointer',
+                                      cursor: ativo && !podeGerenciar ? 'not-allowed' : 'pointer',
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'space-between'
@@ -602,6 +636,7 @@ export default function HomeScreen({ fichas, onNova, onOpen, onDelete, user, onL
                             </div>
                           )}
                         </div>
+                        )}
                       </div>
 
                       <div className="ficha-card-bottom">
