@@ -61,7 +61,7 @@ export async function exportFicha(ficha, elementId = 'print-view-root') {
   printClone.classList.remove('print-only')
 
   // Otimização de imagens para evitar estouro de RAM no mobile
-  printClone.querySelectorAll('img').forEach(img => { img.style.maxWidth = '800px'; img.style.height = 'auto'; })
+  printClone.querySelectorAll('img').forEach(img => { img.style.maxWidth = '100%'; img.style.height = 'auto'; img.style.objectFit = 'contain'; })
   printClone.style.cssText = `display:block !important;width:${A4_PRINT_WIDTH}px !important;background:#fff !important;padding:20px !important;`
 
   tempWrapper.appendChild(printClone)
@@ -97,11 +97,13 @@ export async function exportFicha(ficha, elementId = 'print-view-root') {
       .set({
         margin: finalMargin,
         filename: safeFilename,
-        image: { type: 'jpeg', quality: 0.90 },
+        image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
-          scale: 1.2,
+          scale: window.devicePixelRatio > 1 ? 2.5 : 2,
           useCORS: true,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          logging: false,
+          letterRendering: true
         },
         jsPDF: {
           unit: 'mm',
