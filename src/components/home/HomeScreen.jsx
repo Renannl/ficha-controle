@@ -5,6 +5,7 @@ import PhotoBank from "../PhotoBank";
 import Dashboard from "../Dashboard";
 import ConfirmModal from "../ConfirmModal";
 import FichaCard from "./FichaCard";
+import { useFichasFilter } from "../../hooks/useFichasFilter";
 import { getFichaStatus, getProgressPct } from "../../utils/fichaStatus";
 import {
   Moon,
@@ -128,42 +129,11 @@ export default function HomeScreen({
     return hasPerm(["controle"]);
   });
 
-  const total = fichas.length;
-  const emAndamento = fichas.filter((f) =>
-    ["progress", "waiting"].includes(getFichaStatus(f)),
-  ).length;
-
-  const concluidas = fichas.filter((f) =>
-    ["done", "approved"].includes(getFichaStatus(f)),
-  ).length;
-
-  const filteredFichas = fichas.filter((f) => {
-    const statusMatch =
-      filterStatus === "all" ? true : getFichaStatus(f) === filterStatus;
-
-    const isTaf = f.operacao === "50";
-    const isFoto = f.operacao === "80";
-
-    let typeMatch = true;
-
-    if (filterType === "taf") {
-      typeMatch = isTaf;
-    } else if (filterType === "controle") {
-      typeMatch = !isTaf && !isFoto;
-    } else if (filterType === "foto") {
-      typeMatch = isFoto;
-    }
-
-    const term = searchTerm.toLowerCase();
-
-    const searchMatch =
-      !searchTerm ||
-      (f.nomeEquipamento || "").toLowerCase().includes(term) ||
-      (f.id || "").toLowerCase().includes(term) ||
-      (f.codigo || "").toLowerCase().includes(term) ||
-      (f.cliente || "").toLowerCase().includes(term);
-
-    return statusMatch && typeMatch && searchMatch;
+  const { filteredFichas, stats } = useFichasFilter({
+    fichas,
+    filterStatus,
+    filterType,
+    searchTerm,
   });
 
   function handleDelete(e, id) {
@@ -290,18 +260,18 @@ export default function HomeScreen({
         </div>
         <div className="home-stats">
           <div className="stat-card">
-            <div className="stat-value">{total}</div>
+            <div className="stat-value">{stats.total}</div>
             <div className="stat-label">Total</div>
           </div>
           <div className="stat-card">
             <div className="stat-value" style={{ color: "var(--amber)" }}>
-              {emAndamento}
+              {stats.emAndamento}
             </div>
             <div className="stat-label">Em Andamento</div>
           </div>
           <div className="stat-card">
             <div className="stat-value" style={{ color: "var(--green)" }}>
-              {concluidas}
+              {stats.concluidas}
             </div>
             <div className="stat-label">Concluídas</div>
           </div>
