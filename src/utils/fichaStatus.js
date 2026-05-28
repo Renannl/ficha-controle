@@ -1,72 +1,61 @@
 export function getProgressStatus(ficha) {
-
-  const total = ficha.items?.length || 0
+  const total = ficha.items?.length || 0;
 
   if (total === 0) {
-    return 'empty'
+    return "empty";
   }
 
   const done = ficha.items.filter(
-    i =>
-      i.resultado === 'ok' ||
-      i.resultado === 'na'
-  ).length
+    (i) => i.resultado === "ok" || i.resultado === "na",
+  ).length;
 
   if (done === 0) {
-    return 'empty'
+    return "empty";
   }
 
   if (done === total) {
-    return 'done'
+    return "done";
   }
 
-  return 'progress'
+  return "progress";
 }
 
 export function getApprovalStatus(ficha) {
-
-  if (ficha.statusAprovacao === 'aprovado') {
-    return 'approved'
+  if (ficha.statusAprovacao === "aprovado") {
+    return "approved";
   }
 
-  if (ficha.statusAprovacao === 'reprovado') {
-    return 'rejected'
+  if (ficha.statusAprovacao === "reprovado") {
+    return "rejected";
   }
 
-  if (
-    ficha.status === 'finalizada' &&
-    ficha.statusAprovacao === 'aguardando'
-  ) {
-    return 'waiting'
+  if (ficha.status === "finalizada" && ficha.statusAprovacao === "aguardando") {
+    return "waiting";
   }
 
-  return 'none'
+  return "none";
 }
 
 export function getFichaStatus(ficha) {
+  const approval = getApprovalStatus(ficha);
 
-  const approval = getApprovalStatus(ficha)
-
-  if (approval !== 'none') {
-    return approval
+  if (approval !== "none") {
+    return approval;
   }
 
-  return getProgressStatus(ficha)
+  return getProgressStatus(ficha);
 }
 
 export function getProgressPct(ficha) {
-
-  const total = ficha.items?.length || 0
+  const total = ficha.items?.length || 0;
 
   if (total === 0) {
-    return 0
+    return 0;
   }
 
   const done = ficha.items.filter(
-    i =>
-      i.resultado === 'ok' ||
-      i.resultado === 'na'
-  ).length
+    (i) => i.resultado === "ok" || i.resultado === "na",
+  ).length;
 
-  return Math.round((done / total) * 100)
+  return Math.round((done / total) * 100);
 }

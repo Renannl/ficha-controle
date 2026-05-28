@@ -6,7 +6,6 @@ import Dashboard from "../Dashboard";
 import ConfirmModal from "../ConfirmModal";
 import FichaCard from "./FichaCard";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
-import { getFichaStatus, getProgressPct } from "../../utils/fichaStatus";
 import {
   Moon,
   Sun,
@@ -21,16 +20,9 @@ import {
   Zap,
   Camera,
   User,
-  Tag,
-  Trash2,
   Plus,
-  FileText,
-  CheckCircle2,
-  Clock3,
-  AlertCircle,
-  Circle,
 } from "lucide-react";
-import OperatorSelector from "./OperatorSelector";
+import { hasPermission } from "../../utils/hasPermission";
 
 // ADICIONADO: 'listaUsuarios' e 'onAtualizarOperadores' nas propriedades recebidas
 export default function HomeScreen({
@@ -53,7 +45,7 @@ export default function HomeScreen({
   const [filterType, setFilterType] = useState(
     () => localStorage.getItem("homeFilterType") || "all",
   );
-
+  const podeGerenciar = hasPermission(user, "alocar_usuario");
   useEffect(() => {
     localStorage.setItem("homeFilterStatus", filterStatus);
   }, [filterStatus]);
@@ -107,26 +99,17 @@ export default function HomeScreen({
     localStorage.setItem("homeViewMode", viewMode);
   }, [viewMode]);
 
-  const hasPerm = (perms = []) => {
-    // ADMIN vê tudo
-    if (user?.role === "admin") {
-      return true;
-    }
-    // Verifica permissões do usuário
-    return perms.some((p) => user?.permissoes?.includes(p));
-  };
-
   const availableOps = Object.values(OPERACOES).filter((op) => {
     // TAF
     if (op.codigo === "50") {
-      return hasPerm(["taf"]);
+      return hasPermission(user, "taf");
     }
     // FOTO
     if (op.codigo === "80") {
-      return hasPerm(["fotos"]);
+      return hasPermission(user, "fotos");
     }
     // CONTROLE
-    return hasPerm(["controle"]);
+    return hasPermission(user, "controle");
   });
 
   const { filteredFichas, stats } = useFichasFilter({
@@ -162,11 +145,6 @@ export default function HomeScreen({
     const jaExiste = operadoresAtuais.some(
       (op) => op.id === usuario.id || op.username === usuario.username,
     );
-
-    // quem pode gerenciar operadores
-    const podeGerenciar =
-      user?.role === "admin" || user?.permissoes?.includes("alocar_usuario");
-
     // impede DESALOCAR
     if (jaExiste && !podeGerenciar) {
       return;
