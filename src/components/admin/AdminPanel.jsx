@@ -1,79 +1,69 @@
-import { useState } from 'react'
-import { LogOut, User } from 'lucide-react'
+import { useState } from "react";
+import { LogOut, User } from "lucide-react";
 
-import { useUsers } from '../../hooks/useUsers'
+import { useUsers } from "../../hooks/useUsers";
 
-import UserForm from './UserForm'
-import UserTable from './UserTable'
-import LoadingState from './LoadingState'
+import UserForm from "./UserForm";
+import UserTable from "./UserTable";
+import LoadingState from "./LoadingState";
 
 export default function AdminPanel({ onBack }) {
+  const { users, loading, updateUser } = useUsers();
 
-  const { users, loading, updateUser } = useUsers()
+  const [editingUser, setEditingUser] = useState(null);
 
-  const [editingUser, setEditingUser] = useState(null)
-
-  const [nome, setNome] = useState('')
-  const [role, setRole] = useState('producao')
-  const [permissoes, setPermissoes] = useState([])
-  const [active, setActive] = useState(true)
+  const [nome, setNome] = useState("");
+  const [role, setRole] = useState("producao");
+  const [permissoes, setPermissoes] = useState([]);
+  const [active, setActive] = useState(true);
 
   function resetForm() {
-
-    setEditingUser(null)
-    setNome('')
-    setRole('producao')
-    setPermissoes([])
-    setActive(true)
+    setEditingUser(null);
+    setNome("");
+    setRole("producao");
+    setPermissoes([]);
+    setActive(true);
   }
 
   function editarUsuario(user) {
+    setEditingUser(user);
 
-    setEditingUser(user)
-
-    setNome(user.nome || '')
-    setRole(user.role || 'producao')
-    setPermissoes(user.permissoes || [])
-    setActive(user.active)
+    setNome(user.nome || "");
+    setRole(user.role || "producao");
+    setPermissoes(user.permissoes || []);
+    setActive(user.active);
   }
 
   async function salvarUsuario() {
-
-    if (!editingUser) return
+    if (!editingUser) return;
 
     try {
-
       await updateUser(editingUser.id, {
         nome,
         role,
         permissoes,
-        active
-      })
+        active,
+      });
 
-      alert('Usuário atualizado')
+      alert("Usuário atualizado");
 
-      resetForm()
-
+      resetForm();
     } catch (err) {
+      console.error(err);
 
-      console.error(err)
-
-      alert('Erro atualizar usuário')
+      alert("Erro atualizar usuário");
     }
   }
 
   if (loading) {
-    return <LoadingState />
+    return <LoadingState />;
   }
 
   return (
     <div className="admin-panel animate-fadeIn">
-
       <header className="admin-header">
         <div className="container flex items-center justify-between">
-
           <div className="flex items-center gap-4">
-
             <button
               className="back-button-circular"
               onClick={onBack}
@@ -83,13 +73,9 @@ export default function AdminPanel({ onBack }) {
             </button>
 
             <div className="admin-title-group">
-              <h1 className="text-xl font-bold">
-                Configurações do Sistema
-              </h1>
+              <h1 className="text-xl font-bold">Configurações do Sistema</h1>
 
-              <p className="text-xs text-muted">
-                Acessos e permissões
-              </p>
+              <p className="text-xs text-muted">Acessos e permissões</p>
             </div>
           </div>
 
@@ -97,12 +83,10 @@ export default function AdminPanel({ onBack }) {
             <span className="status-dot"></span>
             Interface Administrador
           </div>
-
         </div>
       </header>
 
       <div className="admin-content-grid container">
-
         <UserForm
           editingUser={editingUser}
           nome={nome}
@@ -118,31 +102,19 @@ export default function AdminPanel({ onBack }) {
         />
 
         <div className="admin-col-list">
-
           <section className="admin-card">
-
             <div className="admin-card-header">
-
               <div className="card-icon">
                 <User size={18} />
               </div>
 
-              <h3 className="text-md font-bold">
-                Equipe Cadastrada
-              </h3>
-
+              <h3 className="text-md font-bold">Equipe Cadastrada</h3>
             </div>
 
-            <UserTable
-              users={users}
-              onEdit={editarUsuario}
-            />
-
+            <UserTable users={users} onEdit={editarUsuario} />
           </section>
-
         </div>
-
       </div>
     </div>
-  )
+  );
 }

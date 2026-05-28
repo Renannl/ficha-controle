@@ -1,25 +1,18 @@
-import PermissionItem from './PermissionItem'
+import PermissionItem from "./PermissionItem";
 
 export default function PermissionGroup({
   title,
   permissions,
   selectedPermissions,
   onToggle,
-  gridStyle = {}
+  gridStyle = {},
 }) {
-
   return (
     <div className="permission-group">
+      <label className="field-label mb-3 block">{title}</label>
 
-      <label className="field-label mb-3 block">
-        {title}
-      </label>
-
-      <div
-        className="permissions-grid mb-4"
-        style={gridStyle}
-      >
-        {permissions.map(perm => (
+      <div className="permissions-grid mb-4" style={gridStyle}>
+        {permissions.map((perm) => (
           <PermissionItem
             key={perm.key}
             checked={selectedPermissions.includes(perm.key)}
@@ -29,7 +22,6 @@ export default function PermissionGroup({
           />
         ))}
       </div>
-
     </div>
-  )
+  );
 }
