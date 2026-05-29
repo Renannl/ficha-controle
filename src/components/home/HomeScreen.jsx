@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { ROLES } from "../../data/users";
 import PhotoBank from "../PhotoBank";
 import Dashboard from "../Dashboard";
 import ConfirmModal from "../ConfirmModal";
@@ -14,8 +13,8 @@ import HomeFilters from "./HomeFilters";
 import NewFichaMenu from "./NewFichaMenu";
 import HomeViewToggle from "./HomeViewToggle";
 import HomeHeader from "./HomeHeader";
-
-import { Moon, Sun, Settings, LogOut, Plus, ClipboardList } from "lucide-react";
+import HomeEmptyState from "./HomeEmptyState";
+import { Plus } from "lucide-react";
 
 export default function HomeScreen({
   fichas,
@@ -154,13 +153,7 @@ export default function HomeScreen({
         <>
           {/* Lista */}
           {fichas.length === 0 && !showNewMenu ? (
-            <div className="home-empty" style={{ paddingBottom: 120 }}>
-              <div className="empty-icon">
-                <ClipboardList size={42} strokeWidth={1.8} />
-              </div>
-
-              <p>Nenhuma ficha criada ainda. Toque no botão + para começar.</p>
-            </div>
+            <HomeEmptyState />
           ) : (
             <div className="home-list animate-scaleIn">
               <HomeFilters
