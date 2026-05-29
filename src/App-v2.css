@@ -353,7 +353,7 @@
   font-size: 20px;
   font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-left: 2px;
 }
 
 .ficha-card {
@@ -452,14 +452,6 @@
   gap: 12px;
   position: relative;
   z-index: 1;
-}
-
-.home-list-title {
-  grid-column: 1 / -1;
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 4px;
 }
 
 .ficha-card {
@@ -3777,6 +3769,7 @@
   align-items: baseline;
   gap: 12px;
   margin-bottom: 10px;
+  margin-left: 1px ;
   flex-wrap: wrap;
 }
 
@@ -4300,7 +4293,7 @@
   .home-list {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    padding: 12px;
+    padding: 24px;
     padding-bottom: 100px;
   }
 
@@ -4336,11 +4329,6 @@
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 10px !important;
-  }
-
-  .home-list-header .home-list-title {
-    font-size: 16px;
-    width: 100%;
   }
 
   .home-list-header .flex.gap-2 {
