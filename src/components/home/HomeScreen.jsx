@@ -12,17 +12,9 @@ import { canManageOperators } from "../../utils/operators";
 import { getAvailableOperations } from "../../utils/operations";
 import HomeFilters from "./HomeFilters";
 import NewFichaMenu from "./NewFichaMenu";
+import HomeViewToggle from "./HomeViewToggle";
 
-import {
-  Moon,
-  Sun,
-  Settings,
-  LogOut,
-  LayoutList,
-  Images,
-  BarChart3,
-  Plus,
-} from "lucide-react";
+import { Moon, Sun, Settings, LogOut, Plus, ClipboardList } from "lucide-react";
 
 export default function HomeScreen({
   fichas,
@@ -51,21 +43,9 @@ export default function HomeScreen({
   // PERMISSIONS
   const podeGerenciar = canManageOperators(user);
 
-  const sliderPosition = {
-    list: "var(--toggle-pad)",
-    gallery: "calc(33.33% + var(--toggle-pad))",
-    dashboard: "calc(66.66% + var(--toggle-pad))",
-  };
-
   // HOOKS
-  const {
-    toggleRef,
-    dragOffset,
-    isDragging,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
-  } = useViewModeDrag(setViewMode);
+  const { toggleRef, handleTouchStart, handleTouchMove, handleTouchEnd } =
+    useViewModeDrag(setViewMode);
 
   const { handleToggleOperadorFicha, podeGerenciarOperadores } = useOperators({
     user,
@@ -199,41 +179,14 @@ export default function HomeScreen({
       </div>
 
       {/* VIEW TOGGLE */}
-      <div
-        className="home-view-toggle"
-        ref={toggleRef}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div
-          className="view-toggle-slider"
-          style={{
-            left: sliderPosition[viewMode],
-          }}
-        />
-
-        <button
-          onClick={() => setViewMode("list")}
-          className={`view-toggle-btn ${viewMode === "list" ? "active" : ""}`}
-        >
-          <LayoutList size={16} /> Relatórios
-        </button>
-
-        <button
-          onClick={() => setViewMode("gallery")}
-          className={`view-toggle-btn ${viewMode === "gallery" ? "active" : ""}`}
-        >
-          <Images size={16} /> Fotos
-        </button>
-
-        <button
-          onClick={() => setViewMode("dashboard")}
-          className={`view-toggle-btn ${viewMode === "dashboard" ? "active" : ""}`}
-        >
-          <BarChart3 size={16} /> Métricas
-        </button>
-      </div>
+      <HomeViewToggle
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        toggleRef={toggleRef}
+        handleTouchStart={handleTouchStart}
+        handleTouchMove={handleTouchMove}
+        handleTouchEnd={handleTouchEnd}
+      />
 
       {/* CONTENT */}
       {viewMode === "dashboard" ? (
