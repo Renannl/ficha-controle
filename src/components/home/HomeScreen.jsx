@@ -1,19 +1,14 @@
 import { useState, useEffect } from "react";
-
 import { ROLES } from "../../data/users";
-
 import PhotoBank from "../PhotoBank";
 import Dashboard from "../Dashboard";
 import ConfirmModal from "../ConfirmModal";
 import FichaCard from "./FichaCard";
-
 import { useFichasFilter } from "../../hooks/useFichasFilter";
 import { useLocalStorageState } from "../../hooks/useLocalStorageState";
 import { useViewModeDrag } from "../../hooks/useViewModeDrag";
 import { useOperators } from "../../hooks/useOperators";
 import { canManageOperators } from "../../utils/operators";
-
-import { hasPermission } from "../../utils/hasPermission";
 import { getAvailableOperations } from "../../utils/operations";
 
 import {
@@ -87,12 +82,26 @@ export default function HomeScreen({
   );
 
   useEffect(() => {
-    setFilterStatus("all");
-    setFilterType("all");
+    const validStatus = [
+      "all",
+      "progress",
+      "done",
+      "waiting",
+      "approved",
+      "rejected",
+      "empty",
+    ];
+
+    const validTypes = ["all", "taf", "controle", "foto"];
+
+    if (!validStatus.includes(filterStatus)) {
+      setFilterStatus("all");
+    }
+
+    if (!validTypes.includes(filterType)) {
+      setFilterType("all");
+    }
   }, []);
-  useEffect(() => {
-    localStorage.setItem("homeViewMode", viewMode);
-  }, [viewMode]);
 
   // DATA
   const availableOps = getAvailableOperations(user);
@@ -273,7 +282,7 @@ export default function HomeScreen({
                     <button
                       className="search-toggle-btn"
                       onClick={() => {
-                        setShowSearch(!showSearch);
+                        setShowSearch((prev) => !prev);
 
                         if (showSearch) {
                           setSearchTerm("");
