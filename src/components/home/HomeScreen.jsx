@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import ConfirmModal from "../ConfirmModal";
 import FichaCard from "./FichaCard";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
@@ -12,9 +12,10 @@ import NewFichaMenu from "./NewFichaMenu";
 import HomeViewToggle from "./HomeViewToggle";
 import HomeHeader from "./HomeHeader";
 import HomeEmptyState from "./HomeEmptyState";
-import { Plus } from "lucide-react";
 import HomeList from "./HomeList";
 import HomeContent from "./HomeContent";
+import HomeFab from "./HomeFab";
+import { useHomeFilters } from "../../hooks/useHomeFilters";
 
 export default function HomeScreen({
   fichas,
@@ -54,37 +55,8 @@ export default function HomeScreen({
   });
 
   // LOCAL STORAGE SYNC
-  const [filterStatus, setFilterStatus] = useLocalStorageState(
-    "homeFilterStatus",
-    "all",
-  );
-
-  const [filterType, setFilterType] = useLocalStorageState(
-    "homeFilterType",
-    "all",
-  );
-
-  useEffect(() => {
-    const validStatus = new Set([
-      "all",
-      "progress",
-      "done",
-      "waiting",
-      "approved",
-      "rejected",
-      "empty",
-    ]);
-
-    const validTypes = new Set(["all", "taf", "controle", "foto"]);
-
-    if (!validStatus.has(filterStatus)) {
-      setFilterStatus("all");
-    }
-
-    if (!validTypes.has(filterType)) {
-      setFilterType("all");
-    }
-  }, [filterStatus, filterType, setFilterStatus, setFilterType]);
+  const { filterStatus, setFilterStatus, filterType, setFilterType } =
+    useHomeFilters();
 
   // DATA
   const availableOps = useMemo(() => getAvailableOperations(user), [user]);
@@ -179,9 +151,7 @@ export default function HomeScreen({
       />
 
       {/* FAB */}
-      <button className="fab" onClick={() => setShowNewMenu(true)}>
-        <Plus size={26} />
-      </button>
+      <HomeFab onClick={() => setShowNewMenu(true)} />
 
       <NewFichaMenu
         show={showNewMenu}
