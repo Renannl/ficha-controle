@@ -1,6 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import PhotoBank from "../PhotoBank";
-import Dashboard from "../Dashboard";
 import ConfirmModal from "../ConfirmModal";
 import FichaCard from "./FichaCard";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
@@ -15,6 +13,8 @@ import HomeViewToggle from "./HomeViewToggle";
 import HomeHeader from "./HomeHeader";
 import HomeEmptyState from "./HomeEmptyState";
 import { Plus } from "lucide-react";
+import HomeList from "./HomeList";
+import HomeContent from "./HomeContent";
 
 export default function HomeScreen({
   fichas,
@@ -143,62 +143,29 @@ export default function HomeScreen({
       />
 
       {/* CONTENT */}
-      {viewMode === "dashboard" ? (
-        <div style={{ padding: "16px", paddingBottom: "100px" }}>
-          <Dashboard fichas={fichas} user={user} onApprove={onApprove} />
-        </div>
-      ) : viewMode === "gallery" ? (
-        <PhotoBank fichas={fichas} />
-      ) : (
-        <>
-          {/* Lista */}
-          {fichas.length === 0 && !showNewMenu ? (
-            <HomeEmptyState />
-          ) : (
-            <div className="home-list animate-scaleIn">
-              <HomeFilters
-                showSearch={showSearch}
-                setShowSearch={setShowSearch}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                filterType={filterType}
-                setFilterType={setFilterType}
-                filterStatus={filterStatus}
-                setFilterStatus={setFilterStatus}
-              />
-
-              {filteredFichas.length === 0 ? (
-                <div
-                  className="text-center py-12 opacity-60 text-sm card-glow-none"
-                  style={{
-                    padding: "20px 20px",
-                    background: "var(--bg-card)",
-                    borderRadius: "var(--radius-md)",
-                  }}
-                >
-                  Nenhuma ficha encontrada para estes filtros.
-                </div>
-              ) : (
-                filteredFichas.map((ficha, i) => (
-                  <FichaCard
-                    key={ficha.id}
-                    ficha={ficha}
-                    index={i}
-                    user={user}
-                    listaUsuarios={listaUsuarios}
-                    onOpen={onOpen}
-                    onDelete={handleDelete}
-                    onToggleOperador={handleToggleOperadorFicha}
-                    podeGerenciarOperadores={podeGerenciarOperadores}
-                    activeDropdownFichaId={activeDropdownFichaId}
-                    setActiveDropdownFichaId={setActiveDropdownFichaId}
-                  />
-                ))
-              )}
-            </div>
-          )}
-        </>
-      )}
+      <HomeContent
+        viewMode={viewMode}
+        fichas={fichas}
+        user={user}
+        onApprove={onApprove}
+        showNewMenu={showNewMenu}
+        filteredFichas={filteredFichas}
+        showSearch={showSearch}
+        setShowSearch={setShowSearch}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterType={filterType}
+        setFilterType={setFilterType}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        listaUsuarios={listaUsuarios}
+        onOpen={onOpen}
+        onDelete={handleDelete}
+        onToggleOperador={handleToggleOperadorFicha}
+        podeGerenciarOperadores={podeGerenciarOperadores}
+        activeDropdownFichaId={activeDropdownFichaId}
+        setActiveDropdownFichaId={setActiveDropdownFichaId}
+      />
 
       {/* MODAL */}
       <ConfirmModal
