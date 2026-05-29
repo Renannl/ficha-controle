@@ -24,7 +24,6 @@ export default function FichaCard({
   activeDropdownFichaId,
   setActiveDropdownFichaId,
 }) {
-
   const status = getFichaStatus(ficha);
   const pct = getProgressPct(ficha);
   const operadores = ficha.operadores || []; // Garante o array de operadores ativos no card
