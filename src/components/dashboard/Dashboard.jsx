@@ -5,6 +5,7 @@ import DashboardDonut from "./DashboardDonut";
 import DashboardItems from "./DashboardItems";
 import DashboardTypeDistribution from "./DashboardTypeDistribution";
 import DashboardRanking from "./DashboardRanking";
+import DashboardRecent from "./DashboardRecent";
 
 export default function Dashboard({ fichas, user, onApprove }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -98,26 +99,7 @@ export default function Dashboard({ fichas, user, onApprove }) {
       <DashboardRanking fichas={fichaProgress} />
 
       {/* ─── Últimas Finalizadas ─── */}
-      {recentFinalized.length > 0 && (
-        <div className="dash-section">
-          <h3 className="dash-section-h3">Últimas Finalizadas</h3>
-          <div className="dash-recent">
-            {recentFinalized.map((f) => (
-              <div key={f.id} className="dash-recent-item">
-                <div className="dash-recent-dot" />
-                <div className="dash-recent-info">
-                  <div className="dash-recent-name">{f.nome}</div>
-                  <div className="dash-recent-type">
-                    {f.tipo} · {f.done}/{f.total} itens
-                  </div>
-                </div>
-                <span className="dash-recent-badge">100%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+      <DashboardRecent fichas={recentFinalized} />
       {/* ─── Lista Detalhada com Busca ─── */}
       <DashboardTable
         fichas={filteredFichas}
