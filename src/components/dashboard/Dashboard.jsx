@@ -10,6 +10,7 @@ import DashboardProgress from "./DashboardProgress";
 import DashboardHeader from "./DashboardHeader";
 import DashboardEmpty from "./DashboardEmpty";
 import useFilteredFichas from "../../hooks/useFilteredFichas";
+import useRecentFinalized from "../../hooks/useRecentFInalized";
 
 export default function Dashboard({ fichas, user, onApprove }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,13 +35,7 @@ export default function Dashboard({ fichas, user, onApprove }) {
 
   const filteredFichas = useFilteredFichas(fichaProgress, searchTerm);
 
-  const recentFinalized = useMemo(
-    () =>
-      fichaProgress
-        .filter((f) => ["done", "approved"].includes(f.status))
-        .slice(0, 5),
-    [fichaProgress],
-  );
+  const recentFinalized = useRecentFinalized(fichaProgress);
 
   return (
     <div className="dashboard animate-scaleIn">
