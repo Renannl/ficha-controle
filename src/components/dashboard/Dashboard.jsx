@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
-import { OPERACOES } from "../../data/fichaTemplate";
-import { getFichaStatus, getProgressPct } from "../../utils/fichaStatus";
 import { useDashboardMetrics } from "../../hooks/useDashboardMetrics";
 import DashboardTable from "./DashboardTable";
 import DashboardDonut from "./DashboardDonut";
+import DashboardItems from "./DashboardItems";
 
 export default function Dashboard({ fichas, user, onApprove }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,24 +37,6 @@ export default function Dashboard({ fichas, user, onApprove }) {
   }, [fichaProgress, searchTerm]);
 
   // Conic gradient for donut
-  const conicGradient =
-    total > 0
-      ? `conic-gradient(
-        var(--green) 0% ${donutConcluida}%,
-
-        var(--amber)
-        ${donutConcluida}%
-        ${donutConcluida + donutAndamento}%,
-
-        var(--red)
-        ${donutConcluida + donutAndamento}%
-        ${donutConcluida + donutAndamento + donutReprovadas}%,
-
-        var(--text-muted)
-        ${donutConcluida + donutAndamento + donutReprovadas}%
-        100%
-      )`
-      : `conic-gradient(var(--border) 0% 100%)`;
 
   // Type bar max
   const typeMax = Math.max(taf, controle, fotos, 1);
@@ -97,7 +78,6 @@ export default function Dashboard({ fichas, user, onApprove }) {
 
       {/* ─── Gráfico Donut + Itens ─── */}
       <div className="dash-grid-2">
-        {/* Donut */}
         <DashboardDonut
           total={total}
           concluidas={concluidas}
@@ -107,74 +87,13 @@ export default function Dashboard({ fichas, user, onApprove }) {
         />
 
         {/* Itens Verificados */}
-        <div className="dash-section">
-          <h3 className="dash-section-h3">Itens Verificados</h3>
-          <div className="dash-items-summary">
-            <div className="dash-item-stat">
-              <div
-                className="dash-item-stat-value"
-                style={{ color: "var(--green)" }}
-              >
-                {itemsOk}
-              </div>
-              <div className="dash-item-stat-label">OK ✓</div>
-              <div className="dash-item-stat-bar">
-                <div
-                  className="dash-item-stat-fill"
-                  style={{
-                    width: `${totalItems > 0 ? (itemsOk / totalItems) * 100 : 0}%`,
-                    background: "var(--green)",
-                  }}
-                />
-              </div>
-            </div>
-            <div className="dash-item-stat">
-              <div
-                className="dash-item-stat-value"
-                style={{ color: "var(--red)" }}
-              >
-                {itemsNa}
-              </div>
-              <div className="dash-item-stat-label">N/A ✗</div>
-              <div className="dash-item-stat-bar">
-                <div
-                  className="dash-item-stat-fill"
-                  style={{
-                    width: `${totalItems > 0 ? (itemsNa / totalItems) * 100 : 0}%`,
-                    background: "var(--red)",
-                  }}
-                />
-              </div>
-            </div>
-            <div className="dash-item-stat">
-              <div
-                className="dash-item-stat-value"
-                style={{ color: "var(--text-muted)" }}
-              >
-                {totalItems - itemsOk - itemsNa}
-              </div>
-              <div className="dash-item-stat-label">Pendente</div>
-              <div className="dash-item-stat-bar">
-                <div
-                  className="dash-item-stat-fill"
-                  style={{
-                    width: `${totalItems > 0 ? ((totalItems - itemsOk - itemsNa) / totalItems) * 100 : 0}%`,
-                    background: "var(--border-light)",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="dash-foto-stat">
-            <span className="dash-foto-count">{totalFotos}</span>
-            <span className="dash-foto-label">
-              foto{totalFotos !== 1 ? "s" : ""} registrada
-              {totalFotos !== 1 ? "s" : ""}
-            </span>
-          </div>
-        </div>
+        <DashboardItems
+          itemsOk={itemsOk}
+          itemsNa={itemsNa}
+          totalItems={totalItems}
+          totalFotos={totalFotos}
+        />
       </div>
-
       {/* ─── Distribuição por Tipo ─── */}
       <div className="dash-section">
         <h3 className="dash-section-h3">Distribuição por Tipo</h3>

@@ -1,3 +1,5 @@
+import DashboardTableRow from "./DashboardTableRow";
+
 export default function DashboardTable({
   fichas,
   searchTerm,
