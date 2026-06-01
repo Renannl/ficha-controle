@@ -7,6 +7,7 @@ import DashboardTypeDistribution from "./DashboardTypeDistribution";
 import DashboardRanking from "./DashboardRanking";
 import DashboardRecent from "./DashboardRecent";
 import DashboardProgress from "./DashboardProgress";
+import DashboardHeader from "./DashboardHeader";
 
 export default function Dashboard({ fichas, user, onApprove }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,13 +49,7 @@ export default function Dashboard({ fichas, user, onApprove }) {
   return (
     <div className="dashboard animate-scaleIn">
       {/* ─── Título ─── */}
-      <div className="dash-title-row">
-        <h2 className="dash-title">Dashboard</h2>
-        <span className="dash-subtitle">
-          {total} ficha{total !== 1 ? "s" : ""} registrada
-          {total !== 1 ? "s" : ""}
-        </span>
-      </div>
+      <DashboardHeader total={total} />
 
       {/* ─── Progresso Geral ─── */}
       <DashboardProgress
