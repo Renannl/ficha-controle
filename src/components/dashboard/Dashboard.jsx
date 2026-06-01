@@ -6,6 +6,7 @@ import DashboardItems from "./DashboardItems";
 import DashboardTypeDistribution from "./DashboardTypeDistribution";
 import DashboardRanking from "./DashboardRanking";
 import DashboardRecent from "./DashboardRecent";
+import DashboardProgress from "./DashboardProgress";
 
 export default function Dashboard({ fichas, user, onApprove }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,23 +57,12 @@ export default function Dashboard({ fichas, user, onApprove }) {
       </div>
 
       {/* ─── Progresso Geral ─── */}
-      <div className="dash-section">
-        <div className="dash-section-header">
-          <h3>Progresso Geral</h3>
-          <span className="dash-pct-badge">{pctGeral}%</span>
-        </div>
-        <div className="dash-progress-bar-lg">
-          <div
-            className="dash-progress-fill-lg"
-            style={{ width: `${pctGeral}%` }}
-          />
-        </div>
-        <div className="dash-progress-legend">
-          <span>
-            {itemsOk + itemsNa} de {totalItems} itens verificados
-          </span>
-        </div>
-      </div>
+      <DashboardProgress
+        pctGeral={pctGeral}
+        itemsOk={itemsOk}
+        itemsNa={itemsNa}
+        totalItems={totalItems}
+      />
 
       {/* ─── Gráfico Donut + Itens ─── */}
       <div className="dash-grid-2">
