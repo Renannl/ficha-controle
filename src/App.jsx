@@ -12,7 +12,7 @@ import SignatureSection from "./components/SignatureSection";
 import HomeScreen from "./components/home/HomeScreen";
 import PrintView from "./components/PrintView";
 import TafPanel from "./components/TafPanel";
-import PhotoPanel from "./components/PhotoPanel";
+import PhotoPanel from "./components/photoupload/PhotoPanel";
 import ConsideracoesPanel from "./components/consideracoes/ConsideracoesPanel";
 import AdminPanel from "./components/admin/AdminPanel";
 import ConfirmModal from "./components/ConfirmModal";
