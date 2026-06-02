@@ -31,11 +31,7 @@ export default function InfoEquipmentSection({ ficha, handle }) {
 
           <div className="field">
             <label>QTD</label>
-            <input
-              value={ficha.qtd}
-              onChange={handle("qtd")}
-              placeholder="1"
-            />
+            <input value={ficha.qtd} onChange={handle("qtd")} placeholder="1" />
           </div>
         </div>
 
