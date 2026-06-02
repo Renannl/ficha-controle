@@ -20,17 +20,20 @@ export default function ConsideracoesTable({
       <table className="verificacoes-table">
         <thead>
           <tr>
-            <th>ÍTENS DE VERIFICAÇÃO</th>
-            <th>IMG</th>
-            <th>STATUS</th>
+            <th className="th-item">ÍTENS DE VERIFICAÇÃO</th>
+
+            <th className="th-img">IMG</th>
+
+            <th className="th-status">STATUS</th>
           </tr>
         </thead>
 
         <tbody>
           {verificacoes.map((v, i) => (
-            <tr key={i}>
-              <td>
+            <tr key={i} className="verificacao-row">
+              <td className="verificacao-cell-bordered">
                 <input
+                  className="verificacao-input"
                   type="text"
                   value={v.descricao}
                   onChange={(e) =>
@@ -40,8 +43,9 @@ export default function ConsideracoesTable({
                 />
               </td>
 
-              <td>
+              <td className="verificacao-cell-bordered">
                 <input
+                  className="verificacao-input verificacao-input-center"
                   type="text"
                   value={v.imagemRef}
                   onChange={(e) =>
@@ -51,14 +55,15 @@ export default function ConsideracoesTable({
                 />
               </td>
 
-              <td>
+              <td className="verificacao-cell">
                 <input
+                  className="verificacao-input verificacao-input-center"
                   type="text"
                   value={v.status}
                   onChange={(e) =>
                     handleVerificacaoChange(i, "status", e.target.value)
                   }
-                  placeholder="OK..."
+                  placeholder="OK/..."
                 />
               </td>
             </tr>

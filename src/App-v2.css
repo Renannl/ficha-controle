@@ -4961,3 +4961,132 @@ tbody tr:hover {
 svg {
   stroke: currentColor;
 }
+
+.table-responsive-container {
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.verificacoes-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.th-item {
+  background: var(--blue-glow);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.th-img {
+  background: var(--blue-glow);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  width: 80px;
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.th-status {
+  background: var(--blue-glow);
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  width: 100px;
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.verificacao-row {
+  border-bottom: 1px solid var(--border);
+}
+
+.verificacao-cell {
+  padding: 0;
+}
+
+.verificacao-cell-bordered {
+  padding: 0;
+  border-right: 1px solid var(--border);
+}
+
+.verificacao-input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  font-size: 13px;
+}
+
+.verificacao-input-center {
+  text-align: center;
+}
+
+.consideracoes-footer-fields {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 250px), 1fr)
+  );
+  gap: 16px;
+}
+
+.consideracoes-input {
+  width: 100%;
+  padding: 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+}
+
+.consideracoes-input:focus {
+  outline: none;
+  border-color: var(--blue-light);
+}
+
+.consideracoes-observacoes {
+  margin-bottom: 24px;
+}
+
+.consideracoes-observacoes label {
+  display: block;
+  margin-bottom: 8px;
+
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  color: var(--text-secondary);
+}
+
+.consideracoes-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.consideracoes-textarea:focus {
+  outline: none;
+  border-color: var(--blue-light);
+}
