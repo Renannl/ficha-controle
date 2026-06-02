@@ -1,5 +1,5 @@
 import Dashboard from "../dashboard/Dashboard";
-import PhotoBank from "../PhotoBank";
+import PhotoBank from "../photo/PhotoBank";
 import HomeEmptyState from "./HomeEmptyState";
 import HomeList from "./HomeList";
 
