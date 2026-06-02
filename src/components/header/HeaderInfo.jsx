@@ -16,9 +16,7 @@ export default function HeaderInfo({ ficha }) {
           {ficha.codigo} · {opLabel}
         </div>
 
-        <span className="header-sub">
-          Criada por: {ficha.criadoPor || "-"}
-        </span>
+        <span className="header-sub">Criada por: {ficha.criadoPor || "-"}</span>
       </div>
     </div>
   );
