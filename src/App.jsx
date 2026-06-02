@@ -7,7 +7,7 @@ import Header from "./components/header/Header";
 import InfoCard from "./components/info/InfoCard";
 import ChecklistTable from "./components/checklist/ChecklistTable";
 import SessionsPanel from "./components/SessionsPanel";
-import NotesSection from "./components/NotesSection";
+import NotesSection from "./components/notes/NotesSection";
 import SignatureSection from "./components/SignatureSection";
 import HomeScreen from "./components/home/HomeScreen";
 import PrintView from "./components/PrintView";
