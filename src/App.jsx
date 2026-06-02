@@ -5,7 +5,7 @@ import { OPERACOES, getChecklistItems } from "./data/fichaTemplate";
 import LoginScreen from "./components/LoginScreen";
 import Header from "./components/header/Header";
 import InfoCard from "./components/info/InfoCard";
-import ChecklistTable from "./components/ChecklistTable";
+import ChecklistTable from "./components/checklist/ChecklistTable";
 import SessionsPanel from "./components/SessionsPanel";
 import NotesSection from "./components/NotesSection";
 import SignatureSection from "./components/SignatureSection";
