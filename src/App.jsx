@@ -3,7 +3,7 @@ import { useAuth } from "./hooks/useAuth";
 import { useFichas } from "./hooks/useFichas";
 import { OPERACOES, getChecklistItems } from "./data/fichaTemplate";
 import LoginScreen from "./components/LoginScreen";
-import Header from "./components/Header";
+import Header from "./components/header/Header";
 import InfoCard from "./components/InfoCard";
 import ChecklistTable from "./components/ChecklistTable";
 import SessionsPanel from "./components/SessionsPanel";
