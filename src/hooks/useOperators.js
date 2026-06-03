@@ -12,8 +12,7 @@ export function useOperators({ user, onAtualizarOperadores, podeGerenciar }) {
       const operadoresAtuais = ficha.operadores || [];
 
       const jaExiste = operadoresAtuais.some(
-        (op) =>
-          op.id === usuario.id || op.username === usuario.username
+        (op) => op.id === usuario.id || op.username === usuario.username,
       );
 
       // Se já existe e usuário não tem permissão, bloqueia remoção
@@ -24,9 +23,7 @@ export function useOperators({ user, onAtualizarOperadores, podeGerenciar }) {
       if (jaExiste) {
         // remove
         novosOperadores = operadoresAtuais.filter(
-          (op) =>
-            op.id !== usuario.id &&
-            op.username !== usuario.username
+          (op) => op.id !== usuario.id && op.username !== usuario.username,
         );
       } else {
         // adiciona
@@ -42,7 +39,7 @@ export function useOperators({ user, onAtualizarOperadores, podeGerenciar }) {
 
       onAtualizarOperadores?.(ficha.id, novosOperadores);
     },
-    [onAtualizarOperadores, podeGerenciar]
+    [onAtualizarOperadores, podeGerenciar],
   );
 
   return {

@@ -1,87 +1,83 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 export function useUsers() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadUsers()
-  }, [])
+    loadUsers();
+  }, []);
 
   async function loadUsers() {
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       const roleOrder = {
         admin: 1,
         corretor: 2,
         projetos: 3,
-        producao: 4
-      }
+        producao: 4,
+      };
 
       const sortedUsers = [...data].sort((a, b) => {
-        if (a.username === 'master') return -1
-        if (b.username === 'master') return 1
+        if (a.username === "master") return -1;
+        if (b.username === "master") return 1;
 
-        const roleA = roleOrder[a.role] || 999
-        const roleB = roleOrder[b.role] || 999
+        const roleA = roleOrder[a.role] || 999;
+        const roleB = roleOrder[b.role] || 999;
 
         if (roleA !== roleB) {
-          return roleA - roleB
+          return roleA - roleB;
         }
 
-        const nomeA = (a.nome || a.username || '').toLowerCase()
-        const nomeB = (b.nome || b.username || '').toLowerCase()
+        const nomeA = (a.nome || a.username || "").toLowerCase();
+        const nomeB = (b.nome || b.username || "").toLowerCase();
 
-        return nomeA.localeCompare(nomeB, 'pt-BR')
-      })
+        return nomeA.localeCompare(nomeB, "pt-BR");
+      });
 
-      setUsers(sortedUsers)
-
+      setUsers(sortedUsers);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function updateUser(userId, payload) {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
 
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/users/${userId}`,
       {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload)
-      }
-    )
+        body: JSON.stringify(payload),
+      },
+    );
 
     if (!response.ok) {
-      throw new Error('Erro atualizar')
+      throw new Error("Erro atualizar");
     }
 
-    await loadUsers()
+    await loadUsers();
   }
 
   return {
     users,
     loading,
     loadUsers,
-    updateUser
-  }
+    updateUser,
+  };
 }

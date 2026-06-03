@@ -11,12 +11,7 @@ const VALID_STATUS = new Set([
   "empty",
 ]);
 
-const VALID_TYPES = new Set([
-  "all",
-  "taf",
-  "controle",
-  "foto",
-]);
+const VALID_TYPES = new Set(["all", "taf", "controle", "foto"]);
 
 export function useHomeFilters() {
   const [filterStatus, setFilterStatus] = useLocalStorageState(

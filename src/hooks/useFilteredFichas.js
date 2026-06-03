@@ -1,9 +1,6 @@
 import { useMemo } from "react";
 
-export default function useFilteredFichas(
-  fichaProgress,
-  searchTerm,
-) {
+export default function useFilteredFichas(fichaProgress, searchTerm) {
   return useMemo(() => {
     if (!searchTerm) return fichaProgress;
 

@@ -1,164 +1,142 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from "react";
 
 export function useAuth() {
+  const [user, setUser] = useState(null);
 
-  const [user, setUser] = useState(null)
-
-  const isManualLogoutRef = useRef(false)
+  const isManualLogoutRef = useRef(false);
 
   useEffect(() => {
-
-    const savedUser = localStorage.getItem('user')
-    const token = localStorage.getItem('token')
+    const savedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
     if (savedUser && token) {
-      setUser(JSON.parse(savedUser))
+      setUser(JSON.parse(savedUser));
     }
-
-  }, [])
+  }, []);
 
   useEffect(() => {
+    if (!user) return;
 
-    if (!user) return
-
-    perfil()
+    perfil();
 
     const interval = setInterval(() => {
-      perfil()
-    }, 5000)
+      perfil();
+    }, 5000);
 
-    return () => clearInterval(interval)
-
-  }, [user])
+    return () => clearInterval(interval);
+  }, [user]);
 
   async function authFetch(url, options = {}) {
-
     if (isManualLogoutRef.current) {
-      return null
+      return null;
     }
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      return null
+      return null;
     }
 
     const response = await fetch(url, {
       ...options,
       headers: {
         ...options.headers,
-        Authorization: `Bearer ${token}`
-      }
-    })
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (response.status === 401) {
-
       if (!isManualLogoutRef.current) {
-        logout(true)
+        logout(true);
       }
 
-      return null
+      return null;
     }
 
-    return response
+    return response;
   }
 
   async function perfil() {
-
     try {
-
       const response = await authFetch(
-        `${import.meta.env.VITE_API_URL}/perfil`
-      )
+        `${import.meta.env.VITE_API_URL}/perfil`,
+      );
 
-      if (!response) return null
+      if (!response) return null;
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.user) {
-        setUser(data.user)
+        setUser(data.user);
       }
 
-      return data
-
+      return data;
     } catch (err) {
+      console.error(err);
 
-      console.error(err)
-
-      return null
+      return null;
     }
   }
 
   async function login(username, password) {
-
     try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+        method: "POST",
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/login`,
-        {
-          method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-          headers: {
-            'Content-Type': 'application/json'
-          },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
 
-          body: JSON.stringify({
-            username,
-            password
-          })
-        }
-      )
-
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error)
-        return false
+        alert(data.error);
+        return false;
       }
 
-      isManualLogoutRef.current = false
+      isManualLogoutRef.current = false;
 
-      localStorage.setItem('token', data.token)
+      localStorage.setItem("token", data.token);
 
-      localStorage.setItem(
-        'user',
-        JSON.stringify(data.user)
-      )
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      setUser(data.user)
+      setUser(data.user);
 
-      return true
-
+      return true;
     } catch (err) {
+      console.error(err);
 
-      console.error(err)
+      alert("Erro conexão backend");
 
-      alert('Erro conexão backend')
-
-      return false
+      return false;
     }
   }
 
   function logout(showAlert = false) {
+    isManualLogoutRef.current = true;
 
-    isManualLogoutRef.current = true
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-
-    setUser(null)
+    setUser(null);
 
     if (showAlert) {
-      alert('Sessão expirada')
+      alert("Sessão expirada");
     }
 
-    window.location.href = '/login'
+    window.location.href = "/login";
   }
 
   return {
     user,
     isAuthenticated: !!user,
     login,
-    logout
-  }
+    logout,
+  };
 }
