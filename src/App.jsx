@@ -10,7 +10,7 @@ import SessionsPanel from "./components/SessionsPanel";
 import NotesSection from "./components/notes/NotesSection";
 import SignatureSection from "./components/SignatureSection";
 import HomeScreen from "./components/home/HomeScreen";
-import PrintView from "./components/PrintView";
+import PrintView from "./components/print/PrintView";
 import TafPanel from "./components/TafPanel";
 import PhotoPanel from "./components/photoupload/PhotoPanel";
 import ConsideracoesPanel from "./components/consideracoes/ConsideracoesPanel";
@@ -302,7 +302,6 @@ export default function App() {
   }
 
   function updateItem(itemIndex, key, value) {
-
     atualizarFicha(currentFichaId, (prev) => {
       const items = [...prev.items];
 
