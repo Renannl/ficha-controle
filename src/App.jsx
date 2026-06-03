@@ -11,7 +11,7 @@ import NotesSection from "./components/notes/NotesSection";
 import SignatureSection from "./components/signatures/SignatureSection";
 import HomeScreen from "./components/home/HomeScreen";
 import PrintView from "./components/print/PrintView";
-import TafPanel from "./components/TafPanel";
+import TafPanel from "./components/taf/TafPanel";
 import PhotoPanel from "./components/photoupload/PhotoPanel";
 import ConsideracoesPanel from "./components/consideracoes/ConsideracoesPanel";
 import AdminPanel from "./components/admin/AdminPanel";
@@ -208,25 +208,25 @@ export default function App() {
     }
   }
 
-function confirmApprove(reason) {
-  if (!approveInfo) return;
+  function confirmApprove(reason) {
+    if (!approveInfo) return;
 
-  atualizarFicha(approveInfo.id, {
-    statusAprovacao: "aprovado",
+    atualizarFicha(approveInfo.id, {
+      statusAprovacao: "aprovado",
 
-    motivoAprovacao: reason,
+      motivoAprovacao: reason,
 
-    aprovadoPor: user?.nome || user?.username,
+      aprovadoPor: user?.nome || user?.username,
 
-    aprovadoEm: new Date().toISOString(),
+      aprovadoEm: new Date().toISOString(),
 
-    reprovadoPor: "",
-    reprovadoEm: "",
-    motivoReprovacao: "",
-  });
+      reprovadoPor: "",
+      reprovadoEm: "",
+      motivoReprovacao: "",
+    });
 
-  setApproveInfo(null);
-}
+    setApproveInfo(null);
+  }
 
   function confirmReject(reason) {
     if (!rejectInfo) return;
