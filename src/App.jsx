@@ -302,14 +302,19 @@ export default function App() {
   }
 
   function updateItem(itemIndex, key, value) {
-    if (!podeEditarFicha(ficha)) {
-      return;
-    }
 
     atualizarFicha(currentFichaId, (prev) => {
       const items = [...prev.items];
-      items[itemIndex] = { ...items[itemIndex], [key]: value };
-      return { ...prev, items };
+
+      items[itemIndex] = {
+        ...items[itemIndex],
+        [key]: value,
+      };
+
+      return {
+        ...prev,
+        items,
+      };
     });
   }
 
