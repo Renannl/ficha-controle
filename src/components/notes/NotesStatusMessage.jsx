@@ -20,6 +20,8 @@ export default function NotesStatusMessage({ ficha }) {
         <h4>
           ✅ Ficha Aprovada — {ficha.aprovadoPor || "-"}
         </h4>
+
+        <p>{ficha.motivoAprovacao}</p>
       </div>
     );
   }

@@ -22,6 +22,7 @@ import "./App-v2.css";
 import { testSupabase } from "./testSupabase";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "./lib/supabase";
+import ApproveModal from "./components/ApproveModal";
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth();
@@ -121,6 +122,7 @@ export default function App() {
     message: "",
   });
   const [rejectInfo, setRejectInfo] = useState(null);
+  const [approveInfo, setApproveInfo] = useState(null);
 
   const ficha = currentFichaId ? getFicha(currentFichaId) || null : null;
 
@@ -197,23 +199,34 @@ export default function App() {
   function handleApprove(id, estado) {
     if (estado === "reprovado") {
       setRejectInfo({ id });
-
       return;
     }
 
-    atualizarFicha(id, {
-      statusAprovacao: "aprovado",
-
-      aprovadoPor: user?.nome || user?.username,
-
-      aprovadoEm: new Date().toISOString(),
-
-      // limpa reprovação anterior
-      reprovadoPor: "",
-      reprovadoEm: "",
-      motivoReprovacao: "",
-    });
+    if (estado === "aprovado") {
+      setApproveInfo({ id });
+      return;
+    }
   }
+
+function confirmApprove(reason) {
+  if (!approveInfo) return;
+
+  atualizarFicha(approveInfo.id, {
+    statusAprovacao: "aprovado",
+
+    motivoAprovacao: reason,
+
+    aprovadoPor: user?.nome || user?.username,
+
+    aprovadoEm: new Date().toISOString(),
+
+    reprovadoPor: "",
+    reprovadoEm: "",
+    motivoReprovacao: "",
+  });
+
+  setApproveInfo(null);
+}
 
   function confirmReject(reason) {
     if (!rejectInfo) return;
@@ -659,6 +672,12 @@ export default function App() {
                     handleBack();
                   }
                 }}
+              />
+
+              <ApproveModal
+                isOpen={!!approveInfo}
+                onClose={() => setApproveInfo(null)}
+                onConfirm={confirmApprove}
               />
 
               <RejectModal
