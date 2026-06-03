@@ -5,8 +5,7 @@ export default function NotesFields({
   onChangeAlteracoes,
 }) {
   const showAlteracoes =
-    ficha?.status === "finalizada" ||
-    ficha?.statusAprovacao === "reprovado";
+    ficha?.status === "finalizada" || ficha?.statusAprovacao === "reprovado";
 
   return (
     <div
@@ -17,10 +16,7 @@ export default function NotesFields({
         flexDirection: showAlteracoes ? "row" : "column",
       }}
     >
-      <div
-        className="field"
-        style={{ flex: 1 }}
-      >
+      <div className="field" style={{ flex: 1 }}>
         <label>Observações Gerais</label>
 
         <textarea
@@ -30,22 +26,15 @@ export default function NotesFields({
           rows={6}
         />
 
-        <p
-          className="text-xs text-muted mt-2"
-          style={{ fontStyle: "italic" }}
-        >
+        <p className="text-xs text-muted mt-2" style={{ fontStyle: "italic" }}>
           No mais anotar no verso.
         </p>
       </div>
 
       {showAlteracoes && (
-        <div
-          className="field"
-          style={{ flex: 1 }}
-        >
+        <div className="field" style={{ flex: 1 }}>
           <label>
             Alterações Feitas
-
             <span
               style={{
                 color: "var(--amber)",
@@ -59,16 +48,13 @@ export default function NotesFields({
 
           <textarea
             value={ficha.alteracoesFeitas || ""}
-            onChange={(e) =>
-              onChangeAlteracoes(e.target.value)
-            }
+            onChange={(e) => onChangeAlteracoes(e.target.value)}
             placeholder="Exemplo: Corrigido número de série do instrumento X..."
             rows={6}
             style={{
-              borderColor:
-                !ficha.alteracoesFeitas?.trim()
-                  ? "var(--amber)"
-                  : "",
+              borderColor: !ficha.alteracoesFeitas?.trim()
+                ? "var(--amber)"
+                : "",
             }}
           />
 
@@ -79,8 +65,7 @@ export default function NotesFields({
               color: "var(--amber)",
             }}
           >
-            Esta ficha já estava finalizada.
-            Justifique as edições recentes.
+            Esta ficha já estava finalizada. Justifique as edições recentes.
           </p>
         </div>
       )}
