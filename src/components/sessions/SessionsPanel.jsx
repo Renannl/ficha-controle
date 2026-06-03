@@ -1,5 +1,5 @@
 import SessionRow from "./SessionRow";
-import { calcTotalMinutes } from "./SessionUtils";
+import { calcTotalMinutes } from "./sessionUtils";
 
 export default function SessionsPanel({ sessions, onUpdate }) {
   const totalMinutes = calcTotalMinutes(sessions);
