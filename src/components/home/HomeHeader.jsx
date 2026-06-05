@@ -52,17 +52,17 @@ export default function HomeHeader({
         </div>
 
         <div className="home-stats">
-          <div className="stat-card">
+          <div className="stat-card stat-total">
             <div className="stat-value">{stats.total}</div>
             <div className="stat-label">Total</div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card stat-andamento">
             <div className="stat-value">{stats.emAndamento}</div>
             <div className="stat-label">Em Andamento</div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card stat-concluida">
             <div className="stat-value">{stats.concluidas}</div>
             <div className="stat-label">Concluídas</div>
           </div>
