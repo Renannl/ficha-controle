@@ -1488,10 +1488,10 @@
 .app {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  height: -webkit-fill-available;
+  min-height: 100vh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--bg-base);
   z-index: 1;
 }
