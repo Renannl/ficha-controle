@@ -2998,14 +2998,78 @@
 
 .approval-approved {
   color: var(--green);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
-.approval-rejected {
-  color: var(--red);
-  font-size: 12px;
+.btn-approve {
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--green);
+  border: 1px solid var(--green);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-approve:hover {
+  background: rgba(46, 125, 50, 0.2);
+}
+
+.btn-reject {
+  background: rgba(211, 47, 47, 0.1);
+  color: var(--red);
+  border: 1px solid var(--red);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-reject:hover {
+  background: rgba(211, 47, 47, 0.2);
+}
+
+.approval-note {
+  color: var(--green);
+  font-size: 15px;
+  background: rgba(46, 125, 50, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+.approval-note p {
+  color: var(--green);
+  font-size: 13px;
+}
+
+.approval-note h4 {
+  color: var(--green);
+  font-size: 15px;
+  margin: 0 0 4px 0;
+}
+
+.rejection-note {
+  color: var(--red);
+  font-size: 15px;  
+  background: rgba(211, 47, 47, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+.rejection-note p {
+  color: var(--red);
+  font-size: 13px;
+}
+
+.rejection-note h4 {
+  color: var(--red);
+  font-size: 15px;
+  margin: 0 0 4px 0;
 }
 
 /* HeaderProgress */
@@ -3298,7 +3362,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 20px; 
   z-index: 2000;
 }
 
@@ -3341,6 +3405,7 @@
 
 .confirm-modal-actions {
   display: flex;
+  margin-top: 12px;
   gap: 12px;
 }
 
@@ -3370,8 +3435,8 @@
 }
 
 .btn-modal-confirm.btn-danger {
-  background: var(--red);
-  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+  background: rgb(255, 2, 2);
+  box-shadow: 0 4px 12px rgba(236, 85, 85, 0.473);
 }
 
 .btn-modal-confirm.btn-primary {
@@ -4604,6 +4669,7 @@ svg {
 .consideracoes-input {
   width: 100%;
   padding: 10px;
+  margin-bottom: 16px;
   background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: 6px;

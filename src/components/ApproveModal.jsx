@@ -31,15 +31,19 @@ export default function ApproveModal({ isOpen, onClose, onConfirm }) {
         <p className="confirm-modal-message">
           Adicione uma observação para o operador.
         </p>
-
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
+          placeholder="Anotações de aprovação obrigatórias..."
           rows={5}
           style={{
             width: "100%",
-            marginTop: "16px",
-            marginBottom: "24px",
+            padding: "12px",
+            borderRadius: "8px",
+            border: "1px solid var(--border)",
+            background: "var(--bg-secondary)",
+            color: "var(--text-main)",
+            resize: "none",
           }}
         />
 
