@@ -68,46 +68,48 @@ export default function OperatorSelector({
             Escalar Equipe
           </div>
 
-          {listaUsuarios.map((u) => {
-            const ativo = operadores.some(
-              (op) => op.id === u.id || op.username === u.username,
-            );
+          {listaUsuarios
+            .filter((u) => u.nome !== ficha.criadoPor && u.username !== "master")
+            .map((u) => {
+              const ativo = operadores.some(
+                (op) => op.id === u.id || op.username === u.username,
+              );
 
-            return (
-              <button
-                key={u.id}
-                onClick={(e) => onToggleOperador(e, ficha, u)}
-                style={{
-                  width: "100%",
-                  padding: "6px 10px",
-                  fontSize: "12px",
-                  textAlign: "left",
-                  background: ativo ? "var(--blue-glow)" : "transparent",
-                  color: ativo
-                    ? "var(--blue-primary)"
-                    : "var(--text-secondary)",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <span
+              return (
+                <button
+                  key={u.id}
+                  onClick={(e) => onToggleOperador(e, ficha, u)}
                   style={{
-                    textOverflow: "ellipsis",
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    flex: 1,
+                    width: "100%",
+                    padding: "6px 10px",
+                    fontSize: "12px",
+                    textAlign: "left",
+                    background: ativo ? "var(--blue-glow)" : "transparent",
+                    color: ativo
+                      ? "var(--blue-primary)"
+                      : "var(--text-secondary)",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
-                  {u.nome || u.username}
-                </span>
+                  <span
+                    style={{
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                    }}
+                  >
+                    {u.nome || u.username}
+                  </span>
 
-                {ativo && <span style={{ fontSize: "9px" }}>🟢</span>}
-              </button>
-            );
-          })}
+                  {ativo && <span style={{ fontSize: "9px" }}>🟢</span>}
+                </button>
+              );
+            })}
 
           {listaUsuarios.length === 0 && (
             <div
