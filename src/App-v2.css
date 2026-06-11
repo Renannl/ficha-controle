@@ -2756,13 +2756,23 @@
   font-weight: 800;
   text-transform: uppercase;
 }
-.role-badge.admin {
+.role-badge.role-admin {
   background: var(--blue-glow);
   color: var(--blue-accent);
 }
-.role-badge.producao {
+.role-badge.role-producao {
   background: #fff3e0;
   color: #ef6c00;
+}
+
+.role-badge.role-projetos{
+  background: #4e944ecb;
+  color: #ffffff;
+}
+
+.role-badge.role-corretor{
+  background: #ff6464e3;
+  color: #000000;
 }
 
 /* Botões de Ação com Efeito Glow */
