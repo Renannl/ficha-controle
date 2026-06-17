@@ -19,6 +19,8 @@ export default function HomeList({
   podeGerenciarOperadores,
   activeDropdownFichaId,
   setActiveDropdownFichaId,
+  selectedFichas,
+  toggleFichaSelection,
 }) {
   return (
     <div className="home-list animate-scaleIn">
@@ -52,6 +54,8 @@ export default function HomeList({
             index={i}
             user={user}
             listaUsuarios={listaUsuarios}
+            selected={selectedFichas.includes(ficha.id)}
+            onToggleSelection={toggleFichaSelection}
             onOpen={onOpen}
             onDelete={onDelete}
             onToggleOperador={onToggleOperador}

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ConfirmModal from "../ConfirmModal";
 import FichaCard from "./FichaCard";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
@@ -16,6 +16,8 @@ import HomeList from "./HomeList";
 import HomeContent from "./HomeContent";
 import HomeFab from "./HomeFab";
 import { useHomeFilters } from "../../hooks/useHomeFilters";
+import BookPrintView from "../print/BookPrintView";
+import { exportBook } from "../../services/sharepointService";
 
 export default function HomeScreen({
   fichas,
@@ -40,6 +42,8 @@ export default function HomeScreen({
   const [showSearch, setShowSearch] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [activeDropdownFichaId, setActiveDropdownFichaId] = useState(null);
+  const [bookFichas, setBookFichas] = useState([]);
+  const [selectedFichas, setSelectedFichas] = useState([]);
 
   // PERMISSIONS
   const podeGerenciar = canManageOperators(user);
@@ -53,6 +57,20 @@ export default function HomeScreen({
     onAtualizarOperadores,
     podeGerenciar,
   });
+
+  useEffect(() => {
+    const handler = async (e) => {
+      setBookFichas(e.detail);
+
+      setTimeout(async () => {
+        await exportBook();
+      }, 1000);
+    };
+
+    window.addEventListener("abrir-book-pdf", handler);
+
+    return () => window.removeEventListener("abrir-book-pdf", handler);
+  }, []);
 
   // LOCAL STORAGE SYNC
   const { filterStatus, setFilterStatus, filterType, setFilterType } =
@@ -83,6 +101,12 @@ export default function HomeScreen({
   const handleCreateNew = (code) => {
     setShowNewMenu(false);
     onNova(code);
+  };
+
+  const toggleFichaSelection = (id) => {
+    setSelectedFichas((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+    );
   };
 
   // RENDER
@@ -137,6 +161,8 @@ export default function HomeScreen({
         podeGerenciarOperadores={podeGerenciarOperadores}
         activeDropdownFichaId={activeDropdownFichaId}
         setActiveDropdownFichaId={setActiveDropdownFichaId}
+        selectedFichas={selectedFichas}
+        toggleFichaSelection={toggleFichaSelection}
       />
 
       {/* MODAL */}
@@ -149,6 +175,47 @@ export default function HomeScreen({
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
       />
+
+      {selectedFichas.length > 0 && (
+        <button
+          onClick={() => {
+            const fichasBook = fichas.filter((f) =>
+              selectedFichas.includes(f.id),
+            );
+
+            window.dispatchEvent(
+              new CustomEvent("abrir-book-pdf", {
+                detail: fichasBook,
+              }),
+            );
+          }}
+          style={{
+            position: "fixed",
+            bottom: "100px",
+            right: "20px",
+            zIndex: 999999,
+            background: "#1565C0",
+            color: "#fff",
+            border: "none",
+            padding: "12px 18px",
+            borderRadius: "10px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          Gerar Book PDF ({selectedFichas.length})
+        </button>
+      )}
+
+      <div
+        style={{
+          position: "absolute",
+          left: "-99999px",
+          top: 0,
+        }}
+      >
+        <BookPrintView fichas={bookFichas} />
+      </div>
 
       {/* FAB */}
       <HomeFab onClick={() => setShowNewMenu(true)} />

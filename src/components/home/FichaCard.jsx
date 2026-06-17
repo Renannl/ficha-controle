@@ -15,6 +15,8 @@ import OperatorSelector from "./OperatorSelector";
 export default function FichaCard({
   ficha,
   index,
+  selected,
+  onToggleSelection,
   user,
   listaUsuarios,
   onOpen,
@@ -39,6 +41,12 @@ export default function FichaCard({
       onClick={() => onOpen(ficha.id)}
     >
       <div className="ficha-card-top">
+        <input
+          type="checkbox"
+          checked={selected}
+          onClick={(e) => e.stopPropagation()}
+          onChange={() => onToggleSelection(ficha.id)}
+        />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="ficha-card-title">
             {ficha.nomeEquipamento || "Sem nome"}

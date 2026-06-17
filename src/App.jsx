@@ -23,6 +23,7 @@ import { testSupabase } from "./testSupabase";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "./lib/supabase";
 import ApproveModal from "./components/ApproveModal";
+import BookPrintView from "./components/print/BookPrintView";
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth();

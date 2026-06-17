@@ -1,10 +1,16 @@
 import { OPERACOES, INSTRUMENTOS_TAF } from "../../data/fichaTemplate";
 
-export default function PrintViewTAF({ ficha, op }) {
+export default function PrintViewTAF({ ficha, op, isBook = false }) {
   const { tafData } = ficha;
 
   return (
-    <div id="print-view-root" className="print-only taf-pdf">
+    <div
+      className={
+        isBook
+          ? "print-view-root taf-pdf"
+          : "print-view-root print-only taf-pdf"
+      }
+    >
       {/* HEADER TAF */}
       <div className="taf-pdf-header">
         <div className="taf-pdf-logo">
@@ -313,7 +319,6 @@ export default function PrintViewTAF({ ficha, op }) {
         className="taf-pdf-signatures-table"
         style={{
           width: "100%",
-          marginTop: "20px",
           tableLayout: "fixed",
           borderCollapse: "collapse",
         }}
@@ -322,7 +327,7 @@ export default function PrintViewTAF({ ficha, op }) {
           <tr>
             <td
               className="taf-sig-box"
-              style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
+              style={{ width: "33.33%", padding: "1px", overflow: "hidden" }}
             >
               <div className="sig-line">
                 {ficha.assinaturas.tecnico.dataUrl ? (
@@ -338,7 +343,7 @@ export default function PrintViewTAF({ ficha, op }) {
             </td>
             <td
               className="taf-sig-box"
-              style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
+              style={{ width: "33.33%", padding: "1px", overflow: "hidden" }}
             >
               <div className="sig-line">
                 {ficha.assinaturas.supervisor.dataUrl ? (
@@ -354,7 +359,7 @@ export default function PrintViewTAF({ ficha, op }) {
             </td>
             <td
               className="taf-sig-box"
-              style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
+              style={{ width: "33.33%", padding: "1px", overflow: "hidden" }}
             >
               <div className="sig-line">
                 {ficha.assinaturas.qualidade.dataUrl ? (
@@ -371,12 +376,6 @@ export default function PrintViewTAF({ ficha, op }) {
           </tr>
         </tbody>
       </table>
-
-      <div className="taf-pdf-footer">
-        Rua Idalino Carvalho S/N (Condomínio LOGMEX) – Parque Industrial -
-        Viana/ES - CEP: 29.136-519
-        <br />
-      </div>
     </div>
   );
 }

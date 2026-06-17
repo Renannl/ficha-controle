@@ -2,11 +2,11 @@ import { Fragment } from "react";
 import PrintHeader from "./PrintHeader";
 import { OPERACOES, NOTA_DOCUMENTOS } from "../../data/fichaTemplate";
 
-export default function PrintViewOperacao({ ficha }) {
+export default function PrintViewOperacao({ ficha, isBook = false }) {
   const op = OPERACOES[ficha.operacao];
 
   return (
-    <div id="print-view-root" className="print-only">
+    <div className={`print-view-root ${isBook ? "book-mode" : "print-only"}`}>
       {/* CABEÇALHO DA FICHA */}
       <PrintHeader ficha={ficha} />
 

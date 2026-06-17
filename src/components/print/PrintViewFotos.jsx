@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function PrintViewFotos({ ficha }) {
+export default function PrintViewFotos({ ficha, isBook = false }) {
   const bySession = {};
 
   (ficha.items || []).forEach((item) => {
@@ -26,7 +26,13 @@ export default function PrintViewFotos({ ficha }) {
     }
   });
   return (
-    <div id="print-view-root" className="print-only fotos-pdf">
+    <div
+      className={
+        isBook
+          ? "print-view-root fotos-pdf"
+          : "print-view-root print-only fotos-pdf"
+      }
+    >
       {/* PRIMEIRA PÁGINA: CONSIDERAÇÕES */}
       <div style={{ marginBottom: "20mm", pageBreakAfter: "always" }}>
         <div className="fotos-pdf-header">

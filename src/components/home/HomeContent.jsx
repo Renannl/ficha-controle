@@ -33,6 +33,9 @@ export default function HomeContent({
 
   activeDropdownFichaId,
   setActiveDropdownFichaId,
+
+  selectedFichas,
+  toggleFichaSelection,
 }) {
   if (viewMode === "dashboard") {
     return (
@@ -58,6 +61,8 @@ export default function HomeContent({
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
       filterType={filterType}
+      selectedFichas={selectedFichas}
+      toggleFichaSelection={toggleFichaSelection}
       setFilterType={setFilterType}
       filterStatus={filterStatus}
       setFilterStatus={setFilterStatus}

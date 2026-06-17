@@ -969,6 +969,18 @@
   font-family: "Inter", sans-serif;
 }
 
+.book-mode {
+  width: 794px;
+  background: white !important;
+  color: black !important;
+  padding: 20px;
+  box-sizing: border-box !important;
+}
+
+.book-mode * {
+  color: black !important;
+}
+
 .print-header-table {
   width: 100% !important;
   border-collapse: collapse;
@@ -2765,12 +2777,12 @@
   color: #ef6c00;
 }
 
-.role-badge.role-projetos{
+.role-badge.role-projetos {
   background: #4e944ecb;
   color: #ffffff;
 }
 
-.role-badge.role-corretor{
+.role-badge.role-corretor {
   background: #ff6464e3;
   color: #000000;
 }
@@ -3065,7 +3077,7 @@
 
 .rejection-note {
   color: var(--red);
-  font-size: 15px;  
+  font-size: 15px;
   background: rgba(211, 47, 47, 0.1);
   padding: 4px 8px;
   border-radius: var(--radius-sm);
@@ -3103,7 +3115,6 @@
   min-width: 32px;
   text-align: right;
 }
-
 
 .tab-bar {
   display: flex;
@@ -3373,7 +3384,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px; 
+  padding: 20px;
   z-index: 2000;
 }
 
