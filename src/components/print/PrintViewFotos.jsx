@@ -26,9 +26,7 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
     >
       {/* PRIMEIRA PÁGINA: CONSIDERAÇÕES */}
       <div style={{ marginBottom: "20mm" }}>
-        <div
-          className={`fotos-section-page `}
-        >
+        <div className={`fotos-section-page `}>
           <div className="fotos-pdf-header">
             <div className="fotos-pdf-logo">
               <div className="fotos-pdf-brand">IndusPower</div>
@@ -51,80 +49,47 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
             <tr>
               <th
                 style={{
-                  background: "#fff2cc",
-                  border: "1.5px solid #000",
-                  padding: "6px",
-                }}
-              ></th>
-              <th
-                rowSpan="2"
-                style={{
                   background: "#e2f0d9",
                   border: "1.5px solid #000",
                   padding: "6px",
-                  width: "20%",
-                  textAlign: "center",
                 }}
               >
-                IMAGEM
+                FOTO
               </th>
-              <th
-                rowSpan="2"
-                style={{
-                  background: "#e2f0d9",
-                  border: "1.5px solid #000",
-                  padding: "6px",
-                  width: "20%",
-                  textAlign: "center",
-                }}
-              >
-                STATUS DA VERIFICAÇÃO
-              </th>
-            </tr>
-            <tr>
+
               <th
                 style={{
                   background: "#e2f0d9",
                   border: "1.5px solid #000",
                   padding: "6px",
-                  textAlign: "center",
                 }}
               >
-                ÍTENS DE VERIFICAÇÃO
+                DESCRIÇÃO
               </th>
             </tr>
           </thead>
+
           <tbody>
-            {verificacoes.map((v, i) => (
-              <tr key={i}>
+            {fotos.map((foto, i) => (
+              <tr key={foto.id}>
                 <td
                   style={{
                     border: "1.5px solid #000",
                     padding: "6px",
-                    height: "22px",
-                  }}
-                >
-                  {v.descricao}
-                </td>
-                <td
-                  style={{
-                    border: "1.5px solid #000",
-                    padding: "6px",
+                    width: "80px",
                     textAlign: "center",
-                    height: "22px",
                   }}
                 >
-                  {v.imagemRef}
+                  FOTO {i + 1}
                 </td>
+
                 <td
                   style={{
                     border: "1.5px solid #000",
                     padding: "6px",
-                    textAlign: "center",
-                    height: "22px",
                   }}
                 >
-                  {v.status}
+                  {foto.descricao || ""}
                 </td>
               </tr>
             ))}
