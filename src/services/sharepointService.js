@@ -122,7 +122,7 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
           orientation: "portrait",
         },
         pagebreak: {
-          mode: ["css", "avoid-all"],
+          mode: ["css"],
           avoid: [".foto-frame", "tr"],
         },
       })
@@ -217,7 +217,7 @@ export async function exportBook(elementId = "book-print-root") {
           orientation: "portrait",
         },
         pagebreak: {
-          mode: ["css", "legacy"],
+          mode: ["css"],
         },
       })
       .from(printClone)

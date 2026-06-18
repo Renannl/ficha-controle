@@ -969,6 +969,31 @@
   font-family: "Inter", sans-serif;
 }
 
+.fotos-section-page {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.page-break {
+  page-break-before: always;
+  break-before: page;
+}
+
+.book-report-wrapper {
+  page-break-before: always;
+  break-before: page;
+}
+
+.book-report-wrapper:first-child {
+  page-break-before: auto;
+  break-before: auto;
+}
+
+.book-report-wrapper:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
 .book-mode {
   width: 794px;
   background: white !important;

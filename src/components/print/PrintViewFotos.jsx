@@ -25,23 +25,19 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
       }
     >
       {/* PRIMEIRA PÁGINA: CONSIDERAÇÕES */}
-      <div style={{ marginBottom: "20mm", pageBreakAfter: "always" }}>
-        <div className="fotos-pdf-header">
-          <div className="fotos-pdf-logo">
-            <div className="fotos-pdf-brand">IndusPower</div>
-            <div className="fotos-pdf-sub">Powering Solutions</div>
-          </div>
-          <div
-            className="fotos-pdf-title"
-            style={{ flexDirection: "column", padding: "10px" }}
-          >
-            <div>RELATÓRIO FOTOGRÁFICO</div>
-            <div>
-              CONSIDERAÇÕES {ficha.cliente ? ficha.cliente.toUpperCase() : ""}
+      <div style={{ marginBottom: "20mm" }}>
+        <div
+          className={`fotos-section-page `}
+        >
+          <div className="fotos-pdf-header">
+            <div className="fotos-pdf-logo">
+              <div className="fotos-pdf-brand">IndusPower</div>
+              <div className="fotos-pdf-sub">Powering Solutions</div>
             </div>
+            <div className="fotos-pdf-title">RELATÓRIO FOTOGRÁFICO</div>
+            <div className="fotos-pdf-right">CONSIDERAÇÕES:</div>
           </div>
         </div>
-
         <table
           style={{
             width: "100%",
@@ -134,7 +130,6 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
             ))}
           </tbody>
         </table>
-
         <div
           style={{
             border: "1.5px solid #000",
@@ -154,7 +149,6 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
             {ficha.observacoes}
           </div>
         </div>
-
         <div
           style={{
             display: "flex",
@@ -190,47 +184,54 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
         </div>
       </div>
 
-      {pages.map((page, pageIdx) => {
-        const title = "RELATÓRIO FOTOGRÁFICO";
+      <div
+        style={{
+          pageBreakBefore: "always",
+          breakBefore: "page",
+        }}
+      >
+        {pages.map((page, pageIdx) => {
+          const title = "RELATÓRIO FOTOGRÁFICO";
 
-        return (
-          <div
-            key={pageIdx}
-            className={`fotos-section-page ${pageIdx > 0 ? "page-break" : ""}`}
-          >
-            <div className="fotos-pdf-header">
-              <div className="fotos-pdf-logo">
-                <div className="fotos-pdf-brand">IndusPower</div>
-                <div className="fotos-pdf-sub">Powering Solutions</div>
+          return (
+            <div
+              key={pageIdx}
+              className={`fotos-section-page ${pageIdx > 0 ? "page-break" : ""}`}
+            >
+              <div className="fotos-pdf-header">
+                <div className="fotos-pdf-logo">
+                  <div className="fotos-pdf-brand">IndusPower</div>
+                  <div className="fotos-pdf-sub">Powering Solutions</div>
+                </div>
+                <div className="fotos-pdf-title">{title}</div>
+                <div className="fotos-pdf-right">{ficha.cliente || ""}</div>
               </div>
-              <div className="fotos-pdf-title">{title}</div>
-              <div className="fotos-pdf-right">{ficha.cliente || ""}</div>
-            </div>
 
-            <div className="fotos-grid">
-              {page.items.map((foto, idx) => (
-                <div key={idx} className="foto-frame">
-                  <div className="foto-frame-header">
-                    <div className="foto-id">{idx + 1}</div>
+              <div className="fotos-grid">
+                {page.items.map((foto, idx) => (
+                  <div key={idx} className="foto-frame">
+                    <div className="foto-frame-header">
+                      <div className="foto-id">{idx + 1}</div>
 
-                    <div className="foto-desc">
-                      {foto.descricao || "Sem descrição"}
+                      <div className="foto-desc">
+                        {foto.descricao || "Sem descrição"}
+                      </div>
+                    </div>
+
+                    <div className="foto-content">
+                      {foto.imagem ? (
+                        <img src={foto.imagem} alt={foto.descricao} />
+                      ) : (
+                        <div className="foto-empty">[ SEM FOTO ]</div>
+                      )}
                     </div>
                   </div>
-
-                  <div className="foto-content">
-                    {foto.imagem ? (
-                      <img src={foto.imagem} alt={foto.descricao} />
-                    ) : (
-                      <div className="foto-empty">[ SEM FOTO ]</div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
