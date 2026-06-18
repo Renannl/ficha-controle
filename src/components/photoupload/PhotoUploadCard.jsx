@@ -1,7 +1,6 @@
 export default function PhotoUploadCard({
-  item,
-  idx,
-  onUpdate,
+  foto,
+  onDescricaoChange,
   onRemove,
   onUpload,
 }) {
@@ -25,27 +24,10 @@ export default function PhotoUploadCard({
           alignItems: "center",
         }}
       >
-        <span
-          style={{
-            background: "var(--blue)",
-            color: "#fff",
-            borderRadius: "4px",
-            width: "24px",
-            height: "24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "13px",
-            fontWeight: "bold",
-          }}
-        >
-          {item.id}
-        </span>
-
         <input
           type="text"
-          value={item.descricao || ""}
-          onChange={(e) => onUpdate(idx, "descricao", e.target.value)}
+          value={foto.descricao || ""}
+          onChange={(e) => onDescricaoChange(foto.id, e.target.value)}
           placeholder="Descrição da foto"
           style={{
             flex: 1,
@@ -61,7 +43,7 @@ export default function PhotoUploadCard({
         />
       </div>
 
-      {item.foto ? (
+      {foto.imagem ? (
         <div
           style={{
             position: "relative",
@@ -73,7 +55,7 @@ export default function PhotoUploadCard({
           }}
         >
           <img
-            src={item.foto}
+            src={foto.imagem}
             alt="Evidência"
             style={{
               width: "100%",
@@ -84,7 +66,7 @@ export default function PhotoUploadCard({
           />
 
           <button
-            onClick={() => onRemove(idx)}
+            onClick={() => onRemove(foto.id)}
             style={{
               position: "absolute",
               top: 8,
@@ -161,7 +143,7 @@ export default function PhotoUploadCard({
               type="file"
               accept="image/*"
               style={{ display: "none" }}
-              onChange={(e) => onUpload(idx, e.target.files?.[0])}
+              onChange={(e) => onUpload(foto.id, e.target.files?.[0])}
             />
           </label>
         </div>

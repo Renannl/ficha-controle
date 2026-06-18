@@ -1,6 +1,11 @@
 import PhotoUploadCard from "./PhotoUploadCard";
 
-export default function PhotoGrid({ items, onUpdate, onRemove, onUpload }) {
+export default function PhotoGrid({
+  fotos,
+  onRemove,
+  onUpload,
+  onDescricaoChange,
+}) {
   return (
     <div
       className="photo-grid"
@@ -10,13 +15,12 @@ export default function PhotoGrid({ items, onUpdate, onRemove, onUpload }) {
         gap: "16px",
       }}
     >
-      {items.map((item, idx) => (
+      {fotos.map((foto) => (
         <PhotoUploadCard
-          key={item.id}
-          item={item}
-          idx={idx}
-          onUpdate={onUpdate}
+          key={foto.id}
+          foto={foto}
           onRemove={onRemove}
+          onDescricaoChange={onDescricaoChange}
           onUpload={onUpload}
         />
       ))}

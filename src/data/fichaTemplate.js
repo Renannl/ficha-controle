@@ -44,24 +44,7 @@ export const OPERACOES = {
     label: "RELATÓRIO FOTOGRÁFICO",
     equipe: "INSPEÇÃO",
     objetivo: "Registro fotográfico das evidências.",
-    items: [
-      {
-        id: 1,
-        sessao: "52-T2",
-        descricao: "DE-PARA PARA RETIRADA DO DISJUNTOR",
-      },
-      { id: 2, sessao: "52-T2", descricao: "AMARRAÇÃO DE CINTAS / IÇAMENTO" },
-      { id: 3, sessao: "52-T2", descricao: "RETIRADA DO DISJUNTOR" },
-      { id: 4, sessao: "52-T2", descricao: "INSTALAÇÃO DO NOVO DISJUNTOR" },
-      { id: 5, sessao: "52-T2", descricao: "FIXAÇÃO DA BASE" },
-      { id: 6, sessao: "52-T2", descricao: "INTERLIGAÇÃO" },
-      { id: 7, sessao: "52-ES", descricao: "BUCHA H1 - FASE R" },
-      { id: 8, sessao: "52-ES", descricao: "BUCHA H2 - FASE S" },
-      { id: 9, sessao: "52-ES", descricao: "BUCHA H3 - FASE T" },
-      { id: 10, sessao: "52-ES", descricao: "BUCHA F1 - FASE R" },
-      { id: 11, sessao: "52-ES", descricao: "BUCHA F2 - FASE S" },
-      { id: 12, sessao: "52-ES", descricao: "BUCHA F3 - FASE T" },
-    ],
+    items: [],
   },
 
   90: {
@@ -224,13 +207,7 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
     fotoData:
       operacaoCodigo === "80"
         ? {
-            verificacoes: Array.from({ length: 15 }, () => ({
-              descricao: "",
-              imagemRef: "",
-              status: "",
-            })),
-            responsavelTecnico: "",
-            dataHoraInicio: "",
+            fotos: [],
           }
         : null,
 
@@ -242,14 +219,17 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
       hFim: "",
     })),
     // Itens do checklist com marcações por sessão
-    items: op.items.map((item) => ({
-      id: item.id,
-      descricao: item.descricao, // Editável se for foto
-      sessao: item.sessao || "", // Sessão/Grupo
-      sessionMarks: Array(15).fill(""), // '' | 'feito' | 'na'
-      resultado: "", // '' | 'ok' | 'na'
-      foto: "", // Data URL da foto
-    })),
+    items:
+      operacaoCodigo === "80"
+        ? []
+        : op.items.map((item) => ({
+            id: item.id,
+            descricao: item.descricao,
+            sessao: item.sessao || "",
+            sessionMarks: Array(15).fill(""),
+            resultado: "",
+            foto: "",
+          })),
     // Rodapé
     observacoes: "",
     assinaturas: {

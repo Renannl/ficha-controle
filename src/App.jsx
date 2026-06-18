@@ -592,8 +592,14 @@ export default function App() {
                   {activeTab === "fotos" && isFoto && (
                     <PhotoPanel
                       ficha={ficha}
-                      items={ficha.items}
-                      onUpdate={(idx, key, val) => updateItem(idx, key, val)}
+                      onUpdateFotoData={(newData) =>
+                        atualizarFicha(ficha.id, {
+                          fotoData: {
+                            ...ficha.fotoData,
+                            ...newData,
+                          },
+                        })
+                      }
                     />
                   )}
 

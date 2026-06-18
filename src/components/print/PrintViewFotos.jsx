@@ -1,30 +1,21 @@
 import React from "react";
 
 export default function PrintViewFotos({ ficha, isBook = false }) {
-  const bySession = {};
+  const fotos = ficha?.fotoData?.fotos || [];
 
-  (ficha.items || []).forEach((item) => {
-    if (!item) return;
+  const verificacoes = ficha?.fotoData?.verificacoes || [];
 
-    const s = item.sessao || ficha.nomeEquipamento || "GERAL";
+  const responsavelTecnico = ficha?.fotoData?.responsavelTecnico || "";
 
-    if (!bySession[s]) {
-      bySession[s] = [];
-    }
-
-    bySession[s].push(item);
-  });
+  const dataHoraInicio = ficha?.fotoData?.dataHoraInicio || "";
 
   const pages = [];
 
-  Object.entries(bySession).forEach(([sessaoName, sItems]) => {
-    for (let i = 0; i < sItems.length; i += 6) {
-      pages.push({
-        sessaoName,
-        items: sItems.slice(i, i + 6),
-      });
-    }
-  });
+  for (let i = 0; i < fotos.length; i += 6) {
+    pages.push({
+      items: fotos.slice(i, i + 6),
+    });
+  }
   return (
     <div
       className={
@@ -108,7 +99,7 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
             </tr>
           </thead>
           <tbody>
-            {(ficha.fotoData?.verificacoes || []).map((v, i) => (
+            {verificacoes.map((v, i) => (
               <tr key={i}>
                 <td
                   style={{
@@ -175,8 +166,7 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
           <div
             style={{ flex: 1, padding: "6px", borderRight: "1.5px solid #000" }}
           >
-            <strong>RESPONSÁVEL TÉCNICO:</strong>{" "}
-            {ficha.fotoData?.responsavelTecnico}
+            <strong>RESPONSÁVEL TÉCNICO:</strong> {responsavelTecnico}
           </div>
           <div
             style={{
@@ -195,28 +185,18 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
             >
               DATA / HORA DE INÍCIO
             </div>
-            <div style={{ padding: "2px" }}>
-              {ficha.fotoData?.dataHoraInicio}
-            </div>
+            <div style={{ padding: "2px" }}>{dataHoraInicio}</div>
           </div>
         </div>
       </div>
 
       {pages.map((page, pageIdx) => {
-        let title = "RELATÓRIO FOTOGRÁFICO";
-        if (page.sessaoName && page.sessaoName !== "GERAL") {
-          title += ` - ${page.sessaoName.toUpperCase()}`;
-        }
-
-        const sessionClass = page.sessaoName
-          ? `session-${page.sessaoName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`
-          : "";
+        const title = "RELATÓRIO FOTOGRÁFICO";
 
         return (
           <div
             key={pageIdx}
-            className={`fotos-section-page ${pageIdx > 0 ? "page-break" : ""} ${sessionClass}`}
-            style={{ marginBottom: "20mm" }}
+            className={`fotos-section-page ${pageIdx > 0 ? "page-break" : ""}`}
           >
             <div className="fotos-pdf-header">
               <div className="fotos-pdf-logo">
@@ -228,15 +208,19 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
             </div>
 
             <div className="fotos-grid">
-              {page.items.map((item) => (
-                <div key={item.id} className="foto-frame">
+              {page.items.map((foto, idx) => (
+                <div key={idx} className="foto-frame">
                   <div className="foto-frame-header">
-                    <div className="foto-id">{item.id}</div>
-                    <div className="foto-desc">{item.descricao || "—"}</div>
+                    <div className="foto-id">{idx + 1}</div>
+
+                    <div className="foto-desc">
+                      {foto.descricao || "Sem descrição"}
+                    </div>
                   </div>
+
                   <div className="foto-content">
-                    {item.foto ? (
-                      <img src={item.foto} alt={`Foto ${item.id}`} />
+                    {foto.imagem ? (
+                      <img src={foto.imagem} alt={foto.descricao} />
                     ) : (
                       <div className="foto-empty">[ SEM FOTO ]</div>
                     )}
