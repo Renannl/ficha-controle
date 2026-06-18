@@ -41,12 +41,15 @@ export default function FichaCard({
       onClick={() => onOpen(ficha.id)}
     >
       <div className="ficha-card-top">
-        <input
-          type="checkbox"
-          checked={selected}
-          onClick={(e) => e.stopPropagation()}
-          onChange={() => onToggleSelection(ficha.id)}
-        />
+        <label className="ficha-checkbox" onClick={(e) => e.stopPropagation()}>
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggleSelection(ficha.id)}
+          />
+
+          <span className="checkmark" />
+        </label>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="ficha-card-title">
             {ficha.nomeEquipamento || "Sem nome"}

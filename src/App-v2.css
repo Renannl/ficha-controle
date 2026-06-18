@@ -2144,6 +2144,123 @@
 /* ========================================================= */
 /* RELATORIO FOTOGRAFICO - PDF */
 /* ========================================================= */
+.book-pdf-btn {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: linear-gradient(135deg, #1565c0, #0d47a1);
+
+  color: white;
+  border: none;
+  border-radius: 12px;
+
+  padding: 14px 20px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 8px 20px rgba(21, 101, 192, 0.35);
+
+  transition: all 0.2s ease;
+}
+
+.book-pdf-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 12px 24px rgba(21, 101, 192, 0.45);
+}
+
+.book-pdf-btn:active {
+  transform: scale(0.98);
+}
+
+.selection-bar {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 12px 18px;
+
+  border-radius: 14px;
+
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+  z-index: 999999;
+}
+
+.ficha-checkbox {
+  position: relative;
+
+  width: 22px;
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.ficha-checkbox input {
+  display: none;
+}
+
+.ficha-checkbox .checkmark {
+  width: 20px;
+  height: 20px;
+
+  border-radius: 6px;
+
+  border: 2px solid var(--blue-accent);
+
+  background: transparent;
+
+  transition: all 0.2s ease;
+}
+
+.ficha-checkbox input:checked + .checkmark {
+  background: var(--blue);
+  border-color: var(--blue);
+
+  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+}
+
+.ficha-checkbox input:checked + .checkmark::after {
+  content: "X";
+
+  color: var(--blue-accent);
+
+  font-size: 13px;
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+}
+
+.ficha-checkbox:hover .checkmark {
+  border-color: var(--blue-light);
+}
+
 .fotos-pdf {
   font-family: Arial, sans-serif;
   color: #000;

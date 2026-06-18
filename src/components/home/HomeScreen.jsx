@@ -177,34 +177,38 @@ export default function HomeScreen({
       />
 
       {selectedFichas.length > 0 && (
-        <button
-          onClick={() => {
-            const fichasBook = fichas.filter((f) =>
-              selectedFichas.includes(f.id),
-            );
+        <div className="selection-bar">
+          <span>{selectedFichas.length} ficha(s) selecionada(s)</span>
+          <button
+            className="book-pdf-btn"
+            onClick={() => {
+              const fichasBook = fichas.filter((f) =>
+                selectedFichas.includes(f.id),
+              );
 
-            window.dispatchEvent(
-              new CustomEvent("abrir-book-pdf", {
-                detail: fichasBook,
-              }),
-            );
-          }}
-          style={{
-            position: "fixed",
-            bottom: "100px",
-            right: "20px",
-            zIndex: 999999,
-            background: "#1565C0",
-            color: "#fff",
-            border: "none",
-            padding: "12px 18px",
-            borderRadius: "10px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          Gerar Book PDF ({selectedFichas.length})
-        </button>
+              window.dispatchEvent(
+                new CustomEvent("abrir-book-pdf", {
+                  detail: fichasBook,
+                }),
+              );
+            }}
+            style={{
+              position: "fixed",
+              bottom: "100px",
+              right: "20px",
+              zIndex: 999999,
+              background: "#1565C0",
+              color: "#fff",
+              border: "none",
+              padding: "12px 18px",
+              borderRadius: "10px",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Gerar Book PDF ({selectedFichas.length})
+          </button>
+        </div>
       )}
 
       <div
