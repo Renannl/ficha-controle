@@ -55,6 +55,7 @@ export default function HomeList({
             user={user}
             listaUsuarios={listaUsuarios}
             selected={selectedFichas.includes(ficha.id)}
+            selectionOrder={selectedFichas.indexOf(ficha.id) + 1}
             onToggleSelection={toggleFichaSelection}
             onOpen={onOpen}
             onDelete={onDelete}

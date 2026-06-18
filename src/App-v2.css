@@ -2242,7 +2242,7 @@
 }
 
 .ficha-checkbox input:checked + .checkmark::after {
-  content: "X";
+  content: attr(data-order);
 
   color: var(--blue-accent);
 

@@ -16,6 +16,7 @@ export default function FichaCard({
   ficha,
   index,
   selected,
+  selectionOrder,
   onToggleSelection,
   user,
   listaUsuarios,
@@ -48,7 +49,10 @@ export default function FichaCard({
             onChange={() => onToggleSelection(ficha.id)}
           />
 
-          <span className="checkmark" />
+          <span
+            className="checkmark"
+            data-order={selected ? selectionOrder : ""}
+          />
         </label>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="ficha-card-title">
