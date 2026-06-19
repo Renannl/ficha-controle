@@ -1,4 +1,7 @@
-import { EXECUTION_PERMISSIONS, MANAGEMENT_PERMISSIONS } from "./permissions";
+import {
+  EXECUTION_PERMISSIONS,
+  MANAGEMENT_PERMISSIONS,
+} from "../utils/permissions";
 
 const ALL_PERMISSIONS = [
   ...EXECUTION_PERMISSIONS,
@@ -10,11 +13,12 @@ export function hasPermission(user, key) {
   return user?.permissoes?.includes(key);
 }
 
-export const canManageUsers = (user) =>
-  hasPermission(user, "alocar_usuario");
+export const canManageUsers = (user) => hasPermission(user, "alocar_usuario");
 
-export const canApprove = (user) =>
-  hasPermission(user, "aprovar");
+export const canApprove = (user) => hasPermission(user, "aprovar");
 
-export const canEditFicha = (user) =>
-  hasPermission(user, "editar_ficha");
+export const canEditFicha = (user) => hasPermission(user, "editar_ficha");
+
+export const canDeleteFicha = (user) => hasPermission(user, "excluir_ficha");
+
+export const canGeneratePdf = (user) => hasPermission(user, "gerar_pdf");

@@ -6,6 +6,7 @@ import { useLocalStorageState } from "../../hooks/useLocalStorageState";
 import { useViewModeDrag } from "../../hooks/useViewModeDrag";
 import { useOperators } from "../../hooks/useOperators";
 import { canManageOperators } from "../../utils/operators";
+import { canGeneratePdf } from "../../utils/hasPermission";
 import { getAvailableOperations } from "../../utils/operations";
 import HomeFilters from "./HomeFilters";
 import NewFichaMenu from "./NewFichaMenu";
@@ -177,7 +178,7 @@ export default function HomeScreen({
         onCancel={() => setDeleteId(null)}
       />
 
-      {selectedFichas.length > 0 && (
+      {canGeneratePdf(user) && selectedFichas.length > 0 && (
         <div className="selection-bar">
           <div className="selection-info">
             <span className="selection-count">{selectedFichas.length}</span>

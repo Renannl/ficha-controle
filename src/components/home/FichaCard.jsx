@@ -1,5 +1,6 @@
 import { getFichaStatus, getProgressPct } from "../../utils/fichaStatus";
 import { OPERACOES } from "../../data/fichaTemplate";
+import { canDeleteFicha, canGeneratePdf } from "../../utils/hasPermission";
 import {
   User,
   Tag,
@@ -64,40 +65,44 @@ export default function FichaCard({
               <Tag size={14} />
               {ficha.codigo || "-"}
             </span>
-            <div className="pdf-selector">
-              <div
-                className="pdf-badge"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleSelection(ficha.id);
-                }}
-              >
-                <FaFilePdf className="pdf-icon" />
+            {canGeneratePdf(user) && (
+              <div className="pdf-selector">
+                <div
+                  className="pdf-badge"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleSelection(ficha.id);
+                  }}
+                >
+                  <FaFilePdf className="pdf-icon" />
 
-                <span className="pdf-label">PDF</span>
-                <label className="ficha-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={selected}
-                    onChange={() => onToggleSelection(ficha.id)}
-                  />
+                  <span className="pdf-label">PDF</span>
+                  <label className="ficha-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => onToggleSelection(ficha.id)}
+                    />
 
-                  <span
-                    className="checkmark"
-                    data-order={selected ? selectionOrder : ""}
-                  />
-                </label>
+                    <span
+                      className="checkmark"
+                      data-order={selected ? selectionOrder : ""}
+                    />
+                  </label>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
-        <button
-          className="delete-btn"
-          onClick={(e) => onDelete(e, ficha.id)}
-          title="Excluir"
-        >
-          <Trash2 size={16} />
-        </button>
+        {canDeleteFicha(user) && (
+          <button
+            className="delete-btn"
+            onClick={(e) => onDelete(e, ficha.id)}
+            title="Excluir"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
 
       {/* ─── MODIFICAÇÃO: AREA DE OPERADORES ATIVOS NO CARD (Entre o topo e a barra de progresso) ─── */}

@@ -9,7 +9,10 @@ import {
   ShieldCheck,
   ShieldX,
   UserPlus,
+  Trash,
 } from "lucide-react";
+
+import { FaFilePdf } from "react-icons/fa";
 
 export const EXECUTION_PERMISSIONS = [
   {
@@ -51,6 +54,11 @@ export const MANAGEMENT_PERMISSIONS = [
     icon: Pencil,
   },
   {
+    key: "excluir_ficha",
+    label: "Excluir ficha",
+    icon: Trash,
+  },
+  {
     key: "aprovar",
     label: "Aprovar fichas",
     icon: ShieldCheck,
@@ -64,5 +72,10 @@ export const MANAGEMENT_PERMISSIONS = [
     key: "alocar_usuario",
     label: "Alocar usuários",
     icon: UserPlus,
+  },
+  {
+    key: "gerar_pdf",
+    label: "Gerar PDF",
+    icon: FaFilePdf,
   },
 ];
