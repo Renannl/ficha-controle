@@ -2222,32 +2222,76 @@
 }
 
 .ficha-checkbox .checkmark {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 
   border-radius: 6px;
 
-  border: 2px solid var(--blue-accent);
+  border: 2px solid rgb(255, 83, 83);
 
   background: transparent;
 
   transition: all 0.2s ease;
 }
 
-.ficha-checkbox input:checked + .checkmark {
-  background: var(--blue);
-  border-color: var(--blue);
-
-  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+.pdf-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.ficha-checkbox input:checked + .checkmark::after {
+.pdf-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  background: rgba(211, 47, 47, 0.08);
+  border: 1px solid rgba(211, 47, 47, 0.25);
+
+  color: #d32f2f;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pdf-badge .ficha-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.pdf-badge .checkmark {
+  width: 16px;
+  height: 16px;
+
+  border-radius: 4px;
+
+  border: 1.5px solid #d32f2f;
+
+  background: var(--bg-card);
+
+  transition: all 0.2s ease;
+}
+
+.pdf-badge .ficha-checkbox input:checked + .checkmark {
+  background: #d32f2f;
+  border-color: #d32f2f;
+
+  box-shadow: none;
+}
+
+.pdf-badge .ficha-checkbox input:checked + .checkmark::after {
   content: attr(data-order);
 
-  color: var(--blue-accent);
+  color: white;
 
-  font-size: 13px;
-  font-weight: bold;
+  font-size: 9px;
+  font-weight: 700;
 
   display: flex;
   align-items: center;
@@ -2312,6 +2356,96 @@
   justify-content: center;
   font-size: 12px;
   font-weight: bold;
+}
+
+.selection-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: min(600px, calc(100vw - 32px));
+
+  padding: 14px 18px;
+
+  background: var(--bg-card);
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  z-index: 999999;
+}
+
+.selection-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selection-count {
+  width: 36px;
+  height: 36px;
+
+  border-radius: 10px;
+
+  background: #d32f2f;
+
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 800;
+}
+
+.selection-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.selection-subtitle {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.pdf-icon {
+  color: rgb(255, 83, 83);
+}
+.generate-pdf-btn {
+  border: none;
+
+  background: #d32f2f;
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 10px 16px;
+
+  border-radius: 10px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.generate-pdf-btn:hover {
+  background: #b71c1c;
 }
 
 .fotos-pdf-right {

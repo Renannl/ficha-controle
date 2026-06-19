@@ -9,7 +9,9 @@ import {
   CheckCircle2,
   FileText,
   Circle,
+  FileInputIcon,
 } from "lucide-react";
+import { FaFilePdf } from "react-icons/fa";
 import OperatorSelector from "./OperatorSelector";
 
 export default function FichaCard({
@@ -42,18 +44,6 @@ export default function FichaCard({
       onClick={() => onOpen(ficha.id)}
     >
       <div className="ficha-card-top">
-        <label className="ficha-checkbox" onClick={(e) => e.stopPropagation()}>
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={() => onToggleSelection(ficha.id)}
-          />
-
-          <span
-            className="checkmark"
-            data-order={selected ? selectionOrder : ""}
-          />
-        </label>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="ficha-card-title">
             {ficha.nomeEquipamento || "Sem nome"}
@@ -74,6 +64,31 @@ export default function FichaCard({
               <Tag size={14} />
               {ficha.codigo || "-"}
             </span>
+            <div className="pdf-selector">
+              <div
+                className="pdf-badge"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSelection(ficha.id);
+                }}
+              >
+                <FaFilePdf className="pdf-icon" />
+
+                <span className="pdf-label">PDF</span>
+                <label className="ficha-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => onToggleSelection(ficha.id)}
+                  />
+
+                  <span
+                    className="checkmark"
+                    data-order={selected ? selectionOrder : ""}
+                  />
+                </label>
+              </div>
+            </div>
           </div>
         </div>
         <button

@@ -18,6 +18,7 @@ import HomeFab from "./HomeFab";
 import { useHomeFilters } from "../../hooks/useHomeFilters";
 import BookPrintView from "../print/BookPrintView";
 import { exportBook } from "../../services/sharepointService";
+import { FileInputIcon } from "lucide-react";
 
 export default function HomeScreen({
   fichas,
@@ -178,9 +179,18 @@ export default function HomeScreen({
 
       {selectedFichas.length > 0 && (
         <div className="selection-bar">
-          <span>{selectedFichas.length} ficha(s) selecionada(s)</span>
+          <div className="selection-info">
+            <span className="selection-count">{selectedFichas.length}</span>
+
+            <div>
+              <div className="selection-title">Book PDF</div>
+
+              <div className="selection-subtitle">fichas selecionadas</div>
+            </div>
+          </div>
+
           <button
-            className="book-pdf-btn"
+            className="generate-pdf-btn"
             onClick={() => {
               const fichasBook = fichas.filter((f) =>
                 selectedFichas.includes(f.id),
@@ -192,21 +202,8 @@ export default function HomeScreen({
                 }),
               );
             }}
-            style={{
-              position: "fixed",
-              bottom: "100px",
-              right: "20px",
-              zIndex: 999999,
-              background: "#1565C0",
-              color: "#fff",
-              border: "none",
-              padding: "12px 18px",
-              borderRadius: "10px",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
           >
-            Gerar Book PDF ({selectedFichas.length})
+            <FileInputIcon></FileInputIcon> Gerar PDF
           </button>
         </div>
       )}
