@@ -20,6 +20,8 @@ import { useHomeFilters } from "../../hooks/useHomeFilters";
 import BookPrintView from "../print/BookPrintView";
 import { exportBook } from "../../services/sharepointService";
 import { FileInputIcon } from "lucide-react";
+import { useColecoes } from "../../hooks/useColecoes";
+import { useNavigate } from "react-router-dom";
 
 export default function HomeScreen({
   fichas,
@@ -46,9 +48,17 @@ export default function HomeScreen({
   const [activeDropdownFichaId, setActiveDropdownFichaId] = useState(null);
   const [bookFichas, setBookFichas] = useState([]);
   const [selectedFichas, setSelectedFichas] = useState([]);
+  const { colecoes, criarColecao } = useColecoes();
 
   // PERMISSIONS
   const podeGerenciar = canManageOperators(user);
+
+  const colecoesComFichas = useMemo(() => {
+    return colecoes.map((colecao) => ({
+      ...colecao,
+      fichas: fichas.filter((f) => f.colecao_id === colecao.id),
+    }));
+  }, [colecoes, fichas]);
 
   // HOOKS
   const { toggleRef, handleTouchStart, handleTouchMove, handleTouchEnd } =
@@ -100,10 +110,24 @@ export default function HomeScreen({
     setDeleteId(null);
   };
 
-  const handleCreateNew = (code) => {
+  const handleCreateNew = async (payload) => {
+    await criarColecao(payload);
+
     setShowNewMenu(false);
-    onNova(code);
   };
+
+  const handleCreateColecao = async (payload) => {
+    try {
+      await criarColecao(payload);
+
+      setShowNewMenu(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao criar coleção");
+    }
+  };
+
+  const navigate = useNavigate();
 
   const toggleFichaSelection = (id) => {
     setSelectedFichas((prev) =>
@@ -147,6 +171,9 @@ export default function HomeScreen({
         user={user}
         onApprove={onApprove}
         showNewMenu={showNewMenu}
+        mode="colecoes"
+        colecoes={colecoes}
+        fichas={fichas}
         filteredFichas={filteredFichas}
         showSearch={showSearch}
         setShowSearch={setShowSearch}
@@ -225,8 +252,7 @@ export default function HomeScreen({
       <NewFichaMenu
         show={showNewMenu}
         onClose={() => setShowNewMenu(false)}
-        availableOps={availableOps}
-        onCreate={handleCreateNew}
+        onCreate={handleCreateColecao}
       />
     </div>
   );

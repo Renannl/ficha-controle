@@ -5011,3 +5011,41 @@ svg {
   outline: none;
   border-color: var(--blue-light);
 }
+
+/* COLEÇÕES */
+
+.colecoes-grid {
+  display: grid;
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-right: 20px ;
+  grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+  gap: 16px;
+}
+
+.colecao-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: .2s;
+}
+
+.colecao-card:hover {
+  transform: translateY(-2px);
+}
+
+.colecao-preview {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preview-ficha {
+  background: rgba(255,255,255,.05);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}

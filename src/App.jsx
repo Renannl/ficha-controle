@@ -24,6 +24,7 @@ import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "./lib/supabase";
 import ApproveModal from "./components/ApproveModal";
 import BookPrintView from "./components/print/BookPrintView";
+import ColecaoScreen from "./components/colecao/ColecaoScreen";
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth();
@@ -497,6 +498,20 @@ export default function App() {
           ) : (
             <Navigate to="/dashboard" />
           )
+        }
+      />
+
+      <Route
+        path="/colecao/:id"
+        element={
+          <ColecaoScreen
+            fichas={fichas}
+            criarFicha={criarFicha}
+            getFicha={getFicha}
+            atualizarFicha={atualizarFicha}
+            atualizarOperadores={atualizarOperadores}
+            user={user}
+          />
         }
       />
 

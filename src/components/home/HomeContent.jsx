@@ -2,6 +2,7 @@ import Dashboard from "../dashboard/Dashboard";
 import PhotoBank from "../photobank/PhotoBank";
 import HomeEmptyState from "./HomeEmptyState";
 import HomeList from "./HomeList";
+import ColecoesList from "./ColecoesList";
 
 export default function HomeContent({
   viewMode,
@@ -11,6 +12,9 @@ export default function HomeContent({
   showNewMenu,
 
   filteredFichas,
+  showFichas = true,
+  mode = "fichas",
+  colecoes = [],
 
   showSearch,
   setShowSearch,
@@ -54,26 +58,31 @@ export default function HomeContent({
   }
 
   return (
-    <HomeList
-      filteredFichas={filteredFichas}
-      showSearch={showSearch}
-      setShowSearch={setShowSearch}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      filterType={filterType}
-      selectedFichas={selectedFichas}
-      toggleFichaSelection={toggleFichaSelection}
-      setFilterType={setFilterType}
-      filterStatus={filterStatus}
-      setFilterStatus={setFilterStatus}
-      user={user}
-      listaUsuarios={listaUsuarios}
-      onOpen={onOpen}
-      onDelete={onDelete}
-      onToggleOperador={onToggleOperador}
-      podeGerenciarOperadores={podeGerenciarOperadores}
-      activeDropdownFichaId={activeDropdownFichaId}
-      setActiveDropdownFichaId={setActiveDropdownFichaId}
-    />
+    <>
+      <HomeList
+        mode={mode}
+        colecoes={colecoes}
+        fichas={fichas}
+        filteredFichas={filteredFichas}
+        showSearch={showSearch}
+        setShowSearch={setShowSearch}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterType={filterType}
+        selectedFichas={selectedFichas}
+        toggleFichaSelection={toggleFichaSelection}
+        setFilterType={setFilterType}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        user={user}
+        listaUsuarios={listaUsuarios}
+        onOpen={onOpen}
+        onDelete={onDelete}
+        onToggleOperador={onToggleOperador}
+        podeGerenciarOperadores={podeGerenciarOperadores}
+        activeDropdownFichaId={activeDropdownFichaId}
+        setActiveDropdownFichaId={setActiveDropdownFichaId}
+      />
+    </>
   );
 }

@@ -24,7 +24,17 @@ export function useFichas(currentUser) {
     async function loadFichas() {
       const { data, error } = await supabase
         .from("fichas")
-        .select("*")
+        .select(
+          `
+            *,
+            colecoes (
+              id,
+              cliente,
+              codigo_proposta,
+              descricao
+            )
+        `,
+        )
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
@@ -40,6 +50,9 @@ export function useFichas(currentUser) {
           dbId: f.id,
           created_at: f.created_at,
           updated_at: f.updated_at,
+
+          colecao_id: f.colecao_id,
+          colecao: f.colecoes,
         }));
 
         setFichas(fichasConvertidas);
@@ -113,6 +126,8 @@ export function useFichas(currentUser) {
             dbId: payload.new.id,
             created_at: payload.new.created_at,
             updated_at: payload.new.updated_at,
+
+            colecao_id: payload.new.colecao_id,
           };
 
           setFichas((prev) => {
@@ -144,11 +159,15 @@ export function useFichas(currentUser) {
           // UPDATE NORMAL
           const fichaAtualizada = {
             ...payload.new.dados,
+
             userId: payload.new.user_id,
             criadoPor: payload.new.criado_por,
+
             dbId: payload.new.id,
             created_at: payload.new.created_at,
             updated_at: payload.new.updated_at,
+
+            colecao_id: payload.new.colecao_id,
           };
 
           setFichas((prev) =>
@@ -183,7 +202,7 @@ export function useFichas(currentUser) {
   // CRIAR
   // ─────────────────────────────────────────────
   const criarFicha = useCallback(
-    async (operacaoCodigo) => {
+    async (operacaoCodigo, colecaoId) => {
       const codigoGerado = await gerarCodigo(operacaoCodigo);
 
       const nova = {
@@ -202,10 +221,11 @@ export function useFichas(currentUser) {
         .from("fichas")
         .insert({
           codigo: nova.codigo,
-          operacao: nova.operacao,
-          status: nova.status,
+          operacao: operacaoCodigo,
+          status: nova.status || "Rascunho",
           criado_por: nova.criadoPor,
           user_id: nova.userId,
+          colecao_id: colecaoId,
           dados: nova,
         })
         .select("*")
@@ -218,7 +238,7 @@ export function useFichas(currentUser) {
         return null;
       }
 
-      return data.dados.id;
+      return data.id;
     },
     [currentUser],
   );
