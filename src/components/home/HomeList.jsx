@@ -56,7 +56,6 @@ export default function HomeList(props) {
                 onClick={() => navigate(`/colecao/${colecao.id}`)}
               >
                 <h3>{colecao.cliente}</h3>
-
                 <p>{colecao.codigo_proposta}</p>
 
                 <div className="colecao-preview">

@@ -1,22 +1,50 @@
-import { useParams } from "react-router-dom";
+// ColecaoScreen.jsx
+import { useParams, useNavigate } from "react-router-dom";
+import FichaCard from "../home/FichaCard";
 
-export default function ColecaoScreen({ fichas, criarFicha }) {
+export default function ColecaoScreen({
+  fichas,
+  colecoes,
+  user,
+  listaUsuarios,
+  onDelete,
+}) {
   const { id } = useParams();
+  const navigate = useNavigate(); // ← agora ela própria navega
 
-  const fichasColecao = fichas.filter(
-    (f) => String(f.colecao_id) === String(id),
-  );
+  const colecao = colecoes.find((c) => String(c.id) === String(id));
+  const fichasColecao = fichas.filter((f) => String(f.colecao_id) === String(id));
+
+  // ← Navega para a rota da ficha dentro da coleção
+  function handleOpen(fichaId) {
+    navigate(`/colecao/${id}/ficha/${fichaId}`);
+  }
 
   return (
-    <div>
-      <h1>Coleção {id}</h1>
+    <div className="home-list">
+      <div className="colecao-header">
+        <h2>{colecao?.cliente}</h2>
+        <p>{colecao?.codigo_proposta}</p>
+        <small>{fichasColecao.length} fichas</small>
+      </div>
 
-      <button onClick={() => criarFicha("50", id)}>Nova TAF</button>
-
-      <button onClick={() => criarFicha("10", id)}>Nova Produção</button>
-
-      {fichasColecao.map((ficha) => (
-        <div key={ficha.id}>{ficha.codigo}</div>
+      {fichasColecao.map((ficha, index) => (
+        <FichaCard
+          key={ficha.id}
+          ficha={ficha}
+          index={index}
+          user={user}
+          listaUsuarios={listaUsuarios}
+          onOpen={handleOpen} // ← usa o local agora
+          onDelete={onDelete}
+          selected={false}
+          selectionOrder={0}
+          onToggleSelection={() => {}}
+          onToggleOperador={() => {}}
+          podeGerenciarOperadores={false}
+          activeDropdownFichaId={null}
+          setActiveDropdownFichaId={() => {}}
+        />
       ))}
     </div>
   );
