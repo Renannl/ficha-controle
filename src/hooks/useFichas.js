@@ -1,11 +1,10 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+// src/hooks/useFichas.js
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { createEmptyFicha } from "../data/fichaTemplate";
 import { supabase } from "../lib/supabase";
-import { useRef } from "react";
 
 function formatarNome(username) {
   if (!username) return "Sistema";
-
   return username
     .split(".")
     .map(
@@ -17,24 +16,14 @@ function formatarNome(username) {
 export function useFichas(currentUser) {
   const [fichas, setFichas] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
-
   const saveTimeouts = useRef({});
 
+  // ─── CARREGAR FICHAS ───
   useEffect(() => {
     async function loadFichas() {
       const { data, error } = await supabase
         .from("fichas")
-        .select(
-          `
-            *,
-            colecoes (
-              id,
-              cliente,
-              codigo_proposta,
-              descricao
-            )
-        `,
-        )
+        .select(`*, colecoes(id, cliente, codigo_proposta, descricao)`)
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
@@ -43,18 +32,14 @@ export function useFichas(currentUser) {
       } else {
         const fichasConvertidas = data.map((f) => ({
           ...f.dados,
-
           userId: f.user_id,
           criadoPor: f.criado_por,
-
           dbId: f.id,
           created_at: f.created_at,
           updated_at: f.updated_at,
-
           colecao_id: f.colecao_id,
           colecao: f.colecoes,
         }));
-
         setFichas(fichasConvertidas);
       }
 
@@ -64,17 +49,77 @@ export function useFichas(currentUser) {
     loadFichas();
   }, []);
 
-  async function gerarCodigo(operacao) {
-    const prefixos = {
-      10: "PRO",
-      50: "TAF",
-      80: "INDUS",
-      90: "QUA",
-    };
+  // ─── REALTIME ───
+  useEffect(() => {
+    const channel = supabase
+      .channel("fichas-realtime")
 
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "fichas" },
+        (payload) => {
+          const novaFicha = {
+            ...payload.new.dados,
+            userId: payload.new.user_id,
+            criadoPor: payload.new.criado_por,
+            dbId: payload.new.id,
+            created_at: payload.new.created_at,
+            updated_at: payload.new.updated_at,
+            colecao_id: payload.new.colecao_id,
+          };
+          setFichas((prev) => {
+            const existe = prev.some((f) => f.dbId === novaFicha.dbId);
+            if (existe) return prev;
+            return [novaFicha, ...prev];
+          });
+        },
+      )
+
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "fichas" },
+        (payload) => {
+          if (payload.new.deleted_at) {
+            setFichas((prev) => prev.filter((f) => f.dbId !== payload.new.id));
+            return;
+          }
+          const fichaAtualizada = {
+            ...payload.new.dados,
+            userId: payload.new.user_id,
+            criadoPor: payload.new.criado_por,
+            dbId: payload.new.id,
+            created_at: payload.new.created_at,
+            updated_at: payload.new.updated_at,
+            colecao_id: payload.new.colecao_id,
+          };
+          setFichas((prev) =>
+            prev.map((f) =>
+              f.dbId === fichaAtualizada.dbId ? fichaAtualizada : f,
+            ),
+          );
+        },
+      )
+
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "fichas" },
+        (payload) => {
+          setFichas((prev) => prev.filter((f) => f.dbId !== payload.old.id));
+        },
+      )
+
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // ─── GERAR CÓDIGO ───
+  async function gerarCodigo(operacao) {
+    const prefixos = { 10: "PRO", 50: "TAF", 80: "INDUS", 90: "QUA" };
     const prefixo = prefixos[operacao] || "GEN";
 
-    // Busca último código dessa operação
     const { data, error } = await supabase
       .from("fichas")
       .select("codigo")
@@ -89,118 +134,15 @@ export function useFichas(currentUser) {
     }
 
     let numero = 1;
-
     if (data.length > 0) {
-      const ultimoCodigo = data[0].codigo;
-
-      const ultimoNumero = parseInt(ultimoCodigo.split("-")[1]);
-
+      const ultimoNumero = parseInt(data[0].codigo.split("-")[1]);
       numero = ultimoNumero + 1;
     }
 
     return `${prefixo}-${String(numero).padStart(4, "0")}`;
   }
 
-  // ─────────────────────────────────────────────
-  // REALTIME
-  // ─────────────────────────────────────────────
-  useEffect(() => {
-    const channel = supabase
-      .channel("fichas-realtime")
-
-      // INSERT
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "fichas",
-        },
-        (payload) => {
-          const novaFicha = {
-            ...payload.new.dados,
-
-            userId: payload.new.user_id,
-            criadoPor: payload.new.criado_por,
-
-            dbId: payload.new.id,
-            created_at: payload.new.created_at,
-            updated_at: payload.new.updated_at,
-
-            colecao_id: payload.new.colecao_id,
-          };
-
-          setFichas((prev) => {
-            const existe = prev.some((f) => f.dbId === novaFicha.dbId);
-
-            if (existe) return prev;
-
-            return [novaFicha, ...prev];
-          });
-        },
-      )
-
-      // UPDATE
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "fichas",
-        },
-        (payload) => {
-          // SOFT DELETE
-          if (payload.new.deleted_at) {
-            setFichas((prev) => prev.filter((f) => f.dbId !== payload.new.id));
-
-            return;
-          }
-
-          // UPDATE NORMAL
-          const fichaAtualizada = {
-            ...payload.new.dados,
-
-            userId: payload.new.user_id,
-            criadoPor: payload.new.criado_por,
-
-            dbId: payload.new.id,
-            created_at: payload.new.created_at,
-            updated_at: payload.new.updated_at,
-
-            colecao_id: payload.new.colecao_id,
-          };
-
-          setFichas((prev) =>
-            prev.map((f) =>
-              f.dbId === fichaAtualizada.dbId ? fichaAtualizada : f,
-            ),
-          );
-        },
-      )
-
-      // DELETE
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "fichas",
-        },
-        (payload) => {
-          setFichas((prev) => prev.filter((f) => f.dbId !== payload.old.id));
-        },
-      )
-
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  // ─────────────────────────────────────────────
-  // CRIAR
-  // ─────────────────────────────────────────────
+  // ─── CRIAR ───
   const criarFicha = useCallback(
     async (operacaoCodigo, colecaoId) => {
       const codigoGerado = await gerarCodigo(operacaoCodigo);
@@ -213,7 +155,6 @@ export function useFichas(currentUser) {
           currentUser?.displayName ||
           formatarNome(currentUser?.username) ||
           "Sistema",
-
         userId: currentUser?.username || "system",
       };
 
@@ -229,7 +170,6 @@ export function useFichas(currentUser) {
           dados: nova,
         })
         .select("*")
-        .is("deleted_at", null)
         .single();
 
       if (error) {
@@ -243,12 +183,11 @@ export function useFichas(currentUser) {
     [currentUser],
   );
 
-  // ─────────────────────────────────────────────
-  // ATUALIZAR
-  // ─────────────────────────────────────────────
+  // ─── ATUALIZAR ───
   const atualizarFicha = useCallback(
     (id, updater) => {
-      const fichaAtual = fichas.find((f) => f.id === id);
+      // Busca por id interno OU dbId
+      const fichaAtual = fichas.find((f) => f.id === id || f.dbId === id);
 
       if (!fichaAtual) return;
 
@@ -257,16 +196,15 @@ export function useFichas(currentUser) {
           ? updater(fichaAtual)
           : { ...fichaAtual, ...updater };
 
-      // Atualiza instantaneamente na tela
-      setFichas((prev) => prev.map((f) => (f.id === id ? fichaAtualizada : f)));
+      setFichas((prev) =>
+        prev.map((f) => (f.dbId === fichaAtual.dbId ? fichaAtualizada : f)),
+      );
 
-      // Cancela save anterior
-      if (saveTimeouts.current[id]) {
-        clearTimeout(saveTimeouts.current[id]);
+      if (saveTimeouts.current[fichaAtual.dbId]) {
+        clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
       }
 
-      // Aguarda usuário parar de digitar
-      saveTimeouts.current[id] = setTimeout(async () => {
+      saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
         const { error } = await supabase
           .from("fichas")
           .update({
@@ -286,35 +224,28 @@ export function useFichas(currentUser) {
           console.error("[Supabase] Erro ao atualizar ficha:", error);
         }
 
-        delete saveTimeouts.current[id];
-      }, 8000);
+        delete saveTimeouts.current[fichaAtual.dbId];
+      }, 800); // ← reduzi de 8000 para 800ms (8s era muito alto)
     },
     [fichas],
   );
 
+  // ─── ATUALIZAR OPERADORES ───
   const atualizarOperadores = useCallback(
     (fichaId, operadores) => {
-      atualizarFicha(fichaId, (ficha) => ({
-        ...ficha,
-        operadores,
-      }));
+      atualizarFicha(fichaId, (ficha) => ({ ...ficha, operadores }));
     },
     [atualizarFicha],
   );
 
-  // ─────────────────────────────────────────────
-  // EXCLUIR
-  // ─────────────────────────────────────────────
+  // ─── EXCLUIR ───
   const excluirFicha = useCallback(
     async (id) => {
-      const ficha = fichas.find((f) => f.id === id);
-
+      const ficha = fichas.find((f) => f.id === id || f.dbId === id);
       if (!ficha) return;
 
-      // remove da interface
-      setFichas((prev) => prev.filter((f) => f.id !== id));
+      setFichas((prev) => prev.filter((f) => f.dbId !== ficha.dbId));
 
-      // soft delete
       const { error } = await supabase
         .from("fichas")
         .update({
@@ -327,79 +258,86 @@ export function useFichas(currentUser) {
         console.error("[Supabase] Erro ao mover para lixeira:", error);
       }
     },
-    [fichas],
+    [fichas, currentUser],
   );
 
-  // ─────────────────────────────────────────────
-  // PERMISSÕES
-  // ─────────────────────────────────────────────
+  // ─── PERMISSÕES ───
   const visibleFichas = useMemo(() => {
     if (!currentUser) return [];
 
     const permissoes = currentUser.permissoes || [];
-
     const podeVerTudo =
       currentUser.role === "admin" || permissoes.includes("ver_tudo");
-
     const verAprovacao = permissoes.includes("ver_aprovacao");
-
     const verEnviadas = permissoes.includes("ver_enviadas");
 
-    // ADMIN
-    if (podeVerTudo) {
-      return fichas;
-    }
+    if (podeVerTudo) return fichas;
 
-    // Começa com fichas do próprio usuário
     let fichasVisiveis = fichas.filter((f) => {
       const ehCriador = f.userId === currentUser.username;
-
       const ehOperador = (f.operadores || []).some(
         (op) => op.username === currentUser.username,
       );
-
       return ehCriador || ehOperador;
     });
 
-    // Adiciona aguardando aprovação
     if (verAprovacao) {
       const aguardando = fichas.filter(
         (f) => f.statusAprovacao === "aguardando",
       );
-
       fichasVisiveis = [...fichasVisiveis, ...aguardando];
     }
 
-    // Adiciona aprovadas/reprovadas
     if (verEnviadas) {
       const enviadas = fichas.filter(
         (f) =>
           f.statusAprovacao === "aprovado" || f.statusAprovacao === "reprovado",
       );
-
       fichasVisiveis = [...fichasVisiveis, ...enviadas];
     }
 
-    // Remove duplicados
     return fichasVisiveis.filter(
-      (f, index, self) => index === self.findIndex((x) => x.id === f.id),
+      (f, index, self) => index === self.findIndex((x) => x.dbId === f.dbId),
     );
   }, [fichas, currentUser]);
 
+  // ─── GET FICHA (com fallback Supabase) ───
   const getFicha = useCallback(
-    (id) => {
-      return visibleFichas.find((f) => f.id === id) || null;
+    async (id) => {
+      const local = visibleFichas.find((f) => f.dbId === id || f.id === id);
+      if (local) return local;
+
+      const { data, error } = await supabase
+        .from("fichas")
+        .select(`*, colecoes(id, cliente, codigo_proposta, descricao)`)
+        .eq("id", id)
+        .is("deleted_at", null)
+        .single();
+
+      if (error || !data) return null;
+
+      return {
+        ...data.dados,
+        userId: data.user_id,
+        criadoPor: data.criado_por,
+        dbId: data.id,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        colecao_id: data.colecao_id,
+        colecao: data.colecoes,
+      };
     },
     [visibleFichas],
   );
 
+  // ─── ✅ RETURN (estava faltando!) ───
   return {
     fichas: visibleFichas,
-    isLoading: !isLoaded,
+    isLoading: !isLoaded, // ← App.jsx usa isLoading, hook tinha isLoaded
     criarFicha,
     atualizarFicha,
-    atualizarOperadores,
     excluirFicha,
     getFicha,
+    atualizarOperadores,
   };
 }

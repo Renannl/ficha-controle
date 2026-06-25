@@ -32,15 +32,15 @@ export default function HomeScreen({
   onAtualizarOperadores,
 }) {
   // ── STATE ──────────────────────────────────────
-  const [viewMode, setViewMode]                           = useLocalStorageState("homeViewMode", "list");
-  const [showNewMenu, setShowNewMenu]                     = useState(false);
-  const [searchTerm, setSearchTerm]                       = useState("");
-  const [showSearch, setShowSearch]                       = useState(false);
-  const [deleteId, setDeleteId]                           = useState(null);
+  const [viewMode, setViewMode] = useLocalStorageState("homeViewMode", "list");
+  const [showNewMenu, setShowNewMenu] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
   const [activeDropdownFichaId, setActiveDropdownFichaId] = useState(null);
-  const [bookFichas, setBookFichas]                       = useState([]);
-  const [selectedFichas, setSelectedFichas]               = useState([]);
-  const [selectedColecao, setSelectedColecao]             = useState(null);
+  const [bookFichas, setBookFichas] = useState([]);
+  const [selectedFichas, setSelectedFichas] = useState([]);
+  const [selectedColecao, setSelectedColecao] = useState(null);
 
   const { colecoes, criarColecao } = useColecoes();
 
@@ -62,6 +62,13 @@ export default function HomeScreen({
     onAtualizarOperadores,
     podeGerenciar,
   });
+
+  // ✅ Já está correto, só confirme que está assim:
+  const handleCreateFicha = (tipo) => {
+    if (!selectedColecao?.id) return; // segurança extra
+    onNova(tipo, selectedColecao.id);
+    setShowNewMenu(false);
+  };
 
   useEffect(() => {
     const handler = async (e) => {
@@ -111,7 +118,7 @@ export default function HomeScreen({
 
   const toggleFichaSelection = (id) => {
     setSelectedFichas((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
     );
   };
 
@@ -137,7 +144,6 @@ export default function HomeScreen({
         <div className="login-bg-circle login-bg-circle-2" />
         <div className="login-bg-circle login-bg-circle-3" />
       </div>
-
       {/* HEADER */}
       <HomeHeader
         user={user}
@@ -147,7 +153,6 @@ export default function HomeScreen({
         onLogout={onLogout}
         stats={stats}
       />
-
       {/* VIEW TOGGLE */}
       <HomeViewToggle
         viewMode={viewMode}
@@ -158,7 +163,6 @@ export default function HomeScreen({
         handleTouchEnd={handleTouchEnd}
         selectedColecao={selectedColecao}
       />
-
       {/* BREADCRUMB — só dentro de coleção no modo list */}
       {selectedColecao && viewMode === "list" && (
         <div className="colecao-breadcrumb">
@@ -166,10 +170,11 @@ export default function HomeScreen({
             ← Coleções
           </button>
           <span className="colecao-breadcrumb-separator">/</span>
-          <span className="colecao-breadcrumb-name">{selectedColecao.nome}</span>
+          <span className="colecao-breadcrumb-name">
+            {selectedColecao.nome}
+          </span>
         </div>
       )}
-
       {/* CONTENT */}
       <HomeContent
         viewMode={viewMode}
@@ -200,7 +205,6 @@ export default function HomeScreen({
         toggleFichaSelection={toggleFichaSelection}
         onOpenColecao={handleAbrirColecao}
       />
-
       {/* MODAL EXCLUIR */}
       <ConfirmModal
         isOpen={!!deleteId}
@@ -211,7 +215,6 @@ export default function HomeScreen({
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
       />
-
       {/* BARRA DE SELEÇÃO PDF — só dentro de coleção */}
       {canGeneratePdf(user) && selectedFichas.length > 0 && selectedColecao && (
         <div className="selection-bar">
@@ -226,10 +229,10 @@ export default function HomeScreen({
             className="generate-pdf-btn"
             onClick={() => {
               const fichasBook = fichasDaColecao.filter((f) =>
-                selectedFichas.includes(f.id)
+                selectedFichas.includes(f.id),
               );
               window.dispatchEvent(
-                new CustomEvent("abrir-book-pdf", { detail: fichasBook })
+                new CustomEvent("abrir-book-pdf", { detail: fichasBook }),
               );
             }}
           >
@@ -237,18 +240,18 @@ export default function HomeScreen({
           </button>
         </div>
       )}
-
       <div style={{ position: "absolute", left: "-99999px", top: 0 }}>
         <BookPrintView fichas={bookFichas} />
       </div>
 
       {/* FAB */}
       <HomeFab onClick={() => setShowNewMenu(true)} />
-
       <NewFichaMenu
         show={showNewMenu}
         onClose={() => setShowNewMenu(false)}
         onCreate={handleCreateColecao}
+        onCreateFicha={handleCreateFicha} // ← novo
+        mode={mode} // ← novo: "colecoes" ou "fichas"
       />
     </div>
   );

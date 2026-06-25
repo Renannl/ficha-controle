@@ -139,10 +139,28 @@ export default function App() {
   }
 
   // ─── Criar nova ficha e já navegar para ela ───
-  async function handleNova(operacaoCodigo) {
-    const id = await criarFicha(operacaoCodigo);
+  // Mapa de tipo amigável → código numérico da operação
+  // ✅ Corrigido — adiciona "fotos"
+  const TIPO_PARA_OPERACAO = {
+    taf: 50,
+    producao: 10,
+    fotos: 80, // ← bate com o onCreateFicha("fotos") do NewFichaMenu
+    controle: 80, // ← mantém por compatibilidade
+    qualidade: 90,
+  };
+
+  async function handleNova(tipo, colecaoId = null) {
+    const operacaoCodigo = TIPO_PARA_OPERACAO[tipo] ?? tipo; // fallback pro valor direto
+
+    const id = await criarFicha(operacaoCodigo, colecaoId);
     if (!id) return;
-    navigate(`/dashboard/ficha/${id}`);
+
+    // Navega para rota correta dependendo do contexto
+    if (colecaoId) {
+      navigate(`/colecao/${colecaoId}/ficha/${id}`);
+    } else {
+      navigate(`/dashboard/ficha/${id}`);
+    }
   }
 
   function handleOpen(id) {
@@ -158,9 +176,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" />} />
-
       <Route path="/login" element={<Navigate to="/dashboard" />} />
-
       {/* Dashboard — sempre HomeScreen */}
       <Route
         path="/dashboard"
@@ -182,7 +198,6 @@ export default function App() {
           </div>
         }
       />
-
       {/* Ficha aberta pelo dashboard */}
       <Route
         path="/dashboard/ficha/:fichaId"
@@ -196,8 +211,8 @@ export default function App() {
           />
         }
       />
-
       {/* Lista de fichas da coleção */}
+      // App.jsx — rota /colecao/:id
       <Route
         path="/colecao/:id"
         element={
@@ -207,10 +222,10 @@ export default function App() {
             user={user}
             listaUsuarios={usuarios}
             onDelete={handleDelete}
+            onNova={handleNova} // ← adiciona isso
           />
         }
       />
-
       {/* Ficha aberta pela coleção */}
       <Route
         path="/colecao/:id/ficha/:fichaId"
@@ -224,7 +239,6 @@ export default function App() {
           />
         }
       />
-
       <Route
         path="/admin"
         element={
@@ -235,7 +249,6 @@ export default function App() {
           )
         }
       />
-
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );

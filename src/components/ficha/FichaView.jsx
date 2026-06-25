@@ -13,26 +13,23 @@ import ConfirmModal from "../ConfirmModal";
 import ApproveModal from "../ApproveModal";
 import RejectModal from "../RejectModal";
 import { getChecklistItems } from "../../data/fichaTemplate";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { exportFicha } from "../../services/sharepointService";
 
 export default function FichaView({
-  fichas,
   user,
   atualizarFicha,
   getFicha,
   excluirFicha,
-  // Origem: "dashboard" | "colecao"
-  // Usado para saber para onde voltar
   origem,
 }) {
   const { fichaId, id: colecaoId } = useParams();
   const navigate = useNavigate();
 
-  const ficha = getFicha(fichaId) || null;
-
-  const [activeTab, setActiveTab] = useState(ficha?.tafData ? "taf" : "info");
+  const [ficha, setFicha] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("info");
   const [successModal, setSuccessModal] = useState({
     isOpen: false,
     title: "",
@@ -40,6 +37,41 @@ export default function FichaView({
   });
   const [rejectInfo, setRejectInfo] = useState(null);
   const [approveInfo, setApproveInfo] = useState(null);
+
+  // ─── Busca a ficha (local ou Supabase) ───
+  useEffect(() => {
+    let cancelled = false;
+
+    async function buscar() {
+      setLoading(true);
+      const resultado = await getFicha(fichaId);
+      if (!cancelled) {
+        setFicha(resultado);
+        setLoading(false);
+      }
+    }
+
+    buscar();
+    return () => {
+      cancelled = true;
+    };
+  }, [fichaId, getFicha]);
+
+  // ─── Sincroniza ficha quando o estado global atualizar (realtime) ───
+  useEffect(() => {
+    if (!loading) {
+      const atualizada = getFicha(fichaId);
+      // getFicha pode ser async, mas se for síncrono (achou no estado), já retorna
+      if (atualizada && typeof atualizada.then !== "function") {
+        setFicha(atualizada);
+      }
+    }
+  }, [getFicha]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Ajusta aba inicial quando a ficha carregar ───
+  useEffect(() => {
+    if (ficha?.tafData) setActiveTab("taf");
+  }, [ficha?.tafData]);
 
   // ─── Voltar para a origem correta ───
   function handleBack() {
@@ -50,6 +82,28 @@ export default function FichaView({
     }
   }
 
+  // ─── Loading ───
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          gap: 16,
+          background: "var(--bg-base)",
+          color: "var(--text-secondary)",
+        }}
+      >
+        <div className="login-spinner" />
+        <p style={{ fontSize: 14 }}>Carregando ficha...</p>
+      </div>
+    );
+  }
+
+  // ─── Não encontrada ───
   if (!ficha) {
     return (
       <div
@@ -132,7 +186,6 @@ export default function FichaView({
   }
 
   function handleOperacaoChange(novoCodigo) {
-    // mesma lógica do App.jsx
     atualizarFicha(fichaId, (prev) => ({ ...prev, operacao: novoCodigo }));
   }
 
@@ -211,8 +264,9 @@ export default function FichaView({
   function getProgress() {
     const total = ficha?.items?.length || 0;
     const done =
-      ficha?.items?.filter((i) => i.resultado === "ok" || i.resultado === "na")
-        .length || 0;
+      ficha?.items?.filter(
+        (i) => i.resultado === "ok" || i.resultado === "na",
+      ).length || 0;
     return total > 0 ? Math.round((done / total) * 100) : 0;
   }
 
