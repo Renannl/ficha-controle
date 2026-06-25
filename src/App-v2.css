@@ -104,7 +104,6 @@
 .home-list {
   padding: 16px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
   position: relative;
   z-index: 1;
@@ -4285,7 +4284,6 @@
 /* ─── Tablets e telas médias (≤768px) ─── */
 @media (max-width: 768px) {
   .home-list {
-    grid-template-columns: 1fr 1fr;
     gap: 10px;
     padding: 24px;
     padding-bottom: 100px;
@@ -5014,38 +5012,284 @@ svg {
 
 /* COLEÇÕES */
 
+/* ──────────────────────────────────────────────
+   COLEÇÕES
+────────────────────────────────────────────── */
+
 .colecoes-grid {
   display: grid;
-  margin-top: 20px;
-  margin-left: 20px;
-  margin-right: 20px ;
-  grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
-  gap: 16px;
+  padding: 16px;
+  grid-template-columns: repeat(3, 1fr); /* 3 colunas fixas */
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  align-content: start; /* cards não esticam verticalmente */
+}
+
+/* ── Data de criação ── */
+.colecao-card-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: auto; /* empurra pro fundo do card */
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
 }
 
 .colecao-card {
-  background: var(--card);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 16px;
   cursor: pointer;
-  border: 1px solid var(--border);
-  transition: .2s;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Barra colorida lateral igual ao ficha-card */
+.colecao-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--blue-primary), var(--blue-mid));
+  border-radius: 3px 0 0 3px;
 }
 
 .colecao-card:hover {
+  border-color: var(--border-light);
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
+.colecao-card:active {
+  transform: scale(0.99);
+}
+
+/* Cabeçalho do card */
+.colecao-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.colecao-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--blue-glow);
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  color: var(--blue-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.colecao-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.colecao-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.colecao-card-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+/* Badge com contagem de fichas */
+.colecao-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--blue-glow);
+  border: 1px solid var(--blue-accent);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue-primary);
+  flex-shrink: 0;
+}
+
+/* Preview de fichas dentro do card */
 .colecao-preview {
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .preview-ficha {
-  background: rgba(255,255,255,.05);
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 6px 10px;
-  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-ficha-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue-accent);
+  flex-shrink: 0;
+}
+
+.preview-ficha-more {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2px 0;
+}
+
+/* Card vazio (sem fichas ainda) */
+.colecao-card-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Dark mode */
+[data-theme="dark"] .colecao-card {
+  background: var(--bg-card);
+}
+
+/* ──────────────────────────────────────────────
+   BREADCRUMB
+────────────────────────────────────────────── */
+
+.colecao-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+
+.colecao-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--blue-accent);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.colecao-back-btn:hover {
+  border-color: var(--blue-accent);
+  background: var(--blue-glow);
+}
+
+.colecao-back-btn:active {
+  transform: scale(0.97);
+}
+
+.colecao-breadcrumb-separator {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.colecao-breadcrumb-name {
   font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ──────────────────────────────────────────────
+   RESPONSIVO
+────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .colecoes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .colecoes-grid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 10px;
+  }
+}
+
+@media (min-width: 600px) {
+  .colecoes-grid {
+    padding: 20px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .colecoes-grid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .colecao-card-title {
+    font-size: 13px;
+  }
+
+  .colecao-breadcrumb {
+    padding: 8px 12px;
+  }
+
+  .colecao-back-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .colecao-breadcrumb-name {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 600px) {
+  .colecoes-grid {
+    padding: 20px 24px;
+  }
 }

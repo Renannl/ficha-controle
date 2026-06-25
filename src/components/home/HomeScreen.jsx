@@ -1,19 +1,14 @@
 import { useState, useMemo, useEffect } from "react";
 import ConfirmModal from "../ConfirmModal";
-import FichaCard from "./FichaCard";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
 import { useLocalStorageState } from "../../hooks/useLocalStorageState";
 import { useViewModeDrag } from "../../hooks/useViewModeDrag";
 import { useOperators } from "../../hooks/useOperators";
 import { canManageOperators } from "../../utils/operators";
 import { canGeneratePdf } from "../../utils/hasPermission";
-import { getAvailableOperations } from "../../utils/operations";
-import HomeFilters from "./HomeFilters";
 import NewFichaMenu from "./NewFichaMenu";
 import HomeViewToggle from "./HomeViewToggle";
 import HomeHeader from "./HomeHeader";
-import HomeEmptyState from "./HomeEmptyState";
-import HomeList from "./HomeList";
 import HomeContent from "./HomeContent";
 import HomeFab from "./HomeFab";
 import { useHomeFilters } from "../../hooks/useHomeFilters";
@@ -21,7 +16,6 @@ import BookPrintView from "../print/BookPrintView";
 import { exportBook } from "../../services/sharepointService";
 import { FileInputIcon } from "lucide-react";
 import { useColecoes } from "../../hooks/useColecoes";
-import { useNavigate } from "react-router-dom";
 
 export default function HomeScreen({
   fichas,
@@ -37,30 +31,29 @@ export default function HomeScreen({
   listaUsuarios = [],
   onAtualizarOperadores,
 }) {
-  // STATE
-
-  const [viewMode, setViewMode] = useLocalStorageState("homeViewMode", "list");
-
-  const [showNewMenu, setShowNewMenu] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
+  // ── STATE ──────────────────────────────────────
+  const [viewMode, setViewMode]                           = useLocalStorageState("homeViewMode", "list");
+  const [showNewMenu, setShowNewMenu]                     = useState(false);
+  const [searchTerm, setSearchTerm]                       = useState("");
+  const [showSearch, setShowSearch]                       = useState(false);
+  const [deleteId, setDeleteId]                           = useState(null);
   const [activeDropdownFichaId, setActiveDropdownFichaId] = useState(null);
-  const [bookFichas, setBookFichas] = useState([]);
-  const [selectedFichas, setSelectedFichas] = useState([]);
+  const [bookFichas, setBookFichas]                       = useState([]);
+  const [selectedFichas, setSelectedFichas]               = useState([]);
+  const [selectedColecao, setSelectedColecao]             = useState(null);
+
   const { colecoes, criarColecao } = useColecoes();
 
-  // PERMISSIONS
+  // ── PERMISSIONS ────────────────────────────────
   const podeGerenciar = canManageOperators(user);
 
-  const colecoesComFichas = useMemo(() => {
-    return colecoes.map((colecao) => ({
-      ...colecao,
-      fichas: fichas.filter((f) => f.colecao_id === colecao.id),
-    }));
-  }, [colecoes, fichas]);
+  // ── FICHAS DA COLEÇÃO ABERTA ───────────────────
+  const fichasDaColecao = useMemo(() => {
+    if (!selectedColecao) return [];
+    return fichas.filter((f) => f.colecao_id === selectedColecao.id);
+  }, [fichas, selectedColecao]);
 
-  // HOOKS
+  // ── HOOKS ──────────────────────────────────────
   const { toggleRef, handleTouchStart, handleTouchMove, handleTouchEnd } =
     useViewModeDrag(setViewMode);
 
@@ -73,34 +66,30 @@ export default function HomeScreen({
   useEffect(() => {
     const handler = async (e) => {
       setBookFichas(e.detail);
-
       setTimeout(async () => {
         await exportBook();
       }, 1000);
     };
-
     window.addEventListener("abrir-book-pdf", handler);
-
     return () => window.removeEventListener("abrir-book-pdf", handler);
   }, []);
 
-  // LOCAL STORAGE SYNC
+  // ── FILTERS ────────────────────────────────────
   const { filterStatus, setFilterStatus, filterType, setFilterType } =
     useHomeFilters();
 
-  // DATA
-  const availableOps = useMemo(() => getAvailableOperations(user), [user]);
-
   const { filteredFichas, stats } = useFichasFilter({
-    fichas,
+    fichas: selectedColecao ? fichasDaColecao : fichas,
     filterStatus,
     filterType,
     searchTerm,
   });
 
-  // ACTIONS
+  const mode = selectedColecao ? "fichas" : "colecoes";
+
+  // ── ACTIONS ────────────────────────────────────
   function handleDelete(e, id) {
-    e.stopPropagation();
+    e?.stopPropagation?.();
     setDeleteId(id);
   }
 
@@ -110,16 +99,9 @@ export default function HomeScreen({
     setDeleteId(null);
   };
 
-  const handleCreateNew = async (payload) => {
-    await criarColecao(payload);
-
-    setShowNewMenu(false);
-  };
-
   const handleCreateColecao = async (payload) => {
     try {
       await criarColecao(payload);
-
       setShowNewMenu(false);
     } catch (err) {
       console.error(err);
@@ -127,15 +109,27 @@ export default function HomeScreen({
     }
   };
 
-  const navigate = useNavigate();
-
   const toggleFichaSelection = (id) => {
     setSelectedFichas((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
     );
   };
 
-  // RENDER
+  const handleAbrirColecao = (colecao) => {
+    setSelectedColecao(colecao);
+    setSelectedFichas([]);
+    setSearchTerm("");
+    setViewMode("list");
+  };
+
+  const handleVoltarColecoes = () => {
+    setSelectedColecao(null);
+    setSelectedFichas([]);
+    setSearchTerm("");
+    setViewMode("list");
+  };
+
+  // ── RENDER ─────────────────────────────────────
   return (
     <div className="home">
       <div className="home-bg-decoration">
@@ -144,7 +138,7 @@ export default function HomeScreen({
         <div className="login-bg-circle login-bg-circle-3" />
       </div>
 
-      {/* USER BAR */}
+      {/* HEADER */}
       <HomeHeader
         user={user}
         theme={theme}
@@ -162,18 +156,30 @@ export default function HomeScreen({
         handleTouchStart={handleTouchStart}
         handleTouchMove={handleTouchMove}
         handleTouchEnd={handleTouchEnd}
+        selectedColecao={selectedColecao}
       />
+
+      {/* BREADCRUMB — só dentro de coleção no modo list */}
+      {selectedColecao && viewMode === "list" && (
+        <div className="colecao-breadcrumb">
+          <button className="colecao-back-btn" onClick={handleVoltarColecoes}>
+            ← Coleções
+          </button>
+          <span className="colecao-breadcrumb-separator">/</span>
+          <span className="colecao-breadcrumb-name">{selectedColecao.nome}</span>
+        </div>
+      )}
 
       {/* CONTENT */}
       <HomeContent
         viewMode={viewMode}
         fichas={fichas}
+        fichasDaColecao={fichasDaColecao}
         user={user}
         onApprove={onApprove}
         showNewMenu={showNewMenu}
-        mode="colecoes"
+        mode={mode}
         colecoes={colecoes}
-        fichas={fichas}
         filteredFichas={filteredFichas}
         showSearch={showSearch}
         setShowSearch={setShowSearch}
@@ -192,9 +198,10 @@ export default function HomeScreen({
         setActiveDropdownFichaId={setActiveDropdownFichaId}
         selectedFichas={selectedFichas}
         toggleFichaSelection={toggleFichaSelection}
+        onOpenColecao={handleAbrirColecao}
       />
 
-      {/* MODAL */}
+      {/* MODAL EXCLUIR */}
       <ConfirmModal
         isOpen={!!deleteId}
         title="Excluir Ficha?"
@@ -205,44 +212,33 @@ export default function HomeScreen({
         onCancel={() => setDeleteId(null)}
       />
 
-      {canGeneratePdf(user) && selectedFichas.length > 0 && (
+      {/* BARRA DE SELEÇÃO PDF — só dentro de coleção */}
+      {canGeneratePdf(user) && selectedFichas.length > 0 && selectedColecao && (
         <div className="selection-bar">
           <div className="selection-info">
             <span className="selection-count">{selectedFichas.length}</span>
-
             <div>
               <div className="selection-title">Book PDF</div>
-
               <div className="selection-subtitle">fichas selecionadas</div>
             </div>
           </div>
-
           <button
             className="generate-pdf-btn"
             onClick={() => {
-              const fichasBook = fichas.filter((f) =>
-                selectedFichas.includes(f.id),
+              const fichasBook = fichasDaColecao.filter((f) =>
+                selectedFichas.includes(f.id)
               );
-
               window.dispatchEvent(
-                new CustomEvent("abrir-book-pdf", {
-                  detail: fichasBook,
-                }),
+                new CustomEvent("abrir-book-pdf", { detail: fichasBook })
               );
             }}
           >
-            <FileInputIcon></FileInputIcon> Gerar PDF
+            <FileInputIcon /> Gerar PDF
           </button>
         </div>
       )}
 
-      <div
-        style={{
-          position: "absolute",
-          left: "-99999px",
-          top: 0,
-        }}
-      >
+      <div style={{ position: "absolute", left: "-99999px", top: 0 }}>
         <BookPrintView fichas={bookFichas} />
       </div>
 

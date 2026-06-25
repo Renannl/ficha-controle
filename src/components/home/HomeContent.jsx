@@ -2,45 +2,38 @@ import Dashboard from "../dashboard/Dashboard";
 import PhotoBank from "../photobank/PhotoBank";
 import HomeEmptyState from "./HomeEmptyState";
 import HomeList from "./HomeList";
-import ColecoesList from "./ColecoesList";
 
 export default function HomeContent({
   viewMode,
-  fichas,
+  fichas,          // ✅ TODAS as fichas
+  fichasDaColecao, // ✅ só da coleção aberta
   user,
   onApprove,
   showNewMenu,
-
   filteredFichas,
-  showFichas = true,
-  mode = "fichas",
+  mode = "colecoes",
   colecoes = [],
-
   showSearch,
   setShowSearch,
   searchTerm,
   setSearchTerm,
-
   filterType,
   setFilterType,
-
   filterStatus,
   setFilterStatus,
-
   listaUsuarios,
-
   onOpen,
   onDelete,
-
   onToggleOperador,
   podeGerenciarOperadores,
-
   activeDropdownFichaId,
   setActiveDropdownFichaId,
-
   selectedFichas,
   toggleFichaSelection,
+  onOpenColecao,
 }) {
+
+  // ✅ Dashboard e Gallery sempre com TODAS as fichas, independente de coleção
   if (viewMode === "dashboard") {
     return (
       <div style={{ padding: "16px", paddingBottom: "100px" }}>
@@ -53,36 +46,51 @@ export default function HomeContent({
     return <PhotoBank fichas={fichas} />;
   }
 
-  if (fichas.length === 0 && !showNewMenu) {
+  // ✅ Tela de coleções: nunca mostra empty state aqui
+  if (mode === "colecoes") {
+    return (
+      <HomeList
+        mode="colecoes"
+        colecoes={colecoes}
+        fichas={fichas}           // para calcular preview e contagem
+        filteredFichas={[]}
+        onOpenColecao={onOpenColecao}
+        user={user}
+        listaUsuarios={listaUsuarios}
+      />
+    );
+  }
+
+  // ✅ Dentro de uma coleção: mostra fichas ou empty state
+  if (fichasDaColecao.length === 0 && !showNewMenu) {
     return <HomeEmptyState />;
   }
 
   return (
-    <>
-      <HomeList
-        mode={mode}
-        colecoes={colecoes}
-        fichas={fichas}
-        filteredFichas={filteredFichas}
-        showSearch={showSearch}
-        setShowSearch={setShowSearch}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        filterType={filterType}
-        selectedFichas={selectedFichas}
-        toggleFichaSelection={toggleFichaSelection}
-        setFilterType={setFilterType}
-        filterStatus={filterStatus}
-        setFilterStatus={setFilterStatus}
-        user={user}
-        listaUsuarios={listaUsuarios}
-        onOpen={onOpen}
-        onDelete={onDelete}
-        onToggleOperador={onToggleOperador}
-        podeGerenciarOperadores={podeGerenciarOperadores}
-        activeDropdownFichaId={activeDropdownFichaId}
-        setActiveDropdownFichaId={setActiveDropdownFichaId}
-      />
-    </>
+    <HomeList
+      mode="fichas"
+      colecoes={colecoes}
+      fichas={fichasDaColecao}
+      filteredFichas={filteredFichas}
+      showSearch={showSearch}
+      setShowSearch={setShowSearch}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      filterType={filterType}
+      setFilterType={setFilterType}
+      filterStatus={filterStatus}
+      setFilterStatus={setFilterStatus}
+      user={user}
+      listaUsuarios={listaUsuarios}
+      onOpen={onOpen}
+      onDelete={onDelete}
+      onToggleOperador={onToggleOperador}
+      podeGerenciarOperadores={podeGerenciarOperadores}
+      activeDropdownFichaId={activeDropdownFichaId}
+      setActiveDropdownFichaId={setActiveDropdownFichaId}
+      selectedFichas={selectedFichas}
+      toggleFichaSelection={toggleFichaSelection}
+      onOpenColecao={onOpenColecao}
+    />
   );
 }

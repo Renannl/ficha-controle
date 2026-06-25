@@ -13,7 +13,11 @@ export default function HomeViewToggle({
   handleTouchStart,
   handleTouchMove,
   handleTouchEnd,
+  selectedColecao, // ← recebe aqui
 }) {
+  // ← some completamente quando estiver dentro de uma coleção
+  if (selectedColecao) return null;
+
   return (
     <div
       className="home-view-toggle"
