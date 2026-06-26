@@ -150,17 +150,12 @@ export default function App() {
   };
 
   async function handleNova(tipo, colecaoId = null) {
-    const operacaoCodigo = TIPO_PARA_OPERACAO[tipo] ?? tipo; // fallback pro valor direto
-
+    const operacaoCodigo = TIPO_PARA_OPERACAO[tipo] ?? tipo;
     const id = await criarFicha(operacaoCodigo, colecaoId);
     if (!id) return;
 
-    // Navega para rota correta dependendo do contexto
-    if (colecaoId) {
-      navigate(`/colecao/${colecaoId}/ficha/${id}`);
-    } else {
-      navigate(`/dashboard/ficha/${id}`);
-    }
+    // ✅ Sempre navega para o dashboard — sem rota de coleção
+    navigate(`/dashboard/ficha/${id}`);
   }
 
   function handleOpen(id) {
@@ -177,7 +172,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" />} />
       <Route path="/login" element={<Navigate to="/dashboard" />} />
-      {/* Dashboard — sempre HomeScreen */}
+      {/* Dashboard */}
       <Route
         path="/dashboard"
         element={
@@ -211,34 +206,7 @@ export default function App() {
           />
         }
       />
-      {/* Lista de fichas da coleção */}
-      // App.jsx — rota /colecao/:id
-      <Route
-        path="/colecao/:id"
-        element={
-          <ColecaoScreen
-            fichas={fichas}
-            colecoes={colecoes}
-            user={user}
-            listaUsuarios={usuarios}
-            onDelete={handleDelete}
-            onNova={handleNova} // ← adiciona isso
-          />
-        }
-      />
-      {/* Ficha aberta pela coleção */}
-      <Route
-        path="/colecao/:id/ficha/:fichaId"
-        element={
-          <FichaView
-            user={user}
-            atualizarFicha={atualizarFicha}
-            getFicha={getFicha}
-            excluirFicha={excluirFicha}
-            origem="colecao"
-          />
-        }
-      />
+
       <Route
         path="/admin"
         element={

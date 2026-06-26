@@ -69,9 +69,15 @@ export default function FichaView({
   }, [getFicha]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Ajusta aba inicial quando a ficha carregar ───
+  // ✅ Substitui o useEffect atual de setActiveTab
   useEffect(() => {
-    if (ficha?.tafData) setActiveTab("taf");
-  }, [ficha?.tafData]);
+    if (!ficha) return;
+    const op = String(ficha.operacao ?? "");
+    if (op === "50") setActiveTab("taf");
+    else if (op === "80")
+      setActiveTab("fotos"); // ← abre direto em Fotos
+    else setActiveTab("info");
+  }, [ficha?.operacao]); // ← depende de operacao, não de tafData
 
   // ─── Voltar para a origem correta ───
   function handleBack() {
@@ -264,14 +270,14 @@ export default function FichaView({
   function getProgress() {
     const total = ficha?.items?.length || 0;
     const done =
-      ficha?.items?.filter(
-        (i) => i.resultado === "ok" || i.resultado === "na",
-      ).length || 0;
+      ficha?.items?.filter((i) => i.resultado === "ok" || i.resultado === "na")
+        .length || 0;
     return total > 0 ? Math.round((done / total) * 100) : 0;
   }
 
-  const isTaf = !!ficha?.tafData;
-  const isFoto = ficha?.operacao === "80";
+  const operacaoStr = String(ficha?.operacao ?? "");
+  const isTaf = operacaoStr === "50";
+  const isFoto = operacaoStr === "80";
   const checklistItems = getChecklistItems(ficha.operacao);
 
   const tabs = isTaf

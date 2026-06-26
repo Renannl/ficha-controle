@@ -117,7 +117,12 @@ export function useFichas(currentUser) {
 
   // ─── GERAR CÓDIGO ───
   async function gerarCodigo(operacao) {
-    const prefixos = { 10: "PRO", 50: "TAF", 80: "INDUS", 90: "QUA" };
+    const prefixos = {
+      10: "PRO",
+      50: "TAF",
+      80: "FOTO",
+      90: "QUA",
+    };
     const prefixo = prefixos[operacao] || "GEN";
 
     const { data, error } = await supabase
