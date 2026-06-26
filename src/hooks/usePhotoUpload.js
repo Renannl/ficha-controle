@@ -1,7 +1,12 @@
+import { useCallback, useRef } from "react";
 import { uploadFoto } from "../services/uploadService";
 
 export function usePhotoUpload(ficha) {
-  async function handlePhotoUpload(file) {
+  // Ref sempre aponta para a ficha mais recente sem re-criar a função
+  const fichaRef = useRef(ficha);
+  fichaRef.current = ficha;
+
+  const handlePhotoUpload = useCallback(async (file) => {
     if (!file) return null;
 
     try {
@@ -13,7 +18,6 @@ export function usePhotoUpload(ficha) {
 
           img.onload = async () => {
             const canvas = document.createElement("canvas");
-
             let { width, height } = img;
             const maxSize = 600;
 
@@ -27,7 +31,6 @@ export function usePhotoUpload(ficha) {
 
             canvas.width = width;
             canvas.height = height;
-
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, width, height);
 
@@ -37,9 +40,8 @@ export function usePhotoUpload(ficha) {
                   const compressedFile = new File([blob], file.name, {
                     type: "image/jpeg",
                   });
-
-                  const url = await uploadFoto(compressedFile, ficha);
-
+                  // ← usa fichaRef para sempre ter a ficha atual
+                  const url = await uploadFoto(compressedFile, fichaRef.current);
                   resolve(url);
                 } catch (err) {
                   reject(err);
@@ -60,7 +62,7 @@ export function usePhotoUpload(ficha) {
       alert("Erro ao processar imagem");
       return null;
     }
-  }
+  }, []); // deps vazio — fichaRef garante o valor atual
 
   return { handlePhotoUpload };
 }

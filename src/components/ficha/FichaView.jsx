@@ -13,12 +13,13 @@ import ConfirmModal from "../ConfirmModal";
 import ApproveModal from "../ApproveModal";
 import RejectModal from "../RejectModal";
 import { getChecklistItems } from "../../data/fichaTemplate";
-import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { exportFicha } from "../../services/sharepointService";
+import { useState, useEffect, useCallback } from "react";
 
 export default function FichaView({
   user,
+  fichas,
   atualizarFicha,
   getFicha,
   excluirFicha,
@@ -38,7 +39,7 @@ export default function FichaView({
   const [rejectInfo, setRejectInfo] = useState(null);
   const [approveInfo, setApproveInfo] = useState(null);
 
-  // ─── Busca a ficha (local ou Supabase) ───
+  // ─── Busca a ficha ───
   useEffect(() => {
     let cancelled = false;
 
@@ -55,31 +56,87 @@ export default function FichaView({
     return () => {
       cancelled = true;
     };
-  }, [fichaId, getFicha]);
+  }, [fichaId]); // ← SEM getFicha nas deps para não re-executar desnecessariamente
 
-  // ─── Sincroniza ficha quando o estado global atualizar (realtime) ───
+  // FichaView.jsx — substitua o useEffect de busca por esses dois:
+
+  // 1. Busca inicial
   useEffect(() => {
-    if (!loading) {
-      const atualizada = getFicha(fichaId);
-      // getFicha pode ser async, mas se for síncrono (achou no estado), já retorna
-      if (atualizada && typeof atualizada.then !== "function") {
-        setFicha(atualizada);
+    let cancelled = false;
+    async function buscar() {
+      setLoading(true);
+      const resultado = await getFicha(fichaId);
+      if (!cancelled) {
+        setFicha(resultado);
+        setLoading(false);
       }
     }
-  }, [getFicha]); // eslint-disable-line react-hooks/exhaustive-deps
+    buscar();
+    return () => {
+      cancelled = true;
+    };
+  }, [fichaId]);
+
+  // 2. ✅ Mantém ficha sincronizada com o estado global do hook
+  // Recebe fichas como prop e atualiza o estado local sempre que mudar
+  useEffect(() => {
+    if (!fichaId || !fichas) return;
+    const atualizada = fichas.find(
+      (f) => f.dbId === fichaId || f.id === fichaId,
+    );
+    if (atualizada) setFicha(atualizada);
+  }, [fichas, fichaId]);
 
   // ─── Ajusta aba inicial quando a ficha carregar ───
-  // ✅ Substitui o useEffect atual de setActiveTab
   useEffect(() => {
     if (!ficha) return;
     const op = String(ficha.operacao ?? "");
     if (op === "50") setActiveTab("taf");
-    else if (op === "80")
-      setActiveTab("fotos"); // ← abre direto em Fotos
+    else if (op === "80") setActiveTab("fotos");
     else setActiveTab("info");
-  }, [ficha?.operacao]); // ← depende de operacao, não de tafData
+  }, [ficha?.operacao]);
 
-  // ─── Voltar para a origem correta ───
+  // ─── Callbacks estáveis para fotoData ───
+  const handleUpdateFotoData = useCallback(
+    (newData) => {
+      atualizarFicha(fichaId, (prev) => ({
+        ...prev,
+        fotoData: { ...prev.fotoData, ...newData },
+      }));
+    },
+    [fichaId, atualizarFicha], // ← fichaId (string) é mais estável que ficha.id
+  );
+
+  const handleUpdateConsideracoes = useCallback(
+    (newData) => {
+      atualizarFicha(fichaId, (prev) => ({
+        ...prev,
+        fotoData: { ...prev.fotoData, ...newData },
+      }));
+    },
+    [fichaId, atualizarFicha],
+  );
+
+  // ─── Callback estável para tafData ───
+  const handleUpdateTaf = useCallback(
+    (newData) => {
+      atualizarFicha(fichaId, (prev) => ({
+        ...prev,
+        tafData: { ...prev.tafData, ...newData },
+      }));
+    },
+    [fichaId, atualizarFicha],
+  );
+
+  // ─── Callback estável para TafPanel ───
+  const handleUpdateTafPanel = useCallback(
+    (newData) => {
+      atualizarFicha(fichaId, (prev) => ({ ...prev, ...newData }));
+    },
+    [fichaId, atualizarFicha],
+  );
+
+  // ─── Voltar ───
   function handleBack() {
     if (origem === "colecao") {
       navigate(`/colecao/${colecaoId}`);
@@ -214,7 +271,6 @@ export default function FichaView({
     });
 
     await new Promise((r) => setTimeout(r, 500));
-
     const success = await exportFicha(ficha, "print-view-root");
 
     setSuccessModal({
@@ -323,11 +379,7 @@ export default function FichaView({
               <ConsideracoesPanel
                 ficha={ficha}
                 onUpdateHeader={updateField}
-                onUpdateFotoData={(newData) =>
-                  atualizarFicha(ficha.id, {
-                    fotoData: { ...ficha.fotoData, ...newData },
-                  })
-                }
+                onUpdateFotoData={handleUpdateConsideracoes}
               />
             ))}
 
@@ -339,32 +391,16 @@ export default function FichaView({
               onSetResultado={(idx, val) => updateItem(idx, "resultado", val)}
               isTaf={isTaf}
               tafData={ficha.tafData}
-              onUpdateTaf={(newData) =>
-                atualizarFicha(ficha.id, {
-                  tafData: { ...ficha.tafData, ...newData },
-                })
-              }
+              onUpdateTaf={handleUpdateTaf}
             />
           )}
 
           {activeTab === "taf" && isTaf && (
-            <TafPanel
-              ficha={ficha}
-              onUpdate={(newData) =>
-                atualizarFicha(ficha.id, (prev) => ({ ...prev, ...newData }))
-              }
-            />
+            <TafPanel ficha={ficha} onUpdate={handleUpdateTafPanel} />
           )}
 
           {activeTab === "fotos" && isFoto && (
-            <PhotoPanel
-              ficha={ficha}
-              onUpdateFotoData={(newData) =>
-                atualizarFicha(ficha.id, {
-                  fotoData: { ...ficha.fotoData, ...newData },
-                })
-              }
-            />
+            <PhotoPanel ficha={ficha} onUpdateFotoData={handleUpdateFotoData} />
           )}
 
           {activeTab === "sessions" && (
@@ -407,7 +443,6 @@ export default function FichaView({
         </nav>
       </div>
 
-      {/* PrintView oculto para geração de PDF */}
       <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999 }}>
         <PrintView ficha={ficha} />
       </div>

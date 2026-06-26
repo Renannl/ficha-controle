@@ -4,7 +4,6 @@ import { useFichas } from "./hooks/useFichas";
 import LoginScreen from "./components/LoginScreen";
 import HomeScreen from "./components/home/HomeScreen";
 import AdminPanel from "./components/admin/AdminPanel";
-import ColecaoScreen from "./components/colecao/ColecaoScreen";
 import FichaView from "./components/ficha/FichaView";
 import { useColecoes } from "./hooks/useColecoes";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
@@ -199,6 +198,7 @@ export default function App() {
         element={
           <FichaView
             user={user}
+            fichas={fichas}
             atualizarFicha={atualizarFicha}
             getFicha={getFicha}
             excluirFicha={excluirFicha}

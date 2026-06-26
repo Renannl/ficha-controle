@@ -64,6 +64,13 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
   const printClone = originalElement.cloneNode(true);
   printClone.classList.remove("print-only");
 
+  printClone.querySelectorAll(".foto-frame").forEach((frame) => {
+    const img = frame.querySelector("img");
+    if (!img || !img.src || img.src === window.location.href) {
+      frame.remove();
+    }
+  });
+
   // Otimização de imagens para evitar estouro de RAM no mobile
   printClone.querySelectorAll("img").forEach((img) => {
     img.style.maxWidth = "100%";
@@ -131,7 +138,6 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
 
     await uploadPdf(pdfBlob, ficha);
 
-    clearTimeout(timeoutId); // Cancela o timeout se der certo
     if (statusText) statusText.innerText = "Iniciando download...";
 
     const url = URL.createObjectURL(pdfBlob);
@@ -154,6 +160,7 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
     alert("Erro ao gerar PDF: " + err.message);
     return false;
   } finally {
+    clearTimeout(timeoutId);
     if (document.body.contains(tempWrapper))
       document.body.removeChild(tempWrapper);
     if (document.body.contains(overlay)) document.body.removeChild(overlay);

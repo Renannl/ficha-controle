@@ -1,23 +1,22 @@
+// PhotoPanel.jsx
+import { memo, useCallback } from "react";
 import PhotoPanelHeader from "./PhotoPanelHeader";
 import PhotoGrid from "./PhotoGrid";
 import { usePhotoUpload } from "../../hooks/usePhotoUpload";
 
-export default function PhotoPanel({ ficha, onUpdateFotoData }) {
+const PhotoPanel = memo(function PhotoPanel({ ficha, onUpdateFotoData }) {
   const { handlePhotoUpload } = usePhotoUpload(ficha);
 
   const fotos = ficha.fotoData?.fotos || [];
 
-  function atualizarFotos(novasFotos) {
-    onUpdateFotoData({
-      fotos: novasFotos,
-    });
-  }
+  const atualizarFotos = useCallback(
+    (novasFotos) => onUpdateFotoData({ fotos: novasFotos }),
+    [onUpdateFotoData]
+  );
 
-  async function adicionarFoto(file) {
+  const adicionarFoto = useCallback(async (file) => {
     const url = await handlePhotoUpload(file);
-
     if (!url) return;
-
     atualizarFotos([
       ...fotos,
       {
@@ -26,50 +25,53 @@ export default function PhotoPanel({ ficha, onUpdateFotoData }) {
         imagem: url,
       },
     ]);
-  }
+  }, [fotos, handlePhotoUpload, atualizarFotos]);
 
-  function atualizarDescricao(id, descricao) {
-    atualizarFotos(fotos.map((f) => (f.id === id ? { ...f, descricao } : f)));
-  }
+  const atualizarDescricao = useCallback(
+    (id, descricao) =>
+      atualizarFotos(fotos.map((f) => (f.id === id ? { ...f, descricao } : f))),
+    [fotos, atualizarFotos]
+  );
 
-  async function atualizarImagem(id, file) {
-    const url = await handlePhotoUpload(file);
+  const atualizarImagem = useCallback(
+    async (id, file) => {
+      const url = await handlePhotoUpload(file);
+      if (!url) return;
+      atualizarFotos(fotos.map((f) => (f.id === id ? { ...f, imagem: url } : f)));
+    },
+    [fotos, handlePhotoUpload, atualizarFotos]
+  );
 
-    if (!url) return;
+  const handleMultiUpload = useCallback(
+    async (e) => {
+      for (const file of Array.from(e.target.files)) {
+        await adicionarFoto(file);
+      }
+    },
+    [adicionarFoto]
+  );
 
-    atualizarFotos(fotos.map((f) => (f.id === id ? { ...f, imagem: url } : f)));
-  }
+  const removerFoto = useCallback(
+    (id) => atualizarFotos(fotos.filter((f) => f.id !== id)),
+    [fotos, atualizarFotos]
+  );
 
-  async function handleMultiUpload(e) {
-    const files = Array.from(e.target.files);
-
-    for (const file of files) {
-      await adicionarFoto(file);
-    }
-  }
-
-  function removerFoto(id) {
-    atualizarFotos(fotos.filter((f) => f.id !== id));
-  }
+  const handleAdicionarVazio = useCallback(() => {
+    atualizarFotos([
+      ...fotos,
+      {
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        descricao: "",
+        imagem: "",
+      },
+    ]);
+  }, [fotos, atualizarFotos]);
 
   return (
     <>
       <PhotoPanelHeader handleMultiUpload={handleMultiUpload} />
 
-      <button
-        onClick={() =>
-          atualizarFotos([
-            ...fotos,
-            {
-              id: Date.now().toString() + Math.random().toString(36).slice(2),
-              descricao: "",
-              imagem: "",
-            },
-          ])
-        }
-      >
-        + Adicionar Foto
-      </button>
+      <button onClick={handleAdicionarVazio}>+ Adicionar Foto</button>
 
       <PhotoGrid
         fotos={fotos}
@@ -79,4 +81,6 @@ export default function PhotoPanel({ ficha, onUpdateFotoData }) {
       />
     </>
   );
-}
+});
+
+export default PhotoPanel;

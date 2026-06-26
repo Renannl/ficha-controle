@@ -18,6 +18,12 @@ export function useFichas(currentUser) {
   const [isLoaded, setIsLoaded] = useState(false);
   const saveTimeouts = useRef({});
 
+  // ─── Ref para acessar fichas sem dependência ───
+  const fichasRef = useRef(fichas);
+  useEffect(() => {
+    fichasRef.current = fichas;
+  }, [fichas]);
+
   // ─── CARREGAR FICHAS ───
   useEffect(() => {
     async function loadFichas() {
@@ -32,6 +38,12 @@ export function useFichas(currentUser) {
       } else {
         const fichasConvertidas = data.map((f) => ({
           ...f.dados,
+          // ✅ garante fotoData para fichas op 80
+          fotoData: f.dados?.fotoData ?? {
+            verificacoes: [],
+            responsavelTecnico: "",
+            dataHoraInicio: "",
+          },
           userId: f.user_id,
           criadoPor: f.criado_por,
           dbId: f.id,
@@ -53,7 +65,6 @@ export function useFichas(currentUser) {
   useEffect(() => {
     const channel = supabase
       .channel("fichas-realtime")
-
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "fichas" },
@@ -68,13 +79,11 @@ export function useFichas(currentUser) {
             colecao_id: payload.new.colecao_id,
           };
           setFichas((prev) => {
-            const existe = prev.some((f) => f.dbId === novaFicha.dbId);
-            if (existe) return prev;
+            if (prev.some((f) => f.dbId === novaFicha.dbId)) return prev;
             return [novaFicha, ...prev];
           });
         },
       )
-
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "fichas" },
@@ -99,7 +108,6 @@ export function useFichas(currentUser) {
           );
         },
       )
-
       .on(
         "postgres_changes",
         { event: "DELETE", schema: "public", table: "fichas" },
@@ -107,7 +115,6 @@ export function useFichas(currentUser) {
           setFichas((prev) => prev.filter((f) => f.dbId !== payload.old.id));
         },
       )
-
       .subscribe();
 
     return () => {
@@ -117,12 +124,7 @@ export function useFichas(currentUser) {
 
   // ─── GERAR CÓDIGO ───
   async function gerarCodigo(operacao) {
-    const prefixos = {
-      10: "PRO",
-      50: "TAF",
-      80: "FOTO",
-      90: "QUA",
-    };
+    const prefixos = { 10: "PRO", 50: "TAF", 80: "FOTO", 90: "QUA" };
     const prefixo = prefixos[operacao] || "GEN";
 
     const { data, error } = await supabase
@@ -133,16 +135,10 @@ export function useFichas(currentUser) {
       .order("codigo", { ascending: false })
       .limit(1);
 
-    if (error) {
-      console.error(error);
-      return `${prefixo}-0001`;
-    }
+    if (error) return `${prefixo}-0001`;
 
-    let numero = 1;
-    if (data.length > 0) {
-      const ultimoNumero = parseInt(data[0].codigo.split("-")[1]);
-      numero = ultimoNumero + 1;
-    }
+    const numero =
+      data.length > 0 ? parseInt(data[0].codigo.split("-")[1]) + 1 : 1;
 
     return `${prefixo}-${String(numero).padStart(4, "0")}`;
   }
@@ -151,7 +147,6 @@ export function useFichas(currentUser) {
   const criarFicha = useCallback(
     async (operacaoCodigo, colecaoId) => {
       const codigoGerado = await gerarCodigo(operacaoCodigo);
-
       const nova = {
         ...createEmptyFicha(operacaoCodigo),
         codigo: codigoGerado,
@@ -188,52 +183,57 @@ export function useFichas(currentUser) {
     [currentUser],
   );
 
-  // ─── ATUALIZAR ───
-  const atualizarFicha = useCallback(
-    (id, updater) => {
-      // Busca por id interno OU dbId
-      const fichaAtual = fichas.find((f) => f.id === id || f.dbId === id);
+  // ─── ATUALIZAR — sem [fichas] nas deps! ───
+  const atualizarFicha = useCallback((id, updater) => {
+    // Lê via ref — sem criar dependência reativa em fichas
+    const fichaAtual = fichasRef.current.find(
+      (f) => f.id === id || f.dbId === id,
+    );
+    if (!fichaAtual) return;
 
-      if (!fichaAtual) return;
+    console.log("🔍 buscando id:", id);
+    console.log(
+      "🔍 fichasRef:",
+      fichasRef.current.map((f) => ({ id: f.id, dbId: f.dbId })),
+    );
 
-      const fichaAtualizada =
-        typeof updater === "function"
-          ? updater(fichaAtual)
-          : { ...fichaAtual, ...updater };
+    console.log("🔍 fichaAtual:", fichaAtual);
 
-      setFichas((prev) =>
-        prev.map((f) => (f.dbId === fichaAtual.dbId ? fichaAtualizada : f)),
-      );
+    const fichaAtualizada =
+      typeof updater === "function"
+        ? updater(fichaAtual)
+        : { ...fichaAtual, ...updater };
 
-      if (saveTimeouts.current[fichaAtual.dbId]) {
-        clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
-      }
+    // Atualiza estado local
+    setFichas((prev) =>
+      prev.map((f) => (f.dbId === fichaAtual.dbId ? fichaAtualizada : f)),
+    );
 
-      saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
-        const { error } = await supabase
-          .from("fichas")
-          .update({
-            operacao: fichaAtualizada.operacao,
-            status: fichaAtualizada.status,
-            criado_por: fichaAtualizada.criadoPor,
-            user_id: fichaAtualizada.userId,
-            dados: {
-              ...fichaAtualizada,
-              userId: fichaAtualizada.userId,
-              criadoPor: fichaAtualizada.criadoPor,
-            },
-          })
-          .eq("id", fichaAtual.dbId);
+    // Debounce para salvar no Supabase
+    if (saveTimeouts.current[fichaAtual.dbId]) {
+      clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
+    }
 
-        if (error) {
-          console.error("[Supabase] Erro ao atualizar ficha:", error);
-        }
+    saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
+      const { error } = await supabase
+        .from("fichas")
+        .update({
+          operacao: fichaAtualizada.operacao,
+          status: fichaAtualizada.status,
+          criado_por: fichaAtualizada.criadoPor,
+          user_id: fichaAtualizada.userId,
+          dados: {
+            ...fichaAtualizada,
+            userId: fichaAtualizada.userId,
+            criadoPor: fichaAtualizada.criadoPor,
+          },
+        })
+        .eq("id", fichaAtual.dbId);
 
-        delete saveTimeouts.current[fichaAtual.dbId];
-      }, 800); // ← reduzi de 8000 para 800ms (8s era muito alto)
-    },
-    [fichas],
-  );
+      if (error) console.error("[Supabase] Erro ao atualizar ficha:", error);
+      delete saveTimeouts.current[fichaAtual.dbId];
+    }, 800);
+  }, []); // ✅ deps vazia — estável para sempre
 
   // ─── ATUALIZAR OPERADORES ───
   const atualizarOperadores = useCallback(
@@ -246,7 +246,7 @@ export function useFichas(currentUser) {
   // ─── EXCLUIR ───
   const excluirFicha = useCallback(
     async (id) => {
-      const ficha = fichas.find((f) => f.id === id || f.dbId === id);
+      const ficha = fichasRef.current.find((f) => f.id === id || f.dbId === id);
       if (!ficha) return;
 
       setFichas((prev) => prev.filter((f) => f.dbId !== ficha.dbId));
@@ -259,17 +259,14 @@ export function useFichas(currentUser) {
         })
         .eq("id", ficha.dbId);
 
-      if (error) {
-        console.error("[Supabase] Erro ao mover para lixeira:", error);
-      }
+      if (error) console.error("[Supabase] Erro ao mover para lixeira:", error);
     },
-    [fichas, currentUser],
-  );
+    [currentUser],
+  ); // ✅ sem [fichas] nas deps
 
   // ─── PERMISSÕES ───
   const visibleFichas = useMemo(() => {
     if (!currentUser) return [];
-
     const permissoes = currentUser.permissoes || [];
     const podeVerTudo =
       currentUser.role === "admin" || permissoes.includes("ver_tudo");
@@ -306,39 +303,44 @@ export function useFichas(currentUser) {
     );
   }, [fichas, currentUser]);
 
-  // ─── GET FICHA (com fallback Supabase) ───
-  const getFicha = useCallback(
-    async (id) => {
-      const local = visibleFichas.find((f) => f.dbId === id || f.id === id);
-      if (local) return local;
+  // ─── Ref para visibleFichas (usado no getFicha) ───
+  const visibleFichasRef = useRef(visibleFichas);
+  useEffect(() => {
+    visibleFichasRef.current = visibleFichas;
+  }, [visibleFichas]);
 
-      const { data, error } = await supabase
-        .from("fichas")
-        .select(`*, colecoes(id, cliente, codigo_proposta, descricao)`)
-        .eq("id", id)
-        .is("deleted_at", null)
-        .single();
+  // ─── GET FICHA — sem [visibleFichas] nas deps ───
+  const getFicha = useCallback(async (id) => {
+    // Lê via ref — sem dependência reativa
+    const local = visibleFichasRef.current.find(
+      (f) => f.dbId === id || f.id === id,
+    );
+    if (local) return local;
 
-      if (error || !data) return null;
+    const { data, error } = await supabase
+      .from("fichas")
+      .select(`*, colecoes(id, cliente, codigo_proposta, descricao)`)
+      .eq("id", id)
+      .is("deleted_at", null)
+      .single();
 
-      return {
-        ...data.dados,
-        userId: data.user_id,
-        criadoPor: data.criado_por,
-        dbId: data.id,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
-        colecao_id: data.colecao_id,
-        colecao: data.colecoes,
-      };
-    },
-    [visibleFichas],
-  );
+    if (error || !data) return null;
 
-  // ─── ✅ RETURN (estava faltando!) ───
+    return {
+      ...data.dados,
+      userId: data.user_id,
+      criadoPor: data.criado_por,
+      dbId: data.id,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      colecao_id: data.colecao_id,
+      colecao: data.colecoes,
+    };
+  }, []); // ✅ deps vazia — estável para sempre
+
   return {
     fichas: visibleFichas,
-    isLoading: !isLoaded, // ← App.jsx usa isLoading, hook tinha isLoaded
+    isLoading: !isLoaded,
     criarFicha,
     atualizarFicha,
     excluirFicha,
