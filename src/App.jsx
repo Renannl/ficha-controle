@@ -7,8 +7,6 @@ import AdminPanel from "./components/admin/AdminPanel";
 import FichaView from "./components/ficha/FichaView";
 import { useColecoes } from "./hooks/useColecoes";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { supabase } from "./lib/supabase";
-import { testSupabase } from "./testSupabase";
 import "./App-v2.css";
 
 export default function App() {
@@ -33,10 +31,6 @@ export default function App() {
   );
 
   useEffect(() => {
-    testSupabase();
-  }, []);
-
-  useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
@@ -44,13 +38,20 @@ export default function App() {
   // ─── Carregar usuários (unificado em um único useEffect) ───
   useEffect(() => {
     async function carregarUsuarios() {
-      const { data, error } = await supabase.from("users").select("*");
-      if (error) {
+      try {
+        const response = await fetch("http://localhost:3001/users", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        const data = await response.json();
+        setUsuarios(data || []);
+      } catch (error) {
         console.error("Erro ao carregar usuários:", error);
-        return;
       }
-      setUsuarios(data || []);
     }
+
     carregarUsuarios();
   }, []);
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
 
 export function useColecoes() {
   const [colecoes, setColecoes] = useState([]);
@@ -9,26 +8,35 @@ export function useColecoes() {
   }, []);
 
   async function carregar() {
-    const { data } = await supabase
-      .from("colecoes")
-      .select("*")
-      .order("created_at", { ascending: false });
+    try {
+      const response = await fetch("http://localhost:3001/colecoes");
+      const data = await response.json();
 
-    setColecoes(data || []);
+      setColecoes(data || []);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function criarColecao(payload) {
-    const { data, error } = await supabase
-      .from("colecoes")
-      .insert(payload)
-      .select()
-      .single();
+    try {
+      const response = await fetch("http://localhost:3001/colecoes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (error) throw error;
+      const data = await response.json();
 
-    setColecoes((prev) => [data, ...prev]);
+      setColecoes((prev) => [data, ...prev]);
 
-    return data;
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
   return {

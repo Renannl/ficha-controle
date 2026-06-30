@@ -1,24 +1,19 @@
-import { supabase } from "../lib/supabase";
-
 export async function uploadFoto(file, ficha) {
   try {
-    const ext = file.name.split(".").pop();
-    const timestamp = Date.now();
-    const fileName = `${ficha.codigo}/${ficha.codigo}_${timestamp}.${ext}`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("fichaId", ficha.id);
 
-    const { error } = await supabase.storage
-      .from("fotos-fichas")
-      .upload(fileName, file);
+    const response = await fetch("http://localhost:3001/upload-foto", {
+      method: "POST",
+      body: formData,
+    });
 
-    if (error) throw error;
+    const data = await response.json();
 
-    const { data } = supabase.storage
-      .from("fotos-fichas")
-      .getPublicUrl(fileName);
-
-    return data.publicUrl;
+    return data;
   } catch (err) {
-    console.error("[Upload] Erro:", err);
+    console.error("[Upload Foto]", err);
     return null;
   }
 }
@@ -29,56 +24,21 @@ export async function uploadFoto(file, ficha) {
 
 export async function uploadPdf(pdfBlob, ficha) {
   try {
-    // lista arquivos existentes no bucket
-    const { data: files, error: listError } = await supabase.storage
-      .from("pdfs")
-      .list("", {
-        limit: 1000,
-      });
+    const formData = new FormData();
 
-    if (listError) throw listError;
+    formData.append("file", pdfBlob, `${ficha.codigo}.pdf`);
+    formData.append("fichaId", ficha.id);
 
-    // pega arquivos da mesma ficha
-    const sameFiles = files.filter((file) =>
-      file.name.startsWith(ficha.codigo),
-    );
+    const response = await fetch("http://localhost:3001/upload-pdf", {
+      method: "POST",
+      body: formData,
+    });
 
-    // próxima versão
-    const nextVersion = sameFiles.length + 1;
+    const data = await response.json();
 
-    // nome final
-    const fileName = `${ficha.codigo}_(${nextVersion}).pdf`;
-
-    // upload
-    const { error: uploadError } = await supabase.storage
-      .from("pdfs")
-      .upload(fileName, pdfBlob, {
-        contentType: "application/pdf",
-      });
-
-    if (uploadError) throw uploadError;
-
-    // Busca o valor atual diretamente do banco
-    const { data: fichaAtual } = await supabase
-      .from("fichas")
-      .select("pdf_versions")
-      .eq("id", ficha.id)
-      .single();
-
-    const currentVersions = fichaAtual?.pdf_versions || [];
-    const updatedVersions = [...currentVersions, fileName];
-
-    // uploadService.js
-    const { error: updateError } = await supabase
-      .from("fichas")
-      .update({ pdf_versions: updatedVersions })
-      .eq("id", ficha.id); // ← usar ficha.id
-
-    if (updateError) throw updateError;
-
-    return fileName;
+    return data;
   } catch (err) {
-    console.error("[PDF Upload]", err);
+    console.error("[Upload PDF]", err);
     return null;
   }
 }
