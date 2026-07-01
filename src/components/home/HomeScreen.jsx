@@ -250,8 +250,9 @@ export default function HomeScreen({
         show={showNewMenu}
         onClose={() => setShowNewMenu(false)}
         onCreate={handleCreateColecao}
-        onCreateFicha={handleCreateFicha} // ← novo
-        mode={mode} // ← novo: "colecoes" ou "fichas"
+        onCreateFicha={handleCreateFicha}
+        mode={mode}
+        user={user} // ← adicionar
       />
     </div>
   );

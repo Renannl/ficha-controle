@@ -6,6 +6,7 @@ export default function NewFichaMenu({
   onCreate,
   onCreateFicha,
   mode = "colecoes",
+  user,
 }) {
   if (!show) return null;
 
@@ -15,7 +16,12 @@ export default function NewFichaMenu({
     const codigo = prompt("Código da proposta");
     if (!codigo) return;
     const descricao = prompt("Descrição da proposta");
-    onCreate({ cliente, codigo_proposta: codigo, descricao });
+    onCreate({
+      cliente,
+      codigo_proposta: codigo,
+      descricao,
+      criado_por: user?.email || user?.nome || "desconhecido",
+    });
   };
 
   return (

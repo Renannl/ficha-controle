@@ -46,6 +46,7 @@ export default function App() {
         });
 
         const data = await response.json();
+        console.log("usuarios:", data, Array.isArray(data));
         setUsuarios(data || []);
       } catch (error) {
         console.error("Erro ao carregar usuários:", error);

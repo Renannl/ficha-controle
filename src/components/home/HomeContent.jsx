@@ -5,8 +5,8 @@ import HomeList from "./HomeList";
 
 export default function HomeContent({
   viewMode,
-  fichas,          // ✅ TODAS as fichas
-  fichasDaColecao, // ✅ só da coleção aberta
+  fichas,
+  fichasDaColecao,
   user,
   onApprove,
   showNewMenu,
@@ -21,7 +21,7 @@ export default function HomeContent({
   setFilterType,
   filterStatus,
   setFilterStatus,
-  listaUsuarios,
+  listaUsuarios,      // ← sem default aqui
   onOpen,
   onDelete,
   onToggleOperador,
@@ -32,8 +32,9 @@ export default function HomeContent({
   toggleFichaSelection,
   onOpenColecao,
 }) {
+  // ✅ Garante array mesmo se vier null/undefined/objeto
+  const usuarios = Array.isArray(listaUsuarios) ? listaUsuarios : [];
 
-  // ✅ Dashboard e Gallery sempre com TODAS as fichas, independente de coleção
   if (viewMode === "dashboard") {
     return (
       <div style={{ padding: "16px", paddingBottom: "100px" }}>
@@ -46,22 +47,20 @@ export default function HomeContent({
     return <PhotoBank fichas={fichas} />;
   }
 
-  // ✅ Tela de coleções: nunca mostra empty state aqui
   if (mode === "colecoes") {
     return (
       <HomeList
         mode="colecoes"
         colecoes={colecoes}
-        fichas={fichas}           // para calcular preview e contagem
+        fichas={fichas}
         filteredFichas={[]}
         onOpenColecao={onOpenColecao}
         user={user}
-        listaUsuarios={listaUsuarios}
+        listaUsuarios={usuarios}
       />
     );
   }
 
-  // ✅ Dentro de uma coleção: mostra fichas ou empty state
   if (fichasDaColecao.length === 0 && !showNewMenu) {
     return <HomeEmptyState />;
   }
@@ -81,7 +80,7 @@ export default function HomeContent({
       filterStatus={filterStatus}
       setFilterStatus={setFilterStatus}
       user={user}
-      listaUsuarios={listaUsuarios}
+      listaUsuarios={usuarios}
       onOpen={onOpen}
       onDelete={onDelete}
       onToggleOperador={onToggleOperador}
