@@ -21,7 +21,7 @@ export default function HomeContent({
   setFilterType,
   filterStatus,
   setFilterStatus,
-  listaUsuarios,      // ← sem default aqui
+  listaUsuarios, // ← sem default aqui
   onOpen,
   onDelete,
   onToggleOperador,
@@ -54,6 +54,10 @@ export default function HomeContent({
         colecoes={colecoes}
         fichas={fichas}
         filteredFichas={[]}
+        showSearch={showSearch}
+        setShowSearch={setShowSearch}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
         onOpenColecao={onOpenColecao}
         user={user}
         listaUsuarios={usuarios}

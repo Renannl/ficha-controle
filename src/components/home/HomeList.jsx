@@ -1,6 +1,6 @@
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
-import { FolderOpen, Plus, Calendar } from "lucide-react";
+import { FolderOpen, Plus, Calendar, Search, X } from "lucide-react";
 
 export default function HomeList({
   mode = "fichas",
@@ -33,9 +33,42 @@ export default function HomeList({
   if (mode === "colecoes") {
     return (
       <div className="home-list animate-scaleIn">
+        {/* TÍTULO + BUSCA */}
+        <div className="home-list-header">
+          <div className="flex items-center gap-2">
+            {!showSearch && (
+              <h2 className="home-list-title" style={{ marginBottom: 0 }}>
+                Coleções Recentes
+              </h2>
+            )}
+
+            <div className={`search-container ${showSearch ? "active" : ""}`}>
+              <button
+                className="search-toggle-btn"
+                onClick={() => {
+                  setShowSearch((prev) => !prev);
+                  if (showSearch) setSearchTerm("");
+                }}
+              >
+                {showSearch ? <X size={18} /> : <Search size={18} />}
+              </button>
+
+              {showSearch && (
+                <input
+                  className="search-input animate-slideInRight"
+                  type="text"
+                  placeholder="Buscar coleção por cliente ou descrição..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  autoFocus
+                />
+              )}
+            </div>
+          </div>
+        </div>
         {colecoes.length === 0 ? (
           <div className="colecoes-empty">
-            <p>Nenhuma coleção criada ainda.</p>
+            <p>Nenhuma coleção encontrada.</p>
             <small>Use o botão + para criar uma coleção para um cliente.</small>
           </div>
         ) : (
@@ -65,9 +98,11 @@ export default function HomeList({
                       <FolderOpen size={18} />
                     </div>
                     <div className="colecao-card-info">
-                      <div className="colecao-card-title">{col.nome}</div>
+                      <div className="colecao-card-title">
+                        {col.cliente ?? "Sem nome"}
+                      </div>
                       <div className="colecao-card-sub">
-                        {col.cliente ?? "Sem cliente"}
+                        {col.descricao ?? "Sem descrição"}{" "}
                       </div>
                     </div>
                     <div className="colecao-card-badge">
@@ -141,7 +176,7 @@ export default function HomeList({
             index={i}
             user={user}
             listaUsuarios={listaUsuarios}
-            selected={selectedFichas.includes(ficha.id)} // ✅ seleção para PDF
+            selected={selectedFichas.includes(ficha.id)}
             selectionOrder={selectedFichas.indexOf(ficha.id) + 1}
             onToggleSelection={toggleFichaSelection}
             onOpen={onOpen}

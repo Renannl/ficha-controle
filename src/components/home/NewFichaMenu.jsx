@@ -13,12 +13,9 @@ export default function NewFichaMenu({
   const handleCriarColecao = () => {
     const cliente = prompt("Cliente");
     if (!cliente) return;
-    const codigo = prompt("Código da proposta");
-    if (!codigo) return;
     const descricao = prompt("Descrição da proposta");
     onCreate({
       cliente,
-      codigo_proposta: codigo,
       descricao,
       criado_por: user?.email || user?.nome || "desconhecido",
     });

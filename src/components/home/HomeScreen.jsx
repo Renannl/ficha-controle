@@ -63,6 +63,17 @@ export default function HomeScreen({
     podeGerenciar,
   });
 
+  // filtra coleções pelo termo de busca (reaproveita searchTerm)
+  const filteredColecoes = useMemo(() => {
+    if (!searchTerm) return colecoes;
+    const term = searchTerm.toLowerCase();
+    return colecoes.filter(
+      (c) =>
+        c.cliente?.toLowerCase().includes(term) ||
+        c.descricao?.toLowerCase().includes(term),
+    );
+  }, [colecoes, searchTerm]);
+
   // ✅ Já está correto, só confirme que está assim:
   const handleCreateFicha = (tipo) => {
     if (!selectedColecao?.id) return; // segurança extra
@@ -184,7 +195,7 @@ export default function HomeScreen({
         onApprove={onApprove}
         showNewMenu={showNewMenu}
         mode={mode}
-        colecoes={colecoes}
+        colecoes={filteredColecoes}
         filteredFichas={filteredFichas}
         showSearch={showSearch}
         setShowSearch={setShowSearch}
