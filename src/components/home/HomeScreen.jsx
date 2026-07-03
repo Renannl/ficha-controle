@@ -42,7 +42,7 @@ export default function HomeScreen({
   const [selectedFichas, setSelectedFichas] = useState([]);
   const [selectedColecao, setSelectedColecao] = useState(null);
 
-  const { colecoes, criarColecao } = useColecoes();
+  const { colecoes, criarColecao, deletarColecao } = useColecoes();
 
   // ── PERMISSIONS ────────────────────────────────
   const podeGerenciar = canManageOperators(user);
@@ -62,6 +62,25 @@ export default function HomeScreen({
     onAtualizarOperadores,
     podeGerenciar,
   });
+
+  const [deleteColecaoId, setDeleteColecaoId] = useState(null);
+
+  function handleDeleteColecao(e, id) {
+    e?.stopPropagation?.();
+    setDeleteColecaoId(id);
+  }
+
+  const confirmDeleteColecao = async () => {
+    if (!deleteColecaoId) return;
+    try {
+      await deletarColecao(deleteColecaoId);
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.error || "Erro ao excluir coleção");
+    } finally {
+      setDeleteColecaoId(null);
+    }
+  };
 
   // filtra coleções pelo termo de busca (reaproveita searchTerm)
   const filteredColecoes = useMemo(() => {
@@ -208,6 +227,7 @@ export default function HomeScreen({
         listaUsuarios={listaUsuarios}
         onOpen={onOpen}
         onDelete={handleDelete}
+        onDeleteColecao={handleDeleteColecao}
         onToggleOperador={handleToggleOperadorFicha}
         podeGerenciarOperadores={podeGerenciarOperadores}
         activeDropdownFichaId={activeDropdownFichaId}
@@ -218,14 +238,15 @@ export default function HomeScreen({
       />
       {/* MODAL EXCLUIR */}
       <ConfirmModal
-        isOpen={!!deleteId}
-        title="Excluir Ficha?"
+        isOpen={!!deleteColecaoId}
+        title="Excluir Coleção?"
         message="Esta ação não pode ser desfeita."
         confirmText="Excluir"
         cancelText="Cancelar"
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteId(null)}
+        onConfirm={confirmDeleteColecao}
+        onCancel={() => setDeleteColecaoId(null)}
       />
+
       {/* BARRA DE SELEÇÃO PDF — só dentro de coleção */}
       {canGeneratePdf(user) && selectedFichas.length > 0 && selectedColecao && (
         <div className="selection-bar">

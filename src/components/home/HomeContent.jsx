@@ -21,9 +21,10 @@ export default function HomeContent({
   setFilterType,
   filterStatus,
   setFilterStatus,
-  listaUsuarios, // ← sem default aqui
+  listaUsuarios,
   onOpen,
   onDelete,
+  onDeleteColecao, // ✅ NOVO
   onToggleOperador,
   podeGerenciarOperadores,
   activeDropdownFichaId,
@@ -32,7 +33,6 @@ export default function HomeContent({
   toggleFichaSelection,
   onOpenColecao,
 }) {
-  // ✅ Garante array mesmo se vier null/undefined/objeto
   const usuarios = Array.isArray(listaUsuarios) ? listaUsuarios : [];
 
   if (viewMode === "dashboard") {
@@ -59,6 +59,7 @@ export default function HomeContent({
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         onOpenColecao={onOpenColecao}
+        onDeleteColecao={onDeleteColecao} // ✅ NOVO
         user={user}
         listaUsuarios={usuarios}
       />

@@ -1,6 +1,6 @@
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
-import { FolderOpen, Plus, Calendar, Search, X } from "lucide-react";
+import { FolderOpen, Plus, Calendar, Search, X, Trash2 } from "lucide-react"; // ✅ Trash2
 
 export default function HomeList({
   mode = "fichas",
@@ -19,21 +19,18 @@ export default function HomeList({
   listaUsuarios,
   onOpen,
   onDelete,
+  onDeleteColecao, // ✅ NOVO
   onToggleOperador,
   podeGerenciarOperadores,
   activeDropdownFichaId,
   setActiveDropdownFichaId,
   selectedFichas = [],
   toggleFichaSelection,
-  onOpenColecao, // ✅ callback vindo do HomeScreen
+  onOpenColecao,
 }) {
-  // ──────────────────────────────────────────────
-  // MODO: COLEÇÕES
-  // ──────────────────────────────────────────────
   if (mode === "colecoes") {
     return (
       <div className="home-list animate-scaleIn">
-        {/* TÍTULO + BUSCA */}
         <div className="home-list-header">
           <div className="flex items-center gap-2">
             {!showSearch && (
@@ -78,7 +75,6 @@ export default function HomeList({
               const preview = fichasDaCol.slice(0, 2);
               const resto = fichasDaCol.length - preview.length;
 
-              // ── formata a data de criação ──
               const dataCriacao = col.created_at
                 ? new Date(col.created_at).toLocaleDateString("pt-BR", {
                     day: "2-digit",
@@ -93,6 +89,24 @@ export default function HomeList({
                   className="colecao-card"
                   onClick={() => onOpenColecao(col)}
                 >
+                  {/* ✅ BOTÃO EXCLUIR */}
+                  {onDeleteColecao && (
+                    <button
+                      className="colecao-card-delete-btn"
+                      title={
+                        fichasDaCol.length > 0
+                          ? "Não é possível excluir: coleção possui fichas"
+                          : "Excluir coleção"
+                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteColecao(e, col.id);
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+
                   <div className="colecao-card-top">
                     <div className="colecao-card-icon">
                       <FolderOpen size={18} />
@@ -148,9 +162,7 @@ export default function HomeList({
     );
   }
 
-  // ──────────────────────────────────────────────
-  // MODO: FICHAS (dentro de uma coleção)
-  // ──────────────────────────────────────────────
+  // MODO FICHAS — sem alterações
   return (
     <div className="home-list animate-scaleIn">
       <HomeFilters
