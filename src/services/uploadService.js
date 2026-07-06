@@ -1,44 +1,55 @@
+import { authFetch } from "./apiClient";
+
+const API_URL = "http://localhost:3001";
+
 export async function uploadFoto(file, ficha) {
   try {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("fichaId", ficha.dbId);
 
-    const response = await fetch("http://localhost:3001/upload-foto", {
+    const response = await authFetch(`${API_URL}/upload-foto`, {
       method: "POST",
       body: formData,
     });
 
-    const data = await response.json();
+    if (!response) throw new Error("Sessão expirada ou sem resposta do servidor");
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "");
+      throw new Error(`Erro ${response.status}: ${errText}`);
+    }
 
-    return data;
+    const data = await response.json();
+    return `${API_URL}/uploads/${data.caminho}`;
   } catch (err) {
     console.error("[Upload Foto]", err);
+    alert("Erro ao enviar foto: " + err.message);
     return null;
   }
 }
 
-// ======================================
-// PDF
-// ======================================
-
 export async function uploadPdf(pdfBlob, ficha) {
   try {
     const formData = new FormData();
-
     formData.append("file", pdfBlob, `${ficha.codigo}.pdf`);
     formData.append("fichaId", ficha.dbId);
 
-    const response = await fetch("http://localhost:3001/upload-pdf", {
+    const response = await authFetch(`${API_URL}/upload-pdf`, {
       method: "POST",
       body: formData,
     });
 
-    const data = await response.json();
+    if (!response) throw new Error("Sessão expirada ou sem resposta do servidor");
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "");
+      throw new Error(`Erro ${response.status}: ${errText}`);
+    }
 
-    return data;
+    const data = await response.json();
+    return { ...data, url: `${API_URL}/uploads/${data.caminho}` };
   } catch (err) {
     console.error("[Upload PDF]", err);
+    alert("Erro ao enviar PDF: " + err.message);
     return null;
   }
 }

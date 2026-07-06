@@ -132,7 +132,8 @@ function generateId() {
 
 // Cria uma ficha em branco com todos os campos vazios
 export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
-  const op = OPERACOES[operacaoCodigo];
+  const codigo = String(operacaoCodigo); // ✅ normaliza pra string
+  const op = OPERACOES[codigo];
 
   return {
     id: generateId(),
@@ -153,7 +154,7 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
     dataTermino: "",
     tempoPrevisto: "",
     recurso: "",
-    operacao: operacaoCodigo,
+    operacao: codigo,
     equipe: op.equipe,
     colaboradores: "",
     objetivo: op.objetivo,
@@ -205,7 +206,7 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
 
     // Dados específicos de Fotos (Se for modelo 80)
     fotoData:
-      operacaoCodigo === "80"
+      codigo === "80"
         ? {
             fotos: [],
           }
@@ -220,7 +221,7 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
     })),
     // Itens do checklist com marcações por sessão
     items:
-      operacaoCodigo === "80"
+      codigo === "80"
         ? []
         : op.items.map((item) => ({
             id: item.id,

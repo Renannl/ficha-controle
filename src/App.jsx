@@ -143,11 +143,11 @@ export default function App() {
   // Mapa de tipo amigável → código numérico da operação
   // ✅ Corrigido — adiciona "fotos"
   const TIPO_PARA_OPERACAO = {
-    taf: 50,
-    producao: 10,
-    fotos: 80, // ← bate com o onCreateFicha("fotos") do NewFichaMenu
-    controle: 80, // ← mantém por compatibilidade
-    qualidade: 90,
+    taf: "50",
+    producao: "10",
+    fotos: "80",
+    controle: "80",
+    qualidade: "90",
   };
 
   async function handleNova(tipo, colecaoId = null) {

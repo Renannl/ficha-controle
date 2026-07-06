@@ -11,7 +11,7 @@ export default function PrintView({ ficha, isBook = false }) {
     return <PrintViewTAF ficha={ficha} op={op} isBook={isBook} />;
   }
 
-  if (ficha.operacao === "80") {
+  if (ficha.fotoData || String(ficha.operacao) === "80") {
     return <PrintViewFotos ficha={ficha} isBook={isBook} />;
   }
 
