@@ -32,15 +32,22 @@ export function useColecoes() {
 
   async function criarColecao(payload) {
     try {
-      const response = await fetch(`${API_URL}/colecoes`, {
+      const response = await authFetch(`${API_URL}/colecoes`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
+      if (!response) {
+        throw new Error("Sessão expirada ou sem resposta do servidor");
+      }
+
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao criar coleção");
+      }
+
       setColecoes((prev) => [data, ...prev]);
       return data;
     } catch (error) {

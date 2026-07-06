@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { createEmptyFicha } from "../data/fichaTemplate";
+import { useAuth } from "./useAuth"; // ajuste o caminho
 
 const API = "http://localhost:3001";
 
@@ -32,6 +33,7 @@ function converterFicha(f) {
 }
 
 export function useFichas(currentUser) {
+  const { authFetch } = useAuth();
   const [fichas, setFichas] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const saveTimeouts = useRef({});
@@ -45,7 +47,7 @@ export function useFichas(currentUser) {
   useEffect(() => {
     async function loadFichas() {
       try {
-        const res = await fetch(`${API}/fichas`);
+        const res = await authFetch(`${API}/fichas`);
         const data = await res.json();
         setFichas(data.map(converterFicha));
       } catch (err) {
@@ -61,7 +63,7 @@ export function useFichas(currentUser) {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`${API}/fichas`);
+        const res = await authFetch(`${API}/fichas`);
         const data = await res.json();
         setFichas(data.map(converterFicha));
       } catch (err) {
@@ -78,7 +80,7 @@ export function useFichas(currentUser) {
     const prefixo = prefixos[operacao] || "GEN";
 
     try {
-      const res = await fetch(`${API}/fichas`);
+      const res = await authFetch(`${API}/fichas`);
       const data = await res.json();
 
       const filtradas = data.filter(
@@ -115,12 +117,14 @@ export function useFichas(currentUser) {
       };
 
       try {
-        const res = await fetch(`${API}/fichas`, {
+        const res = await authFetch(`${API}/fichas`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(nova),
         });
 
+        if (!res)
+          throw new Error("Sessão expirada ou sem resposta do servidor");
         if (!res.ok) throw new Error("Erro ao criar ficha");
 
         const data = await res.json();
@@ -133,44 +137,47 @@ export function useFichas(currentUser) {
         return null;
       }
     },
-    [currentUser],
+    [currentUser, authFetch],
   );
 
   // ─── ATUALIZAR ───
-  const atualizarFicha = useCallback((id, updater) => {
-    const fichaAtual = fichasRef.current.find(
-      (f) => f.id === id || f.dbId === id,
-    );
-    if (!fichaAtual) return;
+  const atualizarFicha = useCallback(
+    (id, updater) => {
+      const fichaAtual = fichasRef.current.find(
+        (f) => f.id === id || f.dbId === id,
+      );
+      if (!fichaAtual) return;
 
-    const fichaAtualizada =
-      typeof updater === "function"
-        ? updater(fichaAtual)
-        : { ...fichaAtual, ...updater };
+      const fichaAtualizada =
+        typeof updater === "function"
+          ? updater(fichaAtual)
+          : { ...fichaAtual, ...updater };
 
-    setFichas((prev) =>
-      prev.map((f) => (f.dbId === fichaAtual.dbId ? fichaAtualizada : f)),
-    );
+      setFichas((prev) =>
+        prev.map((f) => (f.dbId === fichaAtual.dbId ? fichaAtualizada : f)),
+      );
 
-    if (saveTimeouts.current[fichaAtual.dbId]) {
-      clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
-    }
-
-    saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
-      try {
-        const res = await fetch(`${API}/fichas/${fichaAtual.dbId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(fichaAtualizada),
-        });
-        if (!res.ok) throw new Error("Erro ao atualizar");
-      } catch (err) {
-        console.error("[API] Erro ao atualizar ficha:", err);
-      } finally {
-        delete saveTimeouts.current[fichaAtual.dbId];
+      if (saveTimeouts.current[fichaAtual.dbId]) {
+        clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
       }
-    }, 800);
-  }, []);
+
+      saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
+        try {
+          const res = await authFetch(`${API}/fichas/${fichaAtual.dbId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(fichaAtualizada),
+          });
+          if (!res || !res.ok) throw new Error("Erro ao atualizar");
+        } catch (err) {
+          console.error("[API] Erro ao atualizar ficha:", err);
+        } finally {
+          delete saveTimeouts.current[fichaAtual.dbId];
+        }
+      }, 800);
+    },
+    [authFetch],
+  );
 
   // ─── ATUALIZAR OPERADORES ───
   const atualizarOperadores = useCallback(
@@ -181,18 +188,21 @@ export function useFichas(currentUser) {
   );
 
   // ─── EXCLUIR ───
-  const excluirFicha = useCallback(async (id) => {
-    const ficha = fichasRef.current.find((f) => f.id === id || f.dbId === id);
-    if (!ficha) return;
+  const excluirFicha = useCallback(
+    async (id) => {
+      const ficha = fichasRef.current.find((f) => f.id === id || f.dbId === id);
+      if (!ficha) return;
 
-    setFichas((prev) => prev.filter((f) => f.dbId !== ficha.dbId));
+      setFichas((prev) => prev.filter((f) => f.dbId !== ficha.dbId));
 
-    try {
-      await fetch(`${API}/fichas/${ficha.dbId}`, { method: "DELETE" });
-    } catch (err) {
-      console.error("[API] Erro ao excluir ficha:", err);
-    }
-  }, []);
+      try {
+        await authFetch(`${API}/fichas/${ficha.dbId}`, { method: "DELETE" });
+      } catch (err) {
+        console.error("[API] Erro ao excluir ficha:", err);
+      }
+    },
+    [authFetch],
+  );
 
   // ─── PERMISSÕES ───
   const visibleFichas = useMemo(() => {
@@ -242,21 +252,24 @@ export function useFichas(currentUser) {
     visibleFichasRef.current = visibleFichas;
   }, [visibleFichas]);
 
-  const getFicha = useCallback(async (id) => {
-    const local = visibleFichasRef.current.find(
-      (f) => f.dbId === id || f.id === id,
-    );
-    if (local) return local;
+  const getFicha = useCallback(
+    async (id) => {
+      const local = visibleFichasRef.current.find(
+        (f) => f.dbId === id || f.id === id,
+      );
+      if (local) return local;
 
-    try {
-      const res = await fetch(`${API}/fichas/${id}`);
-      if (!res.ok) return null;
-      const data = await res.json();
-      return converterFicha(data);
-    } catch {
-      return null;
-    }
-  }, []);
+      try {
+        const res = await authFetch(`${API}/fichas/${id}`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return converterFicha(data);
+      } catch {
+        return null;
+      }
+    },
+    [authFetch],
+  );
 
   return {
     fichas: visibleFichas,

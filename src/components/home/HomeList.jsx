@@ -89,24 +89,6 @@ export default function HomeList({
                   className="colecao-card"
                   onClick={() => onOpenColecao(col)}
                 >
-                  {/* ✅ BOTÃO EXCLUIR */}
-                  {onDeleteColecao && (
-                    <button
-                      className="colecao-card-delete-btn"
-                      title={
-                        fichasDaCol.length > 0
-                          ? "Não é possível excluir: coleção possui fichas"
-                          : "Excluir coleção"
-                      }
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteColecao(e, col.id);
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-
                   <div className="colecao-card-top">
                     <div className="colecao-card-icon">
                       <FolderOpen size={18} />
@@ -119,9 +101,30 @@ export default function HomeList({
                         {col.descricao ?? "Sem descrição"}{" "}
                       </div>
                     </div>
-                    <div className="colecao-card-badge">
-                      {fichasDaCol.length}{" "}
-                      {fichasDaCol.length === 1 ? "ficha" : "fichas"}
+
+                    {/* ✅ Badge + botão de excluir juntos, à direita */}
+                    <div className="colecao-card-actions">
+                      <div className="colecao-card-badge">
+                        {fichasDaCol.length}{" "}
+                        {fichasDaCol.length === 1 ? "ficha" : "fichas"}
+                      </div>
+
+                      {onDeleteColecao && (
+                        <button
+                          className="colecao-card-delete-btn"
+                          title={
+                            fichasDaCol.length > 0
+                              ? "Não é possível excluir: coleção possui fichas"
+                              : "Excluir coleção"
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteColecao(e, col.id);
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
 

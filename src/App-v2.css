@@ -6,6 +6,46 @@
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
 }
+.colecao-card-delete-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: var(--transition);
+  position: static; /* garante que não fica flutuando */
+}
+
+.colecao-card-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+
+
+.colecao-card-delete-btn:hover {
+  color: var(--red);
+  border-color: var(--red-border);
+  background: var(--red-bg);
+}
+
+.colecao-card-delete-btn:active {
+  transform: scale(0.9);
+}
+
+[data-theme="dark"] .colecao-card-delete-btn:hover {
+  background: rgba(211, 47, 47, 0.1);
+}
+
 
 .home-brand {
   display: flex;
