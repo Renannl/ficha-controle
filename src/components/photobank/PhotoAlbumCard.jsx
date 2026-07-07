@@ -1,7 +1,7 @@
 export default function PhotoAlbumCard({ ficha, onClick }) {
-  const photoCount = ficha.items.filter((i) => i.foto).length || 0;
-
-  const coverPhoto = ficha.items.find((i) => i.foto)?.foto;
+  const fotos = ficha.fotoData?.fotos || [];
+  const photoCount = fotos.length;
+  const coverPhoto = fotos[0]?.imagem;
 
   return (
     <div className="photo-album-card" onClick={onClick}>

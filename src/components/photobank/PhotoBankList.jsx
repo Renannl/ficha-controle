@@ -5,11 +5,10 @@ import PhotoAlbumCard from "./PhotoAlbumCard";
 
 export default function PhotoBankList({ fichas, onOpenAlbum }) {
   const [searchTerm, setSearchTerm] = useState("");
-
   const [showSearch, setShowSearch] = useState(false);
 
-  const allFichasWithPhotos = fichas.filter((f) =>
-    f.items?.some((item) => item.foto),
+  const allFichasWithPhotos = fichas.filter(
+    (f) => (f.fotoData?.fotos?.length ?? 0) > 0,
   );
 
   const fichasWithPhotos = allFichasWithPhotos.filter((f) => {

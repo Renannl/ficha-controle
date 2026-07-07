@@ -39,25 +39,6 @@ export default function FichaView({
   const [rejectInfo, setRejectInfo] = useState(null);
   const [approveInfo, setApproveInfo] = useState(null);
 
-  // ─── Busca a ficha ───
-  useEffect(() => {
-    let cancelled = false;
-
-    async function buscar() {
-      setLoading(true);
-      const resultado = await getFicha(fichaId);
-      if (!cancelled) {
-        setFicha(resultado);
-        setLoading(false);
-      }
-    }
-
-    buscar();
-    return () => {
-      cancelled = true;
-    };
-  }, [fichaId]); // ← SEM getFicha nas deps para não re-executar desnecessariamente
-
   // FichaView.jsx — substitua o useEffect de busca por esses dois:
 
   // 1. Busca inicial
@@ -82,7 +63,8 @@ export default function FichaView({
   useEffect(() => {
     if (!fichaId || !fichas) return;
     const atualizada = fichas.find(
-      (f) => f.dbId === fichaId || f.id === fichaId,
+      (f) =>
+        String(f.dbId) === String(fichaId) || String(f.id) === String(fichaId),
     );
     if (atualizada) setFicha(atualizada);
   }, [fichas, fichaId]);

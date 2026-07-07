@@ -24,7 +24,7 @@ export default function HomeContent({
   listaUsuarios,
   onOpen,
   onDelete,
-  onDeleteColecao, // ✅ NOVO
+  onDeleteColecao,
   onToggleOperador,
   podeGerenciarOperadores,
   activeDropdownFichaId,
@@ -44,7 +44,7 @@ export default function HomeContent({
   }
 
   if (viewMode === "gallery") {
-    return <PhotoBank fichas={fichas} />;
+    return <PhotoBank fichas={fichas} colecoes={colecoes} />;
   }
 
   if (mode === "colecoes") {
@@ -59,7 +59,7 @@ export default function HomeContent({
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         onOpenColecao={onOpenColecao}
-        onDeleteColecao={onDeleteColecao} // ✅ NOVO
+        onDeleteColecao={onDeleteColecao}
         user={user}
         listaUsuarios={usuarios}
       />

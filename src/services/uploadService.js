@@ -3,6 +3,11 @@ import { authFetch } from "./apiClient";
 const API_URL = "http://localhost:3001";
 
 export async function uploadFoto(file, ficha) {
+  if (!ficha?.dbId) {
+    console.error("[Upload Foto] Tentativa de upload sem dbId válido:", ficha);
+    alert("Erro: a ficha ainda não foi salva. Aguarde e tente novamente.");
+    return null;
+  }
   try {
     const formData = new FormData();
     formData.append("file", file);
@@ -13,7 +18,8 @@ export async function uploadFoto(file, ficha) {
       body: formData,
     });
 
-    if (!response) throw new Error("Sessão expirada ou sem resposta do servidor");
+    if (!response)
+      throw new Error("Sessão expirada ou sem resposta do servidor");
     if (!response.ok) {
       const errText = await response.text().catch(() => "");
       throw new Error(`Erro ${response.status}: ${errText}`);
@@ -39,7 +45,8 @@ export async function uploadPdf(pdfBlob, ficha) {
       body: formData,
     });
 
-    if (!response) throw new Error("Sessão expirada ou sem resposta do servidor");
+    if (!response)
+      throw new Error("Sessão expirada ou sem resposta do servidor");
     if (!response.ok) {
       const errText = await response.text().catch(() => "");
       throw new Error(`Erro ${response.status}: ${errText}`);
