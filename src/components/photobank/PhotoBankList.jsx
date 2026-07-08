@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import PhotoBankSearch from "./PhotoBankSearch";
 import PhotoAlbumCard from "./PhotoAlbumCard";
 
@@ -13,7 +12,6 @@ export default function PhotoBankList({ fichas, onOpenAlbum }) {
 
   const fichasWithPhotos = allFichasWithPhotos.filter((f) => {
     const term = searchTerm.toLowerCase();
-
     return (
       !searchTerm ||
       (f.nomeEquipamento || "").toLowerCase().includes(term) ||
@@ -31,7 +29,6 @@ export default function PhotoBankList({ fichas, onOpenAlbum }) {
               Álbuns de Fotos
             </div>
           )}
-
           <PhotoBankSearch
             showSearch={showSearch}
             setShowSearch={setShowSearch}

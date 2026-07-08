@@ -16,8 +16,7 @@ export default function PhotoBankColecoes({
           (acc, f) => acc + getFichaPhotos(f).length,
           0,
         );
-        const capa = getFichaPhotos(fichasDaColecao[0])[0]?.imagem; // ✅
-
+        const capa = getFichaPhotos(fichasDaColecao[0])[0]?.foto;
 
         return (
           <div

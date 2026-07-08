@@ -1,7 +1,9 @@
+import { getFichaPhotos } from "../../utils/getFichasPhotos";
+
 export default function PhotoAlbumCard({ ficha, onClick }) {
-  const fotos = ficha.fotoData?.fotos || [];
+  const fotos = getFichaPhotos(ficha);
   const photoCount = fotos.length;
-  const coverPhoto = fotos[0]?.imagem;
+  const coverPhoto = fotos[0]?.foto;
 
   return (
     <div className="photo-album-card" onClick={onClick}>

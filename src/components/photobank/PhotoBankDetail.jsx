@@ -1,7 +1,8 @@
+import { getFichaPhotos } from "../../utils/getFichasPhotos";
 import PhotoCard from "./PhotoCard";
 
 export default function PhotoBankDetail({ ficha, onBack }) {
-  const photos = ficha.items.filter((i) => i.foto) || [];
+  const photos = getFichaPhotos(ficha);
 
   return (
     <div
@@ -35,7 +36,7 @@ export default function PhotoBankDetail({ ficha, onBack }) {
       >
         {photos.map((item, idx) => (
           <PhotoCard
-            key={idx}
+            key={item.id ?? idx}
             foto={item.foto}
             descricao={item.descricao}
             itemId={item.id}
