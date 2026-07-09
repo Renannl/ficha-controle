@@ -39,7 +39,7 @@ export default function PhotoBankDetail({ ficha, onBack }) {
             key={item.id ?? idx}
             foto={item.foto}
             descricao={item.descricao}
-            itemId={item.id}
+            itemId={idx + 1}
             downloadName={`FOTO_${ficha.codigo}_${idx + 1}.jpg`}
           />
         ))}
