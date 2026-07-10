@@ -143,38 +143,43 @@ export function useFichas(currentUser) {
   // ─── ATUALIZAR ───
   const atualizarFicha = useCallback(
     (id, updater) => {
-      const fichaAtual = fichasRef.current.find(
-        (f) => f.id === id || f.dbId === id,
-      );
-      if (!fichaAtual) return;
+      setFichas((prev) => {
+        // useFichas.js — atualizarFicha
+        const fichaAtual = prev.find(
+          (f) => String(f.id) === String(id) || String(f.dbId) === String(id),
+        );
 
-      const fichaAtualizada =
-        typeof updater === "function"
-          ? updater(fichaAtual)
-          : { ...fichaAtual, ...updater };
+        if (!fichaAtual) return prev; // não encontrou, não faz nada
 
-      setFichas((prev) =>
-        prev.map((f) => (f.dbId === fichaAtual.dbId ? fichaAtualizada : f)),
-      );
+        const fichaAtualizada =
+          typeof updater === "function"
+            ? updater(fichaAtual)
+            : { ...fichaAtual, ...updater };
 
-      if (saveTimeouts.current[fichaAtual.dbId]) {
-        clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
-      }
-
-      saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
-        try {
-          const res = await authFetch(`${API}/fichas/${fichaAtual.dbId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(fichaAtualizada),
-          });
-          if (!res || !res.ok) throw new Error("Erro ao atualizar");
-        } catch (err) {
-          console.error("[API] Erro ao atualizar ficha:", err);
-        } finally {
-          delete saveTimeouts.current[fichaAtual.dbId];
+        // Agenda o salvamento (debounce) usando o dbId real
+        if (saveTimeouts.current[fichaAtual.dbId]) {
+          clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
         }
-      }, 800);
+
+        saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
+          try {
+            const res = await authFetch(`${API}/fichas/${fichaAtual.dbId}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(fichaAtualizada),
+            });
+            if (!res || !res.ok) throw new Error("Erro ao atualizar");
+          } catch (err) {
+            console.error("[API] Erro ao atualizar ficha:", err);
+          } finally {
+            delete saveTimeouts.current[fichaAtual.dbId];
+          }
+        }, 800);
+
+        return prev.map((f) =>
+          f.dbId === fichaAtual.dbId ? fichaAtualizada : f,
+        );
+      });
     },
     [authFetch],
   );
@@ -190,7 +195,11 @@ export function useFichas(currentUser) {
   // ─── EXCLUIR ───
   const excluirFicha = useCallback(
     async (id) => {
-      const ficha = fichasRef.current.find((f) => f.id === id || f.dbId === id);
+      // useFichas.js — excluirFicha
+      const ficha = fichasRef.current.find(
+        (f) => String(f.id) === String(id) || String(f.dbId) === String(id),
+      );
+
       if (!ficha) return;
 
       setFichas((prev) => prev.filter((f) => f.dbId !== ficha.dbId));
@@ -254,9 +263,11 @@ export function useFichas(currentUser) {
 
   const getFicha = useCallback(
     async (id) => {
-      const local = visibleFichasRef.current.find(
-        (f) => f.dbId === id || f.id === id,
+      // usa o state atual via closure do fichas, não um ref desatualizado
+      const local = fichasRef.current.find(
+        (f) => String(f.dbId) === String(id) || String(f.id) === String(id),
       );
+
       if (local) return local;
 
       try {

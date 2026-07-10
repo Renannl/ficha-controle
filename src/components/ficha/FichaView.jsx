@@ -39,8 +39,6 @@ export default function FichaView({
   const [rejectInfo, setRejectInfo] = useState(null);
   const [approveInfo, setApproveInfo] = useState(null);
 
-  // FichaView.jsx — substitua o useEffect de busca por esses dois:
-
   // 1. Busca inicial
   useEffect(() => {
     let cancelled = false;
@@ -165,9 +163,18 @@ export default function FichaView({
 
   // ─── Permissão ───
   function podeEditar() {
-    if (user?.role === "admin") return true;
-    if (ficha?.userId === user?.username) return true;
-    return user?.permissoes?.includes("editar_ficha");
+    const ok =
+      user?.role === "admin" ||
+      ficha?.userId === user?.username ||
+      user?.permissoes?.includes("editar_ficha");
+    console.log("[podeEditar]", {
+      userRole: user?.role,
+      userUsername: user?.username,
+      fichaUserId: ficha?.userId,
+      permissoes: user?.permissoes,
+      ok,
+    });
+    return ok;
   }
 
   // ─── Helpers de update ───
