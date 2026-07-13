@@ -5,15 +5,14 @@ import PrintViewTAF from "./PrintViewTAF";
 import PrintViewFotos from "./PrintViewFotos";
 
 export default function PrintView({ ficha, isBook = false }) {
-  const op = OPERACOES[ficha.operacao];
-
-  if (ficha.tafData) {
-    return <PrintViewTAF ficha={ficha} op={op} isBook={isBook} />;
+  switch (ficha.operacao) {
+    case "80":
+      return <PrintViewFotos ficha={ficha} isBook={isBook} />;
+    case "50":
+      return <PrintViewTAF ficha={ficha} isBook={isBook} />;
+    case "90":
+    case "10":
+    default:
+      return <PrintViewOperacao ficha={ficha} isBook={isBook} />;
   }
-
-  if (ficha.fotoData || String(ficha.operacao) === "80") {
-    return <PrintViewFotos ficha={ficha} isBook={isBook} />;
-  }
-
-  return <PrintViewOperacao ficha={ficha} op={op} isBook={isBook} />;
 }

@@ -41,6 +41,7 @@ export default function HomeScreen({
   const [bookFichas, setBookFichas] = useState([]);
   const [selectedFichas, setSelectedFichas] = useState([]);
   const [selectedColecao, setSelectedColecao] = useState(null);
+  const [pendingExport, setPendingExport] = useState(null); // ids pendentes
 
   const { colecoes, criarColecao, deletarColecao } = useColecoes();
 
@@ -101,15 +102,29 @@ export default function HomeScreen({
   };
 
   useEffect(() => {
-    const handler = async (e) => {
-      setBookFichas(e.detail);
-      setTimeout(async () => {
-        await exportBook();
-      }, 1000);
+    const handler = (e) => {
+      const fichasSelecionadas = e.detail;
+      setBookFichas(fichasSelecionadas);
+      setPendingExport(fichasSelecionadas.map((f) => f.dbId ?? f.id));
     };
     window.addEventListener("abrir-book-pdf", handler);
     return () => window.removeEventListener("abrir-book-pdf", handler);
   }, []);
+
+  // Só dispara o export DEPOIS que bookFichas foi commitado e renderizado
+  useEffect(() => {
+    if (!pendingExport) return;
+
+    // requestAnimationFrame garante que o browser já pintou o DOM novo
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
+        await exportBook(pendingExport);
+        setPendingExport(null);
+      });
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [bookFichas, pendingExport]);
 
   // ── FILTERS ────────────────────────────────────
   const { filterStatus, setFilterStatus, filterType, setFilterType } =

@@ -1,4 +1,4 @@
-import { uploadPdf } from "./uploadService";
+import { uploadPdf, uploadBook } from "./uploadService";
 /**
  * Serviço de Integração com SharePoint e Exportação de PDF
  * Preparado para Power Automate / Microsoft Flow.
@@ -20,6 +20,84 @@ const A4_PRINT_WIDTH = 780;
  *     html2canvas.
  *  3. Captura o clone, gera o PDF e remove o clone do DOM.
  */
+
+
+export async function exportBook(fichaIds, elementId = "book-print-root") {
+  const originalElement = document.getElementById(elementId);
+
+  if (!originalElement) {
+    console.error("Elemento não encontrado:", elementId);
+    return false;
+  }
+
+  if (!fichaIds || fichaIds.length === 0) {
+    console.error("[exportBook] Nenhuma ficha vinculada informada");
+    alert("Selecione ao menos uma ficha para vincular ao book.");
+    return false;
+  }
+
+  const tempWrapper = document.createElement("div");
+  tempWrapper.style.cssText = `
+    position:absolute; top:0; left:0;
+    width:${A4_PRINT_WIDTH}px;
+    opacity:0.01; z-index:-1; pointer-events:none;
+  `;
+
+  const printClone = originalElement.cloneNode(true);
+  printClone.style.cssText = `
+    display:block !important;
+    width:${A4_PRINT_WIDTH}px !important;
+    background:#fff !important;
+  `;
+
+  tempWrapper.appendChild(printClone);
+  document.body.appendChild(tempWrapper);
+
+  await new Promise((r) => setTimeout(r, 1500));
+
+  try {
+    const pdfBlob = await window
+      .html2pdf()
+      .set({
+        margin: [0.5, 1.5, 12, 2],
+        filename: "BOOK.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css"] },
+      })
+      .from(printClone)
+      .output("blob");
+
+    // 🔹 Upload pro backend, vinculando às fichas
+    const uploadResult = await uploadBook(pdfBlob, fichaIds);
+    if (!uploadResult) {
+      console.warn("[exportBook] Book gerado, mas falhou o envio ao servidor.");
+    }
+
+    // Download local (mantido)
+    const url = URL.createObjectURL(pdfBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "BOOK.pdf";
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    }, 1000);
+
+    return true;
+  } catch (err) {
+    console.error("[exportBook] Erro:", err);
+    alert("Erro ao gerar Book: " + err.message);
+    return false;
+  } finally {
+    document.body.removeChild(tempWrapper);
+  }
+}
+
 export async function exportFicha(ficha, elementId = "print-view-root") {
   const originalElement = document.getElementById(elementId);
   if (!originalElement) {
@@ -143,7 +221,9 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
       .from(printClone)
       .output("blob");
 
+    console.log("[DEBUG] ficha.dbId:", ficha?.dbId);
     const uploadResult = ficha?.dbId ? await uploadPdf(pdfBlob, ficha) : null;
+    console.log("[DEBUG] uploadResult:", uploadResult);
 
     if (!uploadResult) {
       console.warn(
@@ -181,88 +261,6 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
 
     // RESTAURA O TEMA DO USUÁRIO
     document.documentElement.setAttribute("data-theme", currentTheme);
-  }
-}
-
-export async function exportBook(elementId = "book-print-root") {
-  const originalElement = document.getElementById(elementId);
-
-  if (!originalElement) {
-    console.error("Elemento não encontrado:", elementId);
-    return false;
-  }
-
-  const tempWrapper = document.createElement("div");
-
-  tempWrapper.style.cssText = `
-    position:absolute;
-    top:0;
-    left:0;
-    width:${A4_PRINT_WIDTH}px;
-    opacity:0.01;
-    z-index:-1;
-    pointer-events:none;
-  `;
-
-  const printClone = originalElement.cloneNode(true);
-
-  printClone.style.cssText = `
-    display:block !important;
-    width:${A4_PRINT_WIDTH}px !important;
-    background:#fff !important;
-  `;
-
-  tempWrapper.appendChild(printClone);
-  document.body.appendChild(tempWrapper);
-
-  await new Promise((r) => setTimeout(r, 1500));
-
-  try {
-    const pdfBlob = await window
-      .html2pdf()
-      .set({
-        margin: [0.5, 1.5, 12, 2],
-        filename: "BOOK.pdf",
-        image: {
-          type: "jpeg",
-          quality: 0.98,
-        },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
-        pagebreak: {
-          mode: ["css"],
-        },
-      })
-      .from(printClone)
-      .output("blob");
-
-    const url = URL.createObjectURL(pdfBlob);
-
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "BOOK.pdf";
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-    }, 1000);
-
-    return true;
-  } finally {
-    document.body.removeChild(tempWrapper);
   }
 }
 
