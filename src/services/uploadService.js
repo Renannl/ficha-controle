@@ -10,8 +10,8 @@ export async function uploadFoto(file, ficha) {
   }
   try {
     const formData = new FormData();
-    formData.append("file", file);
     formData.append("fichaId", ficha.dbId);
+    formData.append("file", file);
 
     const response = await authFetch(`${API_URL}/upload-foto`, {
       method: "POST",
@@ -35,10 +35,15 @@ export async function uploadFoto(file, ficha) {
 }
 
 export async function uploadPdf(pdfBlob, ficha) {
+  if (!ficha?.dbId) {
+    console.error("[Upload PDF] Tentativa de upload sem dbId válido:", ficha);
+    alert("Erro: a ficha ainda não foi salva. Aguarde e tente novamente.");
+    return null;
+  }
   try {
     const formData = new FormData();
-    formData.append("file", pdfBlob, `${ficha.codigo}.pdf`);
     formData.append("fichaId", ficha.dbId);
+    formData.append("file", pdfBlob, `${ficha.codigo}.pdf`);
 
     const response = await authFetch(`${API_URL}/upload-pdf`, {
       method: "POST",

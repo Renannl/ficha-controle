@@ -30,6 +30,13 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
     return false;
   }
 
+  if (!ficha?.dbId) {
+    console.error("[Export] Ficha sem dbId, upload será ignorado:", ficha);
+    alert(
+      "Atenção: a ficha ainda não foi salva no servidor. O PDF será baixado, mas não enviado.",
+    );
+  }
+
   // ── Forçar Tema Claro Temporário ─────────────────────────────────────────
   // Garante que o PDF nunca sofra com letras invisíveis caso o usuário
   // esteja usando o modo escuro (textos brancos no fundo branco do PDF).
@@ -136,7 +143,14 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
       .from(printClone)
       .output("blob");
 
-    await uploadPdf(pdfBlob, ficha);
+    const uploadResult = ficha?.dbId ? await uploadPdf(pdfBlob, ficha) : null;
+
+    if (!uploadResult) {
+      console.warn(
+        "[Export] PDF gerado localmente, mas falhou o envio ao servidor.",
+      );
+      // opcional: notificar o usuário de forma não bloqueante
+    }
 
     if (statusText) statusText.innerText = "Iniciando download...";
 
