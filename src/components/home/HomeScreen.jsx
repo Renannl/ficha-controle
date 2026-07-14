@@ -147,7 +147,7 @@ export default function HomeScreen({
 
   const confirmDelete = () => {
     if (!deleteId) return;
-    onDelete(deleteId);
+    onDelete(null, deleteId);
     setDeleteId(null);
   };
 
@@ -251,7 +251,17 @@ export default function HomeScreen({
         toggleFichaSelection={toggleFichaSelection}
         onOpenColecao={handleAbrirColecao}
       />
-      {/* MODAL EXCLUIR */}
+      {/* MODAL EXCLUIR FICHA */}
+      <ConfirmModal
+        isOpen={!!deleteId}
+        title="Excluir Ficha?"
+        message="Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
+
       <ConfirmModal
         isOpen={!!deleteColecaoId}
         title="Excluir Coleção?"
