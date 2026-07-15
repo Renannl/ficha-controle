@@ -1,4 +1,8 @@
-export default function InfoEquipmentSection({ ficha, handle }) {
+export default function InfoEquipmentSection({
+  ficha,
+  handle,
+  clienteTravado,
+}) {
   return (
     <div className="card mb-3">
       <div className="section-header">
@@ -58,9 +62,11 @@ export default function InfoEquipmentSection({ ficha, handle }) {
         <div className="field">
           <label>Cliente</label>
           <input
-            value={ficha.cliente}
-            onChange={handle("cliente")}
-            placeholder="Marca Ambiental"
+            value={clienteTravado}
+            readOnly
+            disabled
+            title="Definido automaticamente pela coleção vinculada"
+            style={{ cursor: "not-allowed", opacity: 0.75 }}
           />
         </div>
       </div>

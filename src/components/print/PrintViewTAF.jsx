@@ -285,8 +285,8 @@ export default function PrintViewTAF({ ficha, op, isBook = false }) {
           </tr>
         </thead>
         <tbody>
-          {op.items.map((item, idx) => {
-            const res = ficha.items[idx]?.resultado;
+          {(op?.items || []).map((item, idx) => {
+            const res = ficha.items?.[idx]?.resultado;
             return (
               <tr key={item.id}>
                 <td className="p-left">&gt;&gt; {item.descricao}</td>

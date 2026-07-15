@@ -7,14 +7,20 @@ import OperationInfoBanner from "./OperationInfoBanner";
 
 export default function InfoCard({ ficha, onChange, onOperacaoChange }) {
   const operacaoAtual = OPERACOES[ficha.operacao];
-
   const handle = (field) => (e) => onChange(field, e.target.value);
+
+  // Cliente vem da coleção vinculada; se não houver coleção, cai no valor legado da própria ficha
+  const clienteTravado = ficha.colecao?.cliente ?? ficha.cliente ?? "";
 
   return (
     <div className="info-section">
       <InfoDocumentSection ficha={ficha} handle={handle} />
 
-      <InfoEquipmentSection ficha={ficha} handle={handle} />
+      <InfoEquipmentSection
+        ficha={ficha}
+        handle={handle}
+        clienteTravado={clienteTravado}
+      />
 
       <InfoPlanningSection
         ficha={ficha}
