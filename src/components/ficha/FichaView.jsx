@@ -78,20 +78,26 @@ export default function FichaView({
 
   // ─── Callbacks estáveis para fotoData ───
   const handleUpdateFotoData = useCallback(
-    (newData) => {
+    (updater) => {
       atualizarFicha(fichaId, (prev) => ({
         ...prev,
-        fotoData: { ...prev.fotoData, ...newData },
+        fotoData:
+          typeof updater === "function"
+            ? updater(prev.fotoData ?? {})
+            : { ...prev.fotoData, ...updater },
       }));
     },
-    [fichaId, atualizarFicha], // ← fichaId (string) é mais estável que ficha.id
+    [fichaId, atualizarFicha],
   );
 
   const handleUpdateConsideracoes = useCallback(
-    (newData) => {
+    (updater) => {
       atualizarFicha(fichaId, (prev) => ({
         ...prev,
-        fotoData: { ...prev.fotoData, ...newData },
+        fotoData:
+          typeof updater === "function"
+            ? updater(prev.fotoData ?? {})
+            : { ...prev.fotoData, ...updater },
       }));
     },
     [fichaId, atualizarFicha],

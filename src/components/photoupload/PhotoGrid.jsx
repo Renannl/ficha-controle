@@ -5,25 +5,32 @@ export default function PhotoGrid({
   onRemove,
   onUpload,
   onDescricaoChange,
+  onAdd,
 }) {
   return (
     <div
       className="photo-grid"
       style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
+        display: "flex",
+        flexWrap: "wrap",
         gap: "16px",
       }}
     >
       {fotos.map((foto) => (
-        <PhotoUploadCard
-          key={foto.id}
-          foto={foto}
-          onRemove={onRemove}
-          onDescricaoChange={onDescricaoChange}
-          onUpload={onUpload}
-        />
+        <div key={foto.id} className="photo-grid-item">
+          <PhotoUploadCard
+            foto={foto}
+            onRemove={onRemove}
+            onDescricaoChange={onDescricaoChange}
+            onUpload={onUpload}
+          />
+        </div>
       ))}
+
+      <button type="button" className="add-photo-tile" onClick={onAdd}>
+        <span className="add-photo-tile-icon">＋</span>
+        <span className="add-photo-tile-text">Adicionar Foto</span>
+      </button>
     </div>
   );
 }

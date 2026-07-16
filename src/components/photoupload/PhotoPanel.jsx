@@ -10,74 +10,90 @@ const PhotoPanel = memo(function PhotoPanel({ ficha, onUpdateFotoData }) {
   const fotos = ficha.fotoData?.fotos || [];
 
   const atualizarFotos = useCallback(
-    (novasFotos) => onUpdateFotoData({ fotos: novasFotos }),
-    [onUpdateFotoData]
+    (updaterOuArray) => {
+      onUpdateFotoData((prevFotoData) => {
+        const prevFotos = prevFotoData?.fotos || [];
+        const novasFotos =
+          typeof updaterOuArray === "function"
+            ? updaterOuArray(prevFotos)
+            : updaterOuArray;
+        return { ...prevFotoData, fotos: novasFotos };
+      });
+    },
+    [onUpdateFotoData],
   );
-
-  const adicionarFoto = useCallback(async (file) => {
-    const url = await handlePhotoUpload(file);
-    if (!url) return;
-    atualizarFotos([
-      ...fotos,
-      {
-        id: Date.now().toString() + Math.random().toString(36).slice(2),
-        descricao: "",
-        imagem: url,
-      },
-    ]);
-  }, [fotos, handlePhotoUpload, atualizarFotos]);
 
   const atualizarDescricao = useCallback(
     (id, descricao) =>
-      atualizarFotos(fotos.map((f) => (f.id === id ? { ...f, descricao } : f))),
-    [fotos, atualizarFotos]
+      atualizarFotos((prevFotos) =>
+        prevFotos.map((f) => (f.id === id ? { ...f, descricao } : f)),
+      ),
+    [atualizarFotos],
   );
 
   const atualizarImagem = useCallback(
     async (id, file) => {
       const url = await handlePhotoUpload(file);
       if (!url) return;
-      atualizarFotos(fotos.map((f) => (f.id === id ? { ...f, imagem: url } : f)));
+      atualizarFotos((prevFotos) =>
+        prevFotos.map((f) => (f.id === id ? { ...f, imagem: url } : f)),
+      );
     },
-    [fotos, handlePhotoUpload, atualizarFotos]
+    [handlePhotoUpload, atualizarFotos],
   );
 
   const handleMultiUpload = useCallback(
     async (e) => {
-      for (const file of Array.from(e.target.files)) {
-        await adicionarFoto(file);
-      }
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+
+      e.target.value = "";
+
+      const resultados = await Promise.all(
+        files.map((file) => handlePhotoUpload(file)),
+      );
+
+      const novasFotos = resultados
+        .filter((url) => !!url)
+        .map((url) => ({
+          id: Date.now().toString() + Math.random().toString(36).slice(2),
+          descricao: "",
+          imagem: url,
+        }));
+
+      if (novasFotos.length === 0) return;
+
+      atualizarFotos((prevFotos) => [...prevFotos, ...novasFotos]);
     },
-    [adicionarFoto]
+    [handlePhotoUpload, atualizarFotos],
   );
 
   const removerFoto = useCallback(
-    (id) => atualizarFotos(fotos.filter((f) => f.id !== id)),
-    [fotos, atualizarFotos]
+    (id) => atualizarFotos((prevFotos) => prevFotos.filter((f) => f.id !== id)),
+    [atualizarFotos],
   );
 
   const handleAdicionarVazio = useCallback(() => {
-    atualizarFotos([
-      ...fotos,
+    atualizarFotos((prevFotos) => [
+      ...prevFotos,
       {
         id: Date.now().toString() + Math.random().toString(36).slice(2),
         descricao: "",
         imagem: "",
       },
     ]);
-  }, [fotos, atualizarFotos]);
+  }, [atualizarFotos]);
 
   return (
     <>
       <PhotoPanelHeader handleMultiUpload={handleMultiUpload} />
-
-      <button onClick={handleAdicionarVazio}>+ Adicionar Foto</button>
 
       <PhotoGrid
         fotos={fotos}
         onRemove={removerFoto}
         onDescricaoChange={atualizarDescricao}
         onUpload={atualizarImagem}
+        onAdd={handleAdicionarVazio}
       />
     </>
   );

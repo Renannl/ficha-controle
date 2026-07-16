@@ -30,6 +30,102 @@
   flex-shrink: 0;
 }
 
+/* ──────────────────────────────────────────────
+   Add Photo Button
+────────────────────────────────────────────── */
+.add-photo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin: 12px 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--blue-accent);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.add-photo-btn:hover {
+  border-color: var(--blue-accent);
+  background: var(--blue-glow);
+  transform: translateY(-1px);
+}
+
+.add-photo-btn:active {
+  transform: scale(0.97);
+}
+
+.add-photo-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  background: var(--blue-glow);
+  color: var(--blue-primary);
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .add-photo-btn {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .add-photo-btn:hover {
+  background: rgba(79, 209, 217, 0.08);
+}
+
+.photo-grid-item {
+  flex: 1 1 220px;
+  max-width: 260px;
+}
+
+.add-photo-tile {
+  flex: 1 1 220px;
+  max-width: 260px;
+  min-height: 180px; /* mesma altura do PhotoUploadCard */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-elevated);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--blue-accent);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.add-photo-tile:hover {
+  border-color: var(--blue-accent);
+  background: var(--blue-glow);
+  transform: translateY(-1px);
+}
+
+.add-photo-tile:active {
+  transform: scale(0.96);
+}
+
+.add-photo-tile-icon {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.add-photo-tile-text {
+  font-size: 13px;
+  font-weight: 600;
+}
 
 
 .colecao-card-delete-btn:hover {
@@ -45,7 +141,6 @@
 [data-theme="dark"] .colecao-card-delete-btn:hover {
   background: rgba(211, 47, 47, 0.1);
 }
-
 
 .home-brand {
   display: flex;
@@ -5489,4 +5584,3 @@ svg {
   font-size: 12px;
   color: var(--text-secondary);
 }
-
