@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../buttons/ConfirmModal";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
 import { useLocalStorageState } from "../../hooks/useLocalStorageState";
 import { useViewModeDrag } from "../../hooks/useViewModeDrag";

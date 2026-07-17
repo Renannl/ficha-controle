@@ -9,9 +9,10 @@ import PrintView from "../print/PrintView";
 import TafPanel from "../taf/TafPanel";
 import PhotoPanel from "../photoupload/PhotoPanel";
 import ConsideracoesPanel from "../consideracoes/ConsideracoesPanel";
-import ConfirmModal from "../ConfirmModal";
-import ApproveModal from "../ApproveModal";
-import RejectModal from "../RejectModal";
+import ConfirmModal from "../buttons/ConfirmModal";
+import ApproveModal from "../buttons/ApproveModal";
+import BotaoSessaoTrabalho from "../buttons/BotaoSessaoTrabalho";
+import RejectModal from "../buttons/RejectModal";
 import { getChecklistItems } from "../../data/fichaTemplate";
 import { useNavigate, useParams } from "react-router-dom";
 import { exportFicha } from "../../services/sharepointService";
@@ -361,6 +362,8 @@ export default function FichaView({
           onBack={handleBack}
           onApprove={handleApprove}
         />
+
+        <BotaoSessaoTrabalho fichaId={ficha.dbId} />
 
         <main className="main-content">
           {activeTab === "info" &&

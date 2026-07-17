@@ -18,6 +18,17 @@ export function useUsers() {
         },
       });
 
+      if (!response.ok) {
+        const text = await response.text();
+        console.error(
+          "[useUsers] Erro ao buscar usuários:",
+          response.status,
+          text,
+        );
+        setUsers([]);
+        return;
+      }
+
       const data = await response.json();
 
       const roleOrder = {
@@ -46,7 +57,7 @@ export function useUsers() {
 
       setUsers(sortedUsers);
     } catch (err) {
-      console.error(err);
+      console.error("[useUsers] Erro de rede:", err);
     } finally {
       setLoading(false);
     }
@@ -68,7 +79,13 @@ export function useUsers() {
     );
 
     if (!response.ok) {
-      throw new Error("Erro atualizar");
+      const text = await response.text();
+      console.error(
+        "[useUsers] Erro ao atualizar usuário:",
+        response.status,
+        text,
+      );
+      throw new Error("Erro ao atualizar usuário");
     }
 
     await loadUsers();
