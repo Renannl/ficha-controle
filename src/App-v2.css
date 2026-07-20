@@ -127,6 +127,82 @@
   font-weight: 600;
 }
 
+.sessoes-trabalho-container {
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color, #ddd);
+  padding-top: 16px;
+}
+
+.sessoes-trabalho-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sessoes-total {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.sessao-trabalho-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color, #ddd);
+}
+
+.sessao-trabalho-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.sessao-tag-manual {
+  font-size: 11px;
+  color: #d99;
+  font-style: italic;
+}
+
+.btn-icon-edit {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--bg-base, #fff);
+  padding: 24px;
+  border-radius: 8px;
+  width: 320px;
+}
+
+.modal-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.modal-erro {
+  color: #d33;
+  font-size: 13px;
+}
 
 .colecao-card-delete-btn:hover {
   color: var(--red);

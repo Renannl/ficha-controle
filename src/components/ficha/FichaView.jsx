@@ -3,6 +3,7 @@ import Header from "../header/Header";
 import InfoCard from "../info/InfoCard";
 import ChecklistTable from "../checklist/ChecklistTable";
 import SessionsPanel from "../sessions/SessionsPanel";
+import SessoesTrabalhoList from "../sessions/SessoesTrabalhoList";
 import NotesSection from "../notes/NotesSection";
 import SignatureSection from "../signatures/SignatureSection";
 import PrintView from "../print/PrintView";
@@ -402,7 +403,13 @@ export default function FichaView({
           )}
 
           {activeTab === "sessions" && (
-            <SessionsPanel sessions={ficha.sessions} onUpdate={updateSession} />
+            <>
+              <SessionsPanel
+                sessions={ficha.sessions}
+                onUpdate={updateSession}
+              />
+              <SessoesTrabalhoList fichaId={ficha.dbId} user={user} />
+            </>
           )}
 
           {activeTab === "notes" && (
