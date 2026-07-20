@@ -6,6 +6,20 @@
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
 }
+
+.checklist-titulo-barramento {
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(90deg, #1a1a2e, #16213e);
+  padding: 14px 0;
+  margin: 24px 0 12px;
+  border-radius: 8px;
+}
+
 .colecao-card-delete-btn {
   width: 24px;
   height: 24px;

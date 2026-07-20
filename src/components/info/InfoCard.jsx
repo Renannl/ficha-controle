@@ -5,7 +5,12 @@ import InfoEquipmentSection from "./InfoEquipmentSection";
 import InfoPlanningSection from "./InfoPlanningSection";
 import OperationInfoBanner from "./OperationInfoBanner";
 
-export default function InfoCard({ ficha, onChange, onOperacaoChange }) {
+export default function InfoCard({
+  ficha,
+  onChange,
+  onOperacaoChange,
+  onTipoPainelChange,
+}) {
   const operacaoAtual = OPERACOES[ficha.operacao];
   const handle = (field) => (e) => onChange(field, e.target.value);
 
@@ -27,6 +32,7 @@ export default function InfoCard({ ficha, onChange, onOperacaoChange }) {
         handle={handle}
         operacaoAtual={operacaoAtual}
         onOperacaoChange={onOperacaoChange}
+        onTipoPainelChange={onTipoPainelChange} // ← e aqui
       />
 
       <OperationInfoBanner />

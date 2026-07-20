@@ -6,10 +6,13 @@ export default function ChecklistItem({
   template,
   isExpanded,
   isTaf,
+  isPainel,
   onToggleExpand,
   onToggleMark,
   onResultado,
 }) {
+  const hideExpand = isTaf || isPainel;
+
   return (
     <div
       className={`checklist-item ${isExpanded ? "expanded" : ""}`}
@@ -20,15 +23,11 @@ export default function ChecklistItem({
         onClick={() => onToggleExpand(item.id)}
       >
         <div className="checklist-item-number">{item.id}</div>
-
         <div className="checklist-item-desc">{template?.descricao}</div>
-
         <div className="checklist-item-status">
           <div className="resultado-btns">
             <button
-              className={`resultado-btn ${
-                item.resultado === "ok" ? "ok-active" : ""
-              }`}
+              className={`resultado-btn ${item.resultado === "ok" ? "ok-active" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onResultado(index, "ok");
@@ -36,11 +35,8 @@ export default function ChecklistItem({
             >
               {isTaf ? "C" : "OK"}
             </button>
-
             <button
-              className={`resultado-btn ${
-                item.resultado === "na" ? "na-active" : ""
-              }`}
+              className={`resultado-btn ${item.resultado === "na" ? "na-active" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onResultado(index, "na");
@@ -50,13 +46,12 @@ export default function ChecklistItem({
             </button>
           </div>
         </div>
-
-        {!isTaf && (
+        {!hideExpand && (
           <span className={`expand-arrow ${isExpanded ? "open" : ""}`}>▼</span>
         )}
       </div>
 
-      {isExpanded && (
+      {isExpanded && !isPainel && (
         <ChecklistSessions
           item={item}
           index={index}

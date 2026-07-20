@@ -1,11 +1,15 @@
 import { OPERACOES, OPERACAO_KEYS } from "../../data/fichaTemplate";
+import { PAINEL_LABELS, PAINEL_KEYS } from "../../data/painelTemplates";
 
 export default function InfoPlanningSection({
   ficha,
   handle,
   operacaoAtual,
   onOperacaoChange,
+  onTipoPainelChange,
 }) {
+  const isEstrutura = String(ficha.operacao) === "10";
+
   return (
     <div className="card mb-3">
       <div className="section-header">
@@ -59,7 +63,6 @@ export default function InfoPlanningSection({
 
         <div className="field">
           <label>Operação</label>
-
           <select
             value={ficha.operacao}
             onChange={(e) => onOperacaoChange(e.target.value)}
@@ -71,6 +74,25 @@ export default function InfoPlanningSection({
             ))}
           </select>
         </div>
+
+        {isEstrutura && (
+          <div className="field">
+            <label>Tipo de Painel</label>
+            <select
+              value={ficha.tipoPainel || ""}
+              onChange={(e) => onTipoPainelChange(e.target.value)}
+            >
+              <option value="" disabled>
+                Selecione o tipo de painel
+              </option>
+              {PAINEL_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {PAINEL_LABELS[key]}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="field">
           <label>Equipe</label>

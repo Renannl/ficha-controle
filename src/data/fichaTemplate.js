@@ -1,6 +1,19 @@
 // ────────────────────────────────────────────────
 // Definição de todas as Operações e seus Checklists
 // ────────────────────────────────────────────────
+import { getPainelChecklistItems } from "./painelTemplates";
+
+export function buildPainelItems(tipoPainel) {
+  return getPainelChecklistItems(tipoPainel, { incluirVerificacao: false }).map(
+    (item) => ({
+      id: item.id,
+      descricao: item.descricao,
+      categoria: item.categoria,
+      sessionMarks: Array(15).fill(""),
+      resultado: "",
+    }),
+  );
+}
 
 export const OPERACOES = {
   10: {
@@ -138,23 +151,21 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
   return {
     id: generateId(),
     createdAt: new Date().toISOString(),
-    // Identificação do documento
     codigo: "PRO-001",
     folha: "1/1",
     revisao: "01",
-    // Dados do equipamento
     nomeEquipamento: "",
     nrInd: "",
     obra: "",
     qtd: "",
     cliente: "",
     tag: "",
-    // Planejamento
     dataInicio: "",
     dataTermino: "",
     tempoPrevisto: "",
     recurso: "",
     operacao: codigo,
+    tipoPainel: "",
     equipe: op.equipe,
     colaboradores: "",
     objetivo: op.objetivo,

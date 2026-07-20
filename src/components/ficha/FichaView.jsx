@@ -13,7 +13,8 @@ import ConfirmModal from "../buttons/ConfirmModal";
 import ApproveModal from "../buttons/ApproveModal";
 import BotaoSessaoTrabalho from "../buttons/BotaoSessaoTrabalho";
 import RejectModal from "../buttons/RejectModal";
-import { getChecklistItems } from "../../data/fichaTemplate";
+import { getChecklistItems, buildPainelItems } from "../../data/fichaTemplate";
+import { getPainelChecklistItems } from "../../data/painelTemplates";
 import { useNavigate, useParams } from "react-router-dom";
 import { exportFicha } from "../../services/sharepointService";
 import { useState, useEffect, useCallback } from "react";
@@ -90,6 +91,14 @@ export default function FichaView({
     },
     [fichaId, atualizarFicha],
   );
+
+  function handleTipoPainelChange(novoTipo) {
+    atualizarFicha(fichaId, (prev) => ({
+      ...prev,
+      tipoPainel: novoTipo,
+      items: buildPainelItems(novoTipo),
+    }));
+  }
 
   const handleUpdateConsideracoes = useCallback(
     (updater) => {
@@ -326,7 +335,7 @@ export default function FichaView({
         .length || 0;
     return total > 0 ? Math.round((done / total) * 100) : 0;
   }
-
+  const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
   const operacaoStr = String(ficha?.operacao ?? "");
   const isTaf = operacaoStr === "50";
   const isFoto = operacaoStr === "80";
@@ -370,6 +379,7 @@ export default function FichaView({
                 ficha={ficha}
                 onChange={updateField}
                 onOperacaoChange={handleOperacaoChange}
+                onTipoPainelChange={handleTipoPainelChange}
               />
             ) : (
               <ConsideracoesPanel
@@ -382,10 +392,17 @@ export default function FichaView({
           {activeTab === "checklist" && (
             <ChecklistTable
               ficha={ficha}
-              checklistItems={checklistItems}
+              checklistItems={
+                isPainel
+                  ? getPainelChecklistItems(ficha.tipoPainel, {
+                      incluirVerificacao: false,
+                    })
+                  : checklistItems
+              }
               onToggleMark={updateItemSessionMark}
               onSetResultado={(idx, val) => updateItem(idx, "resultado", val)}
               isTaf={isTaf}
+              isPainel={isPainel}
               tafData={ficha.tafData}
               onUpdateTaf={handleUpdateTaf}
             />

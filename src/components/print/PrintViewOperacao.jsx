@@ -1,9 +1,15 @@
 import { Fragment } from "react";
 import PrintHeader from "./PrintHeader";
 import { OPERACOES, NOTA_DOCUMENTOS } from "../../data/fichaTemplate";
+import { getPainelChecklistItems } from "../../data/painelTemplates";
 
 export default function PrintViewOperacao({ ficha, isBook = false }) {
   const op = OPERACOES[ficha.operacao];
+  const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
+
+  const templateItems = isPainel
+    ? getPainelChecklistItems(ficha.tipoPainel, { incluirVerificacao: false })
+    : op?.items || [];
 
   return (
     <div className={`print-view-root ${isBook ? "book-mode" : "print-only"}`}>
@@ -84,42 +90,50 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
               <th rowSpan="2" className="col-desc">
                 DESCRIÇÃO
               </th>
-              <th colSpan="15" className="col-sessions">
-                SESSÕES DE TRABALHO
-              </th>
+              {!isPainel && (
+                <th colSpan="15" className="col-sessions">
+                  SESSÕES DE TRABALHO
+                </th>
+              )}
               <th colSpan="2" className="col-result">
                 OK/NA
               </th>
             </tr>
-            <tr className="session-header">
-              {[...Array(15)].map((_, i) => (
-                <th key={i} className="mark-cell">
-                  {i + 1}º
-                </th>
-              ))}
-              <th className="res-cell">OK</th>
-              <th className="res-cell">NA</th>
-            </tr>
+            {!isPainel && (
+              <tr className="session-header">
+                {[...Array(15)].map((_, i) => (
+                  <th key={i} className="mark-cell">
+                    {i + 1}º
+                  </th>
+                ))}
+                <th className="res-cell">OK</th>
+                <th className="res-cell">NA</th>
+              </tr>
+            )}
           </thead>
           <tbody>
-            {op?.items.map((item, idx) => {
-              const fichaItem = ficha.items[idx] || {
+            {templateItems.map((item) => {
+              const fichaItem = ficha.items.find((fi) => fi.id === item.id) || {
                 sessionMarks: [],
                 resultado: "",
               };
-              // Garante exatamente 15 células — sem isso a tabela desalinha
-              const marks = Array(15)
-                .fill("")
-                .map((_, i) => fichaItem.sessionMarks[i] || "");
+
+              const marks = isPainel
+                ? []
+                : Array(15)
+                    .fill("")
+                    .map((_, i) => (fichaItem.sessionMarks || [])[i] || "");
+
               return (
                 <tr key={item.id}>
                   <td className="text-center">{item.id}</td>
                   <td className="item-desc">{item.descricao}</td>
-                  {marks.map((mark, i) => (
-                    <td key={i} className="text-center mark-cell">
-                      {mark === "feito" ? "✓" : mark === "na" ? "—" : ""}
-                    </td>
-                  ))}
+                  {!isPainel &&
+                    marks.map((mark, i) => (
+                      <td key={i} className="text-center mark-cell">
+                        {mark === "feito" ? "✓" : mark === "na" ? "—" : ""}
+                      </td>
+                    ))}
                   <td className="text-center res-mark">
                     {fichaItem.resultado === "ok" ? "X" : ""}
                   </td>
@@ -133,52 +147,11 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
               <td colSpan="2">
                 <strong>Objetivo:</strong> {op?.objetivo}
               </td>
-              {/* 15 sessões + OK + NA = 17 células restantes */}
-              <td colSpan="17"></td>
+              <td colSpan={isPainel ? "2" : "17"}></td>
             </tr>
           </tbody>
         </table>
       </div>
-
-      {/* SESSÕES DETALHADAS */}
-      <div className="print-section-title">
-        REGISTRO DE SESSÕES (DATA/HORÁRIO)
-      </div>
-      <table className="print-sessions-table">
-        <thead>
-          <tr>
-            <th>SES</th>
-            <th>DATA</th>
-            <th>H. INI</th>
-            <th>H. FIM</th>
-            <th>SES</th>
-            <th>DATA</th>
-            <th>H. INI</th>
-            <th>H. FIM</th>
-            <th>SES</th>
-            <th>DATA</th>
-            <th>H. INI</th>
-            <th>H. FIM</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[0, 1, 2, 3, 4].map((row) => (
-            <tr key={row}>
-              {[0, 5, 10].map((col) => {
-                const s = ficha.sessions[row + col];
-                return (
-                  <Fragment key={col}>
-                    <td className="bg-muted">{s.numero}</td>
-                    <td>{s.data}</td>
-                    <td>{s.hIni}</td>
-                    <td>{s.hFim}</td>
-                  </Fragment>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
       {/* OBSERVAÇÕES */}
       <div className="print-section-title">OBSERVAÇÕES</div>
