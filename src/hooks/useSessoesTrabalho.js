@@ -34,11 +34,14 @@ export function useSessoesTrabalho(fichaId) {
 
   const updateSessao = useCallback(
     async (sessaoId, payload) => {
-      const response = await authFetch(`/fichas/${fichaId}/sessao/${sessaoId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await authFetch(
+        `/fichas/${fichaId}/sessao/${sessaoId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
 
       if (!response || !response.ok) {
         const text = response ? await response.text() : "Sem resposta";
@@ -52,9 +55,12 @@ export function useSessoesTrabalho(fichaId) {
 
   const deleteSessao = useCallback(
     async (sessaoId) => {
-      const response = await authFetch(`/fichas/${fichaId}/sessao/${sessaoId}`, {
-        method: "DELETE",
-      });
+      const response = await authFetch(
+        `/fichas/${fichaId}/sessao/${sessaoId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (!response || !response.ok) {
         throw new Error("Erro ao excluir sessão");
@@ -65,5 +71,12 @@ export function useSessoesTrabalho(fichaId) {
     [fichaId, loadSessoes],
   );
 
-  return { sessoes, totalSegundos, loading, loadSessoes, updateSessao, deleteSessao };
+  return {
+    sessoes,
+    totalSegundos,
+    loading,
+    loadSessoes,
+    updateSessao,
+    deleteSessao,
+  };
 }

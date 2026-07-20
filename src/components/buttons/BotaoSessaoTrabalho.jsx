@@ -8,7 +8,7 @@ function formatarTempo(segundos) {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export default function BotaoSessaoTrabalho({ fichaId }) {
+export default function BotaoSessaoTrabalho({ fichaId, user }) {
   const [sessaoAtiva, setSessaoAtiva] = useState(null);
   const [totalSegundos, setTotalSegundos] = useState(0);
   const [tempoAtual, setTempoAtual] = useState(0);
@@ -20,9 +20,11 @@ export default function BotaoSessaoTrabalho({ fichaId }) {
     const data = await res.json();
     setTotalSegundos(data.totalSegundos);
 
-    const aberta = data.sessoes.find((s) => !s.fim);
+    const aberta = data.sessoes.find(
+      (s) => !s.fim && s.usuario === user?.username,
+    );
     setSessaoAtiva(aberta || null);
-  }, [fichaId]);
+  }, [fichaId, user?.username]);
 
   useEffect(() => {
     if (fichaId) carregarSessoes();
@@ -67,6 +69,7 @@ export default function BotaoSessaoTrabalho({ fichaId }) {
       const res = await authFetch(`/fichas/${fichaId}/sessao/pausar`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessaoId: sessaoAtiva?.id }),
       });
 
       if (!res) return;
@@ -88,35 +91,20 @@ export default function BotaoSessaoTrabalho({ fichaId }) {
   const rodando = !!sessaoAtiva;
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+    <div className="sessao-trabalho-float">
       <button
         onClick={rodando ? handlePause : handlePlay}
         disabled={loading}
-        style={{
-          padding: "8px 16px",
-          borderRadius: "6px",
-          border: "none",
-          cursor: "pointer",
-          fontWeight: "bold",
-          backgroundColor: rodando ? "#e63946" : "#2a9d8f",
-          color: "#fff",
-        }}
+        className={`sessao-trabalho-btn ${rodando ? "pausar" : "iniciar"}`}
       >
-        {rodando ? "⏸ Pausar" : "▶ Iniciar"}
+        {rodando ? "⏸" : "▶"}
       </button>
 
-      <div style={{ fontFamily: "monospace", fontSize: "14px" }}>
-        <div>
-          Sessão atual:{" "}
-          <strong>{rodando ? formatarTempo(tempoAtual) : "00:00:00"}</strong>
+      {rodando && (
+        <div className="sessao-trabalho-tempo-float">
+          {formatarTempo(tempoAtual)}
         </div>
-        <div>
-          Total acumulado:{" "}
-          <strong>
-            {formatarTempo(totalSegundos + (rodando ? tempoAtual : 0))}
-          </strong>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

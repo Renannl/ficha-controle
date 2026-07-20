@@ -1,4 +1,3 @@
-// src/components/sessions/EditarSessaoModal.jsx
 import { useState, useEffect } from "react";
 
 function toLocalInput(isoString) {
@@ -7,7 +6,7 @@ function toLocalInput(isoString) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
     d.getHours(),
-  )}:${pad(d.getMinutes())}`;
+  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; // ← adiciona os segundos
 }
 
 export default function EditarSessaoModal({ sessao, onClose, onSave }) {
@@ -62,6 +61,7 @@ export default function EditarSessaoModal({ sessao, onClose, onSave }) {
           Início
           <input
             type="datetime-local"
+            step="1"
             value={inicio}
             onChange={(e) => setInicio(e.target.value)}
           />
@@ -71,6 +71,7 @@ export default function EditarSessaoModal({ sessao, onClose, onSave }) {
           Fim
           <input
             type="datetime-local"
+            step="1"
             value={fim}
             onChange={(e) => setFim(e.target.value)}
           />
@@ -82,7 +83,11 @@ export default function EditarSessaoModal({ sessao, onClose, onSave }) {
           <button onClick={onClose} disabled={saving}>
             Cancelar
           </button>
-          <button className="btn-primary" onClick={handleSalvar} disabled={saving}>
+          <button
+            className="btn-primary"
+            onClick={handleSalvar}
+            disabled={saving}
+          >
             {saving ? "Salvando..." : "Salvar"}
           </button>
         </div>

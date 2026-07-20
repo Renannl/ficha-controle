@@ -2,7 +2,6 @@
 import Header from "../header/Header";
 import InfoCard from "../info/InfoCard";
 import ChecklistTable from "../checklist/ChecklistTable";
-import SessionsPanel from "../sessions/SessionsPanel";
 import SessoesTrabalhoList from "../sessions/SessoesTrabalhoList";
 import NotesSection from "../notes/NotesSection";
 import SignatureSection from "../signatures/SignatureSection";
@@ -364,8 +363,6 @@ export default function FichaView({
           onApprove={handleApprove}
         />
 
-        <BotaoSessaoTrabalho fichaId={ficha.dbId} />
-
         <main className="main-content">
           {activeTab === "info" &&
             (!isFoto ? (
@@ -404,10 +401,6 @@ export default function FichaView({
 
           {activeTab === "sessions" && (
             <>
-              <SessionsPanel
-                sessions={ficha.sessions}
-                onUpdate={updateSession}
-              />
               <SessoesTrabalhoList fichaId={ficha.dbId} user={user} />
             </>
           )}
@@ -446,6 +439,8 @@ export default function FichaView({
             </button>
           ))}
         </nav>
+
+        <BotaoSessaoTrabalho fichaId={ficha.dbId} user={user} />
       </div>
 
       <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999 }}>

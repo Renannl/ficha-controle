@@ -1,4 +1,3 @@
-// src/components/sessions/SessoesTrabalhoList.jsx
 import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
@@ -11,6 +10,7 @@ function formatarData(iso) {
     month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
   });
 }
 
@@ -18,7 +18,8 @@ function formatarDuracao(segundos) {
   const s = Math.floor(Number(segundos) || 0);
   const h = String(Math.floor(s / 3600)).padStart(2, "0");
   const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
-  return `${h}h${m}min`;
+  const sec = String(s % 60).padStart(2, "0");
+  return `${h}h${m}min${sec}s`;
 }
 
 export default function SessoesTrabalhoList({ fichaId, user }) {
@@ -28,48 +29,68 @@ export default function SessoesTrabalhoList({ fichaId, user }) {
 
   const isAdmin = user?.role === "admin";
 
-  if (loading) return <p>Carregando sessões...</p>;
-
   return (
-    <div className="sessoes-trabalho-container">
-      <div className="sessoes-trabalho-header">
-        <h4>Sessões de Trabalho</h4>
-        <span className="sessoes-total">
-          Total: {formatarDuracao(totalSegundos)}
-        </span>
-      </div>
+    <div className="sessions-panel">
+      <div className="card mb-3">
+        <div className="section-header">
+          <div className="section-icon">🕐</div>
 
-      {!sessoes.length && <p>Nenhuma sessão registrada ainda.</p>}
+          <div>
+            <h2>Sessões de Trabalho</h2>
+            <p>Histórico automático de início e fim de cada sessão</p>
+          </div>
+        </div>
 
-      <div className="sessoes-trabalho-list">
-        {sessoes.map((s) => (
-          <div key={s.id} className="sessao-trabalho-item">
-            <div className="sessao-trabalho-info">
-              <strong>{s.usuario}</strong>
-              <span>
-                {formatarData(s.inicio)} → {formatarData(s.fim)}
-              </span>
-              <span className="sessao-duracao">
-                {formatarDuracao(s.duracao_segundos)}
-              </span>
-              {s.origem === "manual" && (
-                <span className="sessao-tag-manual" title={`Editado por ${s.editado_manualmente_por}`}>
-                  editado manualmente
+        <div className="checklist-summary mb-3">
+          <span className="summary-text">Total de horas:</span>
+
+          <span
+            className="summary-text"
+            style={{ color: "var(--blue-accent)", fontSize: 14 }}
+          >
+            {formatarDuracao(totalSegundos)}
+          </span>
+        </div>
+
+        {loading && <p className="sessoes-empty">Carregando sessões...</p>}
+
+        {!loading && !sessoes.length && (
+          <p className="sessoes-empty">Nenhuma sessão registrada ainda.</p>
+        )}
+
+        <div className="sessoes-trabalho-list">
+          {sessoes.map((s) => (
+            <div key={s.id} className="sessao-trabalho-item">
+              <div className="sessao-trabalho-info">
+                <strong>{s.usuario}</strong>
+                <span>
+                  {formatarData(s.inicio)} → {formatarData(s.fim)}
                 </span>
+                <span className="sessao-duracao">
+                  {formatarDuracao(s.duracao_segundos)}
+                </span>
+                {s.origem === "manual" && (
+                  <span
+                    className="sessao-tag-manual"
+                    title={`Editado por ${s.editado_manualmente_por}`}
+                  >
+                    editado manualmente
+                  </span>
+                )}
+              </div>
+
+              {isAdmin && (
+                <button
+                  className="btn-icon-edit"
+                  title="Editar horário"
+                  onClick={() => setSessaoEditando(s)}
+                >
+                  <Pencil size={16} />
+                </button>
               )}
             </div>
-
-            {isAdmin && (
-              <button
-                className="btn-icon-edit"
-                title="Editar horário"
-                onClick={() => setSessaoEditando(s)}
-              >
-                <Pencil size={16} />
-              </button>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <EditarSessaoModal

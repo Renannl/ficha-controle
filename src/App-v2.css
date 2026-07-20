@@ -5643,6 +5643,216 @@ svg {
   color: #f59e0b;
 }
 
+.sessoes-trabalho-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sessao-trabalho-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--bg-elevated, #1c1c1e);
+  border: 1px solid var(--border-color, #2a2a2c);
+}
+
+.sessao-trabalho-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sessao-trabalho-info strong {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.sessao-duracao {
+  color: var(--blue-accent);
+  font-weight: 600;
+}
+
+.sessao-tag-manual {
+  display: inline-block;
+  width: fit-content;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.btn-icon-edit {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.btn-icon-edit:hover {
+  background: var(--bg-hover, rgba(255, 255, 255, 0.05));
+  color: var(--text-primary);
+}
+
+.sessoes-empty {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* ══════════════════════════════════════
+   BOTÃO SESSÃO DE TRABALHO
+   ══════════════════════════════════════ */
+.sessao-trabalho-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  padding: 10px 0;
+  margin-bottom: 10px;
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  background: var(--bg-elevated);
+}
+
+/* ══════════════════════════════════════
+   BOTÃO SESSÃO DE TRABALHO — FLOATING
+   ══════════════════════════════════════ */
+.sessao-trabalho-float {
+  position: fixed;
+  bottom: 90px; /* acima da tab-bar, ajuste se precisar */
+  right: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sessao-trabalho-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.sessao-trabalho-btn:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.sessao-trabalho-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.sessao-trabalho-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sessao-trabalho-btn.iniciar {
+  background-color: #2a9d8f;
+}
+
+.sessao-trabalho-btn.iniciar:hover:not(:disabled) {
+  background-color: #23857a;
+}
+
+.sessao-trabalho-btn.pausar {
+  background-color: #e63946;
+}
+
+.sessao-trabalho-btn.pausar:hover:not(:disabled) {
+  background-color: #d12e3b;
+}
+
+.sessao-trabalho-tempo-float {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-primary);
+  background: var(--bg-elevated, #1c1c1e);
+  border: 1px solid var(--border-color, #2a2a2c);
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+.sessao-trabalho-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.sessao-trabalho-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.sessao-trabalho-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sessao-trabalho-btn.iniciar {
+  background-color: #2a9d8f;
+}
+
+.sessao-trabalho-btn.iniciar:hover:not(:disabled) {
+  background-color: #23857a;
+}
+
+.sessao-trabalho-btn.pausar {
+  background-color: #e63946;
+}
+
+.sessao-trabalho-btn.pausar:hover:not(:disabled) {
+  background-color: #d12e3b;
+}
+
+.sessao-trabalho-tempo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.sessao-trabalho-tempo strong {
+  font-size: 16px;
+}
+
 /* ── Texto ── */
 .new-ficha-opt-info {
   display: flex;
