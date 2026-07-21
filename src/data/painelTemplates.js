@@ -65,6 +65,30 @@ export const painelTemplates = {
         "Verificar se os parafusos e seus acessórios estão corretos e torqueados. (Parafuso, arruela lisa, arruela de pressão e quando necessário porca)",
       ],
     },
+    cabeamento: {
+      titulo: "Quadro de sobrepor/embutir",
+      sequenciaMontagem: [
+        "Conferência dos diagramas e layout aprovado (Verificar se tem todas a informações para as etapas seguintes).",
+        "Conferência da lista de material (Se os componentes estão corretos e não esta faltando nada).",
+        "Conferencia da tensão nominal dos componentes. (Verificar se esta adequado para a tensão de operação)",
+        "Verificar se os diagramas estão corretos. (verificar se as ligações estão corretas, se o comando funcionará)",
+        "Verificar se o tagueamento esta correto. (Todos os componentes e painel identificados corretamente)",
+        "Selecionar os cabos corretos para o projeto. (Cor, Bitola).",
+        "Cabear os componentes e anilha-los. (Usar os terminais corretos, checar crimpagem, usar luvas de anilha na dimensão correta dos cabos)",
+        "Conferir as ligações. (seguir cabos e teste de continuidade)",
+        "Conferir aperto dos terminais com torque adequado. (Teste de tração dos cabos)",
+        "Validar todas as etapas anteriores.",
+      ],
+      verificacaoMontagem: [
+        "Conferência dos diagramas e layout aprovado",
+        "Integridade dos cabos elétricos (sem corte, emenda ou mal crimpado)",
+        "Verificar terminais crimpados (se estão corretos com a aplicação)",
+        "Verificar conexão de cabos nas barras.",
+        "Teste de continuidade.",
+        "Teste de tração",
+        "Verificar se os parafusos e seus acessórios estão corretos e torqueados. (Parafuso, arruela lisa, arruela de pressão e quando necessário porca)",
+      ],
+    },
   },
 
   [TIPOS_PAINEL.AUTOPORTANTE]: {
@@ -136,6 +160,30 @@ export const painelTemplates = {
         "Verificar se os parafusos e seus acessórios estão corretos e torqueados. (Parafuso, arruela lisa, arruela de pressão e quando necessário porca)",
       ],
     },
+    cabeamento: {
+      titulo: "Quadro autoportante",
+      sequenciaMontagem: [
+        "Conferência dos diagramas e layout aprovado (Verificar se tem todas a informações para as etapas seguintes).",
+        "Conferência da lista de material (Se os componentes estão corretos e não esta faltando nada).",
+        "Conferencia da tensão nominal dos componentes. (Verificar se esta adequado para a tensão de operação)",
+        "Verificar se os diagramas estão corretos. (verificar se as ligações estão corretas, se o comando funcionará)",
+        "Verificar se o tagueamento esta correto. (Todos os componentes e painel identificados corretamente)",
+        "Selecionar os cabos corretos para o projeto. (Cor, Bitola).",
+        "Cabear os componentes e anilha-los. (Usar os terminais corretos, checar crimpagem, usar luvas de anilha na dimensão correta dos cabos)",
+        "Conferir as ligações. (seguir cabos e teste de continuidade)",
+        "Conferir aperto dos terminais com torque adequado. (Teste de tração dos cabos)",
+        "Validar todas as etapas anteriores.",
+      ],
+      verificacaoMontagem: [
+        "Conferência dos diagramas e layout aprovado",
+        "Integridade dos cabos elétricos (sem corte, emenda ou mal crimpado)",
+        "Verificar terminais crimpados (se estão corretos com a aplicação)",
+        "Verificar conexão de cabos nas barras.",
+        "Teste de continuidade.",
+        "Teste de tração",
+        "Verificar se os parafusos e seus acessórios estão corretos e torqueados. (Parafuso, arruela lisa, arruela de pressão e quando necessário porca)",
+      ],
+    },
   },
 
   [TIPOS_PAINEL.PMT]: {
@@ -201,6 +249,30 @@ export const painelTemplates = {
         "Verificar se os parafusos e seus acessórios estão corretos e torqueados. (Parafuso, arruela lisa, arruela de pressão e quando necessário porca)",
       ],
     },
+    cabeamento: {
+      titulo: "PMT",
+      sequenciaMontagem: [
+        "Conferência dos diagramas e layout aprovado (Verificar se tem todas a informações para as etapas seguintes).",
+        "Conferência da lista de material (Se os componentes estão corretos e não esta faltando nada).",
+        "Conferencia da tensão nominal dos componentes. (Verificar se esta adequado para a tensão de operação)",
+        "Verificar se os diagramas estão corretos. (verificar se as ligações estão corretas, se o comando funcionará)",
+        "Verificar se o tagueamento esta correto. (Todos os componentes e painel identificados corretamente)",
+        "Selecionar os cabos corretos para o projeto. (Cor, Bitola).",
+        "Cabear os componentes e anilha-los. (Usar os terminais corretos, checar crimpagem, usar luvas de anilha na dimensão correta dos cabos)",
+        "Conferir as ligações. (seguir cabos e teste de continuidade)",
+        "Conferir aperto dos terminais com torque adequado. (Teste de tração dos cabos)",
+        "Validar todas as etapas anteriores.",
+      ],
+      verificacaoMontagem: [
+        "Conferência dos diagramas e layout aprovado",
+        "Integridade dos cabos elétricos (sem corte, emenda ou mal crimpado)",
+        "Verificar terminais crimpados (se estão corretos com a aplicação)",
+        "Verificar conexão de cabos nas barras.",
+        "Teste de continuidade.",
+        "Teste de tração",
+        "Verificar se os parafusos e seus acessórios estão corretos e torqueados. (Parafuso, arruela lisa, arruela de pressão e quando necessário porca)",
+      ],
+    },
   },
 };
 
@@ -261,6 +333,26 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
     }
   }
 
+  if (tpl.cabeamento) {
+    tpl.cabeamento.sequenciaMontagem.forEach((descricao) => {
+      items.push({
+        id: id++,
+        descricao,
+        categoria: `Cabeamento — ${tpl.cabeamento.titulo}`,
+      });
+    });
+
+    if (incluirVerificacao) {
+      tpl.cabeamento.verificacaoMontagem.forEach((descricao) => {
+        items.push({
+          id: id++,
+          descricao,
+          categoria: "Verificação do Cabeamento",
+        });
+      });
+    }
+  }
+
   return items;
 }
 
@@ -290,6 +382,18 @@ export function getPainelVerificacaoItems(tipoPainel) {
         id: id++,
         descricao,
         categoria: "Verificação do Barramento",
+      });
+    });
+  }
+
+  if (tpl.cabeamento) {
+    id += tpl.cabeamento.sequenciaMontagem.length;
+
+    tpl.cabeamento.verificacaoMontagem.forEach((descricao) => {
+      items.push({
+        id: id++,
+        descricao,
+        categoria: "Verificação do Cabeamento",
       });
     });
   }

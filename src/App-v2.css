@@ -20,6 +20,33 @@
   border-radius: 8px;
 }
 
+.checklist-titulo-secao {
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(90deg, #2e281a, #3e3116);
+  padding: 14px 0;
+  margin: 24px 0 12px;
+  border-radius: 8px;
+}
+
+.checklist-titulo-secao-cabeamento {
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(90deg, #1a2e1a, #163e1b);
+  padding: 14px 0;
+  margin: 24px 0 12px;
+  border-radius: 8px;
+}
+
+
 .colecao-card-delete-btn {
   width: 24px;
   height: 24px;
@@ -33,7 +60,7 @@
   cursor: pointer;
   font-size: 12px;
   transition: var(--transition);
-  position: static; /* garante que não fica flutuando */
+  position: static;
 }
 
 .colecao-card-actions {

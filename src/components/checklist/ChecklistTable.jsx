@@ -50,17 +50,37 @@ export default function ChecklistTable({
         const template = checklistItems.find((c) => c.id === item.id);
         const categoria = template?.categoria || null;
 
+        const isPrimeiroDaMontagem =
+          isPainel &&
+          categoria?.startsWith("Sequência de Montagem") &&
+          !categoriaAnterior?.startsWith("Sequência de Montagem");
+
         const isPrimeiroDoBarramento =
           isPainel &&
           categoria?.startsWith("Barramento") &&
           !categoriaAnterior?.startsWith("Barramento");
 
+        const isPrimeiroDoCabeamento =
+          isPainel &&
+          categoria?.startsWith("Cabeamento") &&
+          !categoriaAnterior?.startsWith("Cabeamento");
+
         categoriaAnterior = categoria;
 
         return (
           <div key={item.id}>
+            {isPrimeiroDaMontagem && (
+              <div className="checklist-titulo-secao">MONTAGEM</div>
+            )}
+
             {isPrimeiroDoBarramento && (
               <div className="checklist-titulo-barramento">BARRAMENTO</div>
+            )}
+
+            {isPrimeiroDoCabeamento && (
+              <div className="checklist-titulo-secao-cabeamento">
+                CABEAMENTO
+              </div>
             )}
 
             <ChecklistItem
