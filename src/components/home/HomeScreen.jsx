@@ -285,9 +285,10 @@ export default function HomeScreen({
           <button
             className="generate-pdf-btn"
             onClick={() => {
-              const fichasBook = fichasDaColecao.filter((f) =>
-                selectedFichas.includes(f.id),
-              );
+              const fichasBook = selectedFichas
+                .map((id) => fichasDaColecao.find((f) => f.id === id))
+                .filter(Boolean);
+
               window.dispatchEvent(
                 new CustomEvent("abrir-book-pdf", { detail: fichasBook }),
               );
