@@ -8,7 +8,7 @@ function formatarTempo(segundos) {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export default function BotaoSessaoTrabalho({ fichaId, user }) {
+export default function BotaoSessaoTrabalho({ fichaId, user, onChange }) {
   const [sessaoAtiva, setSessaoAtiva] = useState(null);
   const [totalSegundos, setTotalSegundos] = useState(0);
   const [tempoAtual, setTempoAtual] = useState(0);
@@ -58,6 +58,7 @@ export default function BotaoSessaoTrabalho({ fichaId, user }) {
       }
 
       setSessaoAtiva(data);
+      onChange?.();
     } finally {
       setLoading(false);
     }
@@ -82,7 +83,8 @@ export default function BotaoSessaoTrabalho({ fichaId, user }) {
 
       setSessaoAtiva(null);
       setTempoAtual(0);
-      carregarSessoes();
+      await carregarSessoes();
+      onChange?.();
     } finally {
       setLoading(false);
     }

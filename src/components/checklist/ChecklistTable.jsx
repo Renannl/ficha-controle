@@ -13,6 +13,7 @@ export default function ChecklistTable({
   isPainel = false,
   tafData,
   onUpdateTaf,
+  readOnly = false,
 }) {
   const [expandedId, setExpandedId] = useState(null);
 
@@ -30,14 +31,20 @@ export default function ChecklistTable({
   }
 
   function handleResultado(index, value) {
+    if (readOnly) return;
     const current = ficha.items[index].resultado;
     onSetResultado(index, current === value ? "" : value);
+  }
+
+  function handleToggleMark(index, sessionIndex, value) {
+    if (readOnly) return;
+    onToggleMark(index, sessionIndex, value);
   }
 
   let categoriaAnterior = null;
 
   return (
-    <div className="checklist-wrap">
+    <div className={`checklist-wrap ${readOnly ? "checklist-readonly" : ""}`}>
       {isTaf && <TafHeader tafData={tafData} onUpdateTaf={onUpdateTaf} />}
 
       <ChecklistSummary
@@ -91,8 +98,9 @@ export default function ChecklistTable({
               isTaf={isTaf}
               isPainel={isPainel}
               onToggleExpand={toggleExpand}
-              onToggleMark={onToggleMark}
+              onToggleMark={handleToggleMark}
               onResultado={handleResultado}
+              readOnly={readOnly}
             />
           </div>
         );

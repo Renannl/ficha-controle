@@ -4,10 +4,9 @@ import { calcularTempoDecorridoReal } from "../utils/tempoUtils";
 
 export function useSessoesTrabalho(fichaId) {
   const [sessoes, setSessoes] = useState([]);
-  const [totalSegundos, setTotalSegundos] = useState(0); // homem-hora (vem do backend)
+  const [totalSegundos, setTotalSegundos] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Apenas UMA função de carregamento (removi a duplicada "carregar")
   const loadSessoes = useCallback(async () => {
     if (!fichaId) return;
     setLoading(true);
@@ -29,13 +28,10 @@ export function useSessoesTrabalho(fichaId) {
     }
   }, [fichaId]);
 
-  // ✅ Apenas UM useEffect chamando o load (removi o duplicado)
   useEffect(() => {
     loadSessoes();
   }, [loadSessoes]);
 
-  // 👇 NOVO: calcula o tempo real da ficha (wall-clock) a partir das sessões já carregadas
-  // useMemo evita recalcular em todo re-render, só quando "sessoes" mudar
   const tempoDecorridoSegundos = useMemo(
     () => calcularTempoDecorridoReal(sessoes),
     [sessoes],
@@ -51,12 +47,10 @@ export function useSessoesTrabalho(fichaId) {
           body: JSON.stringify(payload),
         },
       );
-
       if (!response || !response.ok) {
         const text = response ? await response.text() : "Sem resposta";
         throw new Error(text || "Erro ao atualizar sessão");
       }
-
       await loadSessoes();
     },
     [fichaId, loadSessoes],
@@ -66,15 +60,11 @@ export function useSessoesTrabalho(fichaId) {
     async (sessaoId) => {
       const response = await authFetch(
         `/fichas/${fichaId}/sessao/${sessaoId}`,
-        {
-          method: "DELETE",
-        },
+        { method: "DELETE" },
       );
-
       if (!response || !response.ok) {
         throw new Error("Erro ao excluir sessão");
       }
-
       await loadSessoes();
     },
     [fichaId, loadSessoes],
@@ -82,10 +72,10 @@ export function useSessoesTrabalho(fichaId) {
 
   return {
     sessoes,
-    totalSegundos, // homem-hora (soma bruta, duplica overlap)
-    tempoDecorridoSegundos, // 👈 NOVO: tempo real da ficha (sem duplicar overlap)
+    totalSegundos,
+    tempoDecorridoSegundos,
     loading,
-    loadSessoes,
+    loadSessoes, // ✅ este é o "refetch"
     updateSessao,
     deleteSessao,
   };

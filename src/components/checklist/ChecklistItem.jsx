@@ -10,12 +10,15 @@ export default function ChecklistItem({
   onToggleExpand,
   onToggleMark,
   onResultado,
+  readOnly = false, // 🔒 nova prop
 }) {
   const hideExpand = isTaf || isPainel;
 
   return (
     <div
-      className={`checklist-item ${isExpanded ? "expanded" : ""}`}
+      className={`checklist-item ${isExpanded ? "expanded" : ""} ${
+        readOnly ? "readonly" : ""
+      }`}
       style={{ animationDelay: `${index * 0.03}s` }}
     >
       <div
@@ -23,13 +26,25 @@ export default function ChecklistItem({
         onClick={() => onToggleExpand(item.id)}
       >
         <div className="checklist-item-number">{item.id}</div>
-        <div className="checklist-item-desc">{template?.descricao}</div>
+        <div className="checklist-item-desc">
+          {template?.descricao}
+          {readOnly && (
+            <span
+              title="Inicie a sessão de trabalho para editar"
+              style={{ marginLeft: 6, fontSize: 12, opacity: 0.7 }}
+            >
+              🔒
+            </span>
+          )}
+        </div>
         <div className="checklist-item-status">
           <div className="resultado-btns">
             <button
               className={`resultado-btn ${item.resultado === "ok" ? "ok-active" : ""}`}
+              disabled={readOnly}
               onClick={(e) => {
                 e.stopPropagation();
+                if (readOnly) return;
                 onResultado(index, "ok");
               }}
             >
@@ -37,8 +52,10 @@ export default function ChecklistItem({
             </button>
             <button
               className={`resultado-btn ${item.resultado === "na" ? "na-active" : ""}`}
+              disabled={readOnly}
               onClick={(e) => {
                 e.stopPropagation();
+                if (readOnly) return;
                 onResultado(index, "na");
               }}
             >
@@ -56,6 +73,7 @@ export default function ChecklistItem({
           item={item}
           index={index}
           onToggleMark={onToggleMark}
+          readOnly={readOnly}
         />
       )}
     </div>

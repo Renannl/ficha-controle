@@ -1,4 +1,3 @@
-// src/components/ficha/FichaView.jsx
 import Header from "../header/Header";
 import InfoCard from "../info/InfoCard";
 import ChecklistTable from "../checklist/ChecklistTable";
@@ -14,6 +13,7 @@ import ApproveModal from "../buttons/ApproveModal";
 import BotaoSessaoTrabalho from "../buttons/BotaoSessaoTrabalho";
 import RejectModal from "../buttons/RejectModal";
 import ChecklistLogList from "../sessions/CheckListLogList";
+import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import { useChecklistLog } from "../../hooks/useChecklistLog";
 import { getChecklistItems, buildPainelItems } from "../../data/fichaTemplate";
 import { getPainelChecklistItems } from "../../data/painelTemplates";
@@ -31,10 +31,10 @@ export default function FichaView({
 }) {
   const { fichaId, id: colecaoId } = useParams();
   const navigate = useNavigate();
-
   const [ficha, setFicha] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("info");
+  const { sessoes, loadSessoes } = useSessoesTrabalho(ficha?.dbId);
   const [successModal, setSuccessModal] = useState({
     isOpen: false,
     title: "",
@@ -43,6 +43,9 @@ export default function FichaView({
   const [rejectInfo, setRejectInfo] = useState(null);
   const [approveInfo, setApproveInfo] = useState(null);
   const { registrarMarcacao } = useChecklistLog(ficha?.dbId);
+  const sessaoIniciada = sessoes.some(
+    (s) => !s.fim && s.usuario === user?.username,
+  );
 
   // 1. Busca inicial
   useEffect(() => {
@@ -203,6 +206,7 @@ export default function FichaView({
   }
 
   function updateItem(itemIndex, key, value) {
+    if (!sessaoIniciada) return; // 🔒
     const item = ficha.items[itemIndex];
 
     atualizarFicha(fichaId, (prev) => {
@@ -212,12 +216,40 @@ export default function FichaView({
     });
 
     if (key === "resultado" && value) {
-      const template = activeChecklistItems.find((c) => c.id === item.id); // ⬅️ trocado
+      const template = activeChecklistItems.find((c) => c.id === item.id);
       registrarMarcacao({
         itemId: item.id,
         descricao: template?.descricao || `Item ${item.id}`,
         campo: "resultado",
         valor: value,
+        usuario: user?.nome || user?.username,
+      });
+    }
+  }
+
+  function updateItemSessionMark(itemIndex, sessionIndex, value) {
+    if (!sessaoIniciada) return; // 🔒
+    if (!podeEditar()) return;
+
+    const item = ficha.items[itemIndex];
+    const novoValor = item.sessionMarks[sessionIndex] === value ? "" : value;
+
+    atualizarFicha(fichaId, (prev) => {
+      const items = [...prev.items];
+      const marks = [...items[itemIndex].sessionMarks];
+      marks[sessionIndex] = novoValor;
+      items[itemIndex] = { ...items[itemIndex], sessionMarks: marks };
+      return { ...prev, items };
+    });
+
+    if (novoValor) {
+      const template = activeChecklistItems.find((c) => c.id === item.id);
+      registrarMarcacao({
+        itemId: item.id,
+        descricao: template?.descricao || `Item ${item.id}`,
+        campo: "sessionMark",
+        valor: novoValor,
+        sessaoIndex: sessionIndex,
         usuario: user?.nome || user?.username,
       });
     }
@@ -238,7 +270,7 @@ export default function FichaView({
     });
 
     if (novoValor) {
-      const template = activeChecklistItems.find((c) => c.id === item.id); // ⬅️ trocado
+      const template = activeChecklistItems.find((c) => c.id === item.id);
       registrarMarcacao({
         itemId: item.id,
         descricao: template?.descricao || `Item ${item.id}`,
@@ -440,6 +472,7 @@ export default function FichaView({
               isPainel={isPainel}
               tafData={ficha.tafData}
               onUpdateTaf={handleUpdateTaf}
+              readOnly={!sessaoIniciada}
             />
           )}
 
@@ -493,7 +526,11 @@ export default function FichaView({
           ))}
         </nav>
 
-        <BotaoSessaoTrabalho fichaId={ficha.dbId} user={user} />
+        <BotaoSessaoTrabalho
+          fichaId={ficha.dbId}
+          user={user}
+          onChange={loadSessoes}
+        />
       </div>
 
       <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999 }}>
