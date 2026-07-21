@@ -13,6 +13,8 @@ import ConfirmModal from "../buttons/ConfirmModal";
 import ApproveModal from "../buttons/ApproveModal";
 import BotaoSessaoTrabalho from "../buttons/BotaoSessaoTrabalho";
 import RejectModal from "../buttons/RejectModal";
+import ChecklistLogList from "../sessions/CheckListLogList";
+import { useChecklistLog } from "../../hooks/useChecklistLog";
 import { getChecklistItems, buildPainelItems } from "../../data/fichaTemplate";
 import { getPainelChecklistItems } from "../../data/painelTemplates";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,6 +42,7 @@ export default function FichaView({
   });
   const [rejectInfo, setRejectInfo] = useState(null);
   const [approveInfo, setApproveInfo] = useState(null);
+  const { registrarMarcacao } = useChecklistLog(ficha?.dbId);
 
   // 1. Busca inicial
   useEffect(() => {
@@ -200,22 +203,51 @@ export default function FichaView({
   }
 
   function updateItem(itemIndex, key, value) {
+    const item = ficha.items[itemIndex];
+
     atualizarFicha(fichaId, (prev) => {
       const items = [...prev.items];
       items[itemIndex] = { ...items[itemIndex], [key]: value };
       return { ...prev, items };
     });
+
+    if (key === "resultado" && value) {
+      const template = activeChecklistItems.find((c) => c.id === item.id); // ⬅️ trocado
+      registrarMarcacao({
+        itemId: item.id,
+        descricao: template?.descricao || `Item ${item.id}`,
+        campo: "resultado",
+        valor: value,
+        usuario: user?.nome || user?.username,
+      });
+    }
   }
 
   function updateItemSessionMark(itemIndex, sessionIndex, value) {
     if (!podeEditar()) return;
+
+    const item = ficha.items[itemIndex];
+    const novoValor = item.sessionMarks[sessionIndex] === value ? "" : value;
+
     atualizarFicha(fichaId, (prev) => {
       const items = [...prev.items];
       const marks = [...items[itemIndex].sessionMarks];
-      marks[sessionIndex] = marks[sessionIndex] === value ? "" : value;
+      marks[sessionIndex] = novoValor;
       items[itemIndex] = { ...items[itemIndex], sessionMarks: marks };
       return { ...prev, items };
     });
+
+    if (novoValor) {
+      const template = activeChecklistItems.find((c) => c.id === item.id); // ⬅️ trocado
+      registrarMarcacao({
+        itemId: item.id,
+        descricao: template?.descricao || `Item ${item.id}`,
+        campo: "sessionMark",
+        valor: novoValor,
+        sessaoIndex: sessionIndex,
+        usuario: user?.nome || user?.username,
+      });
+    }
   }
 
   function updateSession(sessionIndex, field, value) {
@@ -335,11 +367,14 @@ export default function FichaView({
         .length || 0;
     return total > 0 ? Math.round((done / total) * 100) : 0;
   }
-  const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
   const operacaoStr = String(ficha?.operacao ?? "");
   const isTaf = operacaoStr === "50";
   const isFoto = operacaoStr === "80";
+  const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
   const checklistItems = getChecklistItems(ficha.operacao);
+  const activeChecklistItems = isPainel
+    ? getPainelChecklistItems(ficha.tipoPainel, { incluirVerificacao: false })
+    : checklistItems;
 
   const tabs = isTaf
     ? [
@@ -419,6 +454,7 @@ export default function FichaView({
           {activeTab === "sessions" && (
             <>
               <SessoesTrabalhoList fichaId={ficha.dbId} user={user} />
+              <ChecklistLogList fichaId={ficha.dbId} />
             </>
           )}
 

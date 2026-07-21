@@ -23,8 +23,13 @@ function formatarDuracao(segundos) {
 }
 
 export default function SessoesTrabalhoList({ fichaId, user }) {
-  const { sessoes, totalSegundos, loading, updateSessao } =
-    useSessoesTrabalho(fichaId);
+  const {
+    sessoes,
+    totalSegundos,
+    tempoDecorridoSegundos,
+    loading,
+    updateSessao,
+  } = useSessoesTrabalho(fichaId);
   const [sessaoEditando, setSessaoEditando] = useState(null);
 
   const isAdmin = user?.role === "admin";
@@ -42,14 +47,27 @@ export default function SessoesTrabalhoList({ fichaId, user }) {
         </div>
 
         <div className="checklist-summary mb-3">
-          <span className="summary-text">Total de horas:</span>
+          <div>
+            <span className="summary-text">Tempo real da ficha:</span>{" "}
+            <span
+              className="summary-text"
+              style={{ color: "var(--blue-accent)", fontSize: 14 }}
+              title="Tempo total decorrido, sem duplicar quando há trabalho simultâneo"
+            >
+              {formatarDuracao(tempoDecorridoSegundos)}
+            </span>
+          </div>
 
-          <span
-            className="summary-text"
-            style={{ color: "var(--blue-accent)", fontSize: 14 }}
-          >
-            {formatarDuracao(totalSegundos)}
-          </span>
+          <div>
+            <span className="summary-text">Homem-hora (esforço total):</span>{" "}
+            <span
+              className="summary-text"
+              style={{ color: "var(--green-accent, #2e9e5b)", fontSize: 14 }}
+              title="Soma do tempo de todos os colaboradores (duplica quando há trabalho simultâneo)"
+            >
+              {formatarDuracao(totalSegundos)}
+            </span>
+          </div>
         </div>
 
         {loading && <p className="sessoes-empty">Carregando sessões...</p>}
