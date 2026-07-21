@@ -353,10 +353,7 @@ export function getPainelVerificacaoItems(tipoPainel) {
   const tpl = painelTemplates[tipoPainel];
   if (!tpl) return [];
 
-  let id =
-    tpl.perguntasIniciais.length +
-    tpl.montagemMecanica.sequenciaMontagem.length +
-    1;
+  let id = tpl.montagemMecanica.sequenciaMontagem.length + 1;
 
   const items = [];
 
