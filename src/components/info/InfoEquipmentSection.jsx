@@ -25,14 +25,15 @@ export default function InfoEquipmentSection({
 
         <div className="form-grid form-grid-2">
           <div className="field">
-            <label>Nº do Ind.</label>
+            <label>Cliente</label>
             <input
-              value={ficha.nrInd}
-              onChange={handle("nrInd")}
-              placeholder="10110-01"
+              value={clienteTravado}
+              readOnly
+              disabled
+              title="Definido automaticamente pela coleção vinculada"
+              style={{ cursor: "not-allowed", opacity: 0.75 }}
             />
           </div>
-
           <div className="field">
             <label>QTD</label>
             <input value={ficha.qtd} onChange={handle("qtd")} placeholder="1" />
@@ -57,17 +58,6 @@ export default function InfoEquipmentSection({
               placeholder="QTA"
             />
           </div>
-        </div>
-
-        <div className="field">
-          <label>Cliente</label>
-          <input
-            value={clienteTravado}
-            readOnly
-            disabled
-            title="Definido automaticamente pela coleção vinculada"
-            style={{ cursor: "not-allowed", opacity: 0.75 }}
-          />
         </div>
       </div>
     </div>

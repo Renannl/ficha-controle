@@ -95,31 +95,13 @@ export default function InfoPlanningSection({
         )}
 
         <div className="field">
-          <label>Equipe</label>
-
-          <div className="auto-filled-value">
-            <span className="auto-tag">Auto</span>
-            {operacaoAtual?.equipe || ficha.equipe}
-          </div>
-        </div>
-
-        <div className="field">
           <label>Colaboradores</label>
-
           <input
+            disabled
             value={ficha.colaboradores}
             onChange={handle("colaboradores")}
-            placeholder="Nomes dos colaboradores"
+            placeholder="Automático"
           />
-        </div>
-
-        <div className="field">
-          <label>Objetivo</label>
-
-          <div className="auto-filled-value">
-            <span className="auto-tag">Auto</span>
-            {operacaoAtual?.objetivo || ficha.objetivo}
-          </div>
         </div>
       </div>
     </div>

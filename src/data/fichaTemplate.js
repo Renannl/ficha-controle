@@ -145,14 +145,13 @@ function generateId() {
 
 // Cria uma ficha em branco com todos os campos vazios
 export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
-  const codigo = String(operacaoCodigo); // ✅ normaliza pra string
+  const codigo = String(operacaoCodigo);
   const op = OPERACOES[codigo];
 
   return {
     id: generateId(),
     createdAt: new Date().toISOString(),
     codigo: "PRO-001",
-    folha: "1/1",
     revisao: "01",
     nomeEquipamento: "",
     nrInd: "",
@@ -166,8 +165,8 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
     recurso: "",
     operacao: codigo,
     tipoPainel: "",
-    equipe: op.equipe,
     colaboradores: "",
+    equipe: op.equipe,
     objetivo: op.objetivo,
 
     // Dados específicos de TAF (Se for modelo 50)

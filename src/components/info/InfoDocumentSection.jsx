@@ -21,13 +21,13 @@ export default function InfoDocumentSection({ ficha, handle }) {
         </div>
 
         <div className="field">
-          <label>Folha</label>
-          <input
-            value={ficha.folha}
-            onChange={handle("folha")}
-            placeholder="1/1"
-          />
-        </div>
+            <label>Nº do Ind.</label>
+            <input
+              value={ficha.nrInd}
+              onChange={handle("nrInd")}
+              placeholder="10110-01"
+            />
+          </div>
 
         <div className="field">
           <label>Revisão</label>
