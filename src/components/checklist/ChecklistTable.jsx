@@ -30,14 +30,22 @@ export default function ChecklistTable({
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
+  function isItemLiberado(index) {
+    if (index === 0) return true;
+    const anterior = ficha.items[index - 1];
+    return anterior?.resultado === "ok" || anterior?.resultado === "na";
+  }
+
   function handleResultado(index, value) {
     if (readOnly) return;
+    if (!isItemLiberado(index)) return; // 🔒 trava sequencial
     const current = ficha.items[index].resultado;
     onSetResultado(index, current === value ? "" : value);
   }
 
   function handleToggleMark(index, sessionIndex, value) {
     if (readOnly) return;
+    if (!isItemLiberado(index)) return; // 🔒 trava sequencial também nas marcações
     onToggleMark(index, sessionIndex, value);
   }
 
@@ -56,6 +64,7 @@ export default function ChecklistTable({
       {ficha.items.map((item, index) => {
         const template = checklistItems.find((c) => c.id === item.id);
         const categoria = template?.categoria || null;
+        const liberado = isItemLiberado(index);
 
         const isPrimeiroDaMontagem =
           isPainel &&
@@ -100,7 +109,8 @@ export default function ChecklistTable({
               onToggleExpand={toggleExpand}
               onToggleMark={handleToggleMark}
               onResultado={handleResultado}
-              readOnly={readOnly}
+              readOnly={readOnly || !liberado}
+              liberado={liberado}
             />
           </div>
         );

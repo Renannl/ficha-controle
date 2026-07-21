@@ -7,7 +7,10 @@
   background: var(--bg-card);
 }
 
-
+.checklist-item.locked-order {
+  opacity: 0.5 !important;
+  font-style: italic;
+}
 
 .checklist-titulo-barramento {
   font-size: 22px;

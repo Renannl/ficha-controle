@@ -10,7 +10,8 @@ export default function ChecklistItem({
   onToggleExpand,
   onToggleMark,
   onResultado,
-  readOnly = false, // 🔒 nova prop
+  readOnly = false,
+  liberado = true,
 }) {
   const hideExpand = isTaf || isPainel;
 
@@ -18,7 +19,7 @@ export default function ChecklistItem({
     <div
       className={`checklist-item ${isExpanded ? "expanded" : ""} ${
         readOnly ? "readonly" : ""
-      }`}
+      } ${!liberado ? "locked-order" : ""}`}
       style={{ animationDelay: `${index * 0.03}s` }}
     >
       <div
@@ -28,17 +29,7 @@ export default function ChecklistItem({
         <div className="checklist-item-number">
           {template?.numero ?? item.id}
         </div>
-        <div className="checklist-item-desc">
-          {template?.descricao}
-          {readOnly && (
-            <span
-              title="Inicie a sessão de trabalho para editar"
-              style={{ marginLeft: 6, fontSize: 12, opacity: 0.7 }}
-            >
-              🔒
-            </span>
-          )}
-        </div>
+        <div className="checklist-item-desc">{template?.descricao}</div>
         <div className="checklist-item-status">
           <div className="resultado-btns">
             <button
