@@ -4,6 +4,7 @@ import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import {
   calcularTemposDasMarcacoes,
   formatarTempo,
+  formatarNomeUsuario,
 } from "../../utils/tempoUtils";
 
 export default function ChecklistLogList({ fichaId }) {
@@ -48,7 +49,7 @@ export default function ChecklistLogList({ fichaId }) {
         {logsExibicao.map((log) => (
           <div key={log.id} className="sessao-trabalho-item">
             <div className="sessao-trabalho-info">
-              <strong>{log.usuario || "Usuário"}</strong>
+              <strong>{formatarNomeUsuario(log.usuario) || "Usuário"}</strong>
               <span>
                 {" "}
                 marcou <strong>{log.descricao}</strong>

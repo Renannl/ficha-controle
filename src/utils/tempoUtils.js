@@ -63,6 +63,16 @@ export function calcularTempoDecorridoAte(sessoes, timestampLimite) {
   return Math.floor(totalMs / 1000);
 }
 
+export function formatarNomeUsuario(usuario) {
+  if (!usuario) return "Usuário";
+  return usuario
+    .split(".")
+    .map(
+      (parte) => parte.charAt(0).toUpperCase() + parte.slice(1).toLowerCase(),
+    )
+    .join(" ");
+}
+
 export function calcularTemposDasMarcacoes(
   marcacoes,
   sessoes,
