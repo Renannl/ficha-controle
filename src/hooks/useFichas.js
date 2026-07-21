@@ -38,6 +38,7 @@ export function useFichas(currentUser) {
   const [isLoaded, setIsLoaded] = useState(false);
   const saveTimeouts = useRef({});
   const fichasRef = useRef(fichas);
+  const pendingIds = useRef(new Set()); // 🆕 controla fichas com escrita em voo
 
   useEffect(() => {
     fichasRef.current = fichas;
@@ -59,17 +60,28 @@ export function useFichas(currentUser) {
     loadFichas();
   }, []);
 
-  // ─── POLLING (substitui realtime do Supabase) ───
+  // ─── POLLING (não sobrescreve fichas com save pendente) ───
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
         const res = await authFetch(`${API}/fichas`);
         const data = await res.json();
-        setFichas(data.map(converterFicha));
+        const remotas = data.map(converterFicha);
+
+        setFichas((prev) => {
+          // mescla: mantém localmente as fichas que têm escrita pendente
+          return remotas.map((remota) => {
+            if (pendingIds.current.has(remota.dbId)) {
+              const local = prev.find((f) => f.dbId === remota.dbId);
+              return local || remota;
+            }
+            return remota;
+          });
+        });
       } catch (err) {
         console.error("[API] Erro no polling:", err);
       }
-    }, 15000); // atualiza a cada 15s
+    }, 15000);
 
     return () => clearInterval(interval);
   }, []);
@@ -144,19 +156,19 @@ export function useFichas(currentUser) {
   const atualizarFicha = useCallback(
     (id, updater) => {
       setFichas((prev) => {
-        // useFichas.js — atualizarFicha
         const fichaAtual = prev.find(
           (f) => String(f.id) === String(id) || String(f.dbId) === String(id),
         );
 
-        if (!fichaAtual) return prev; // não encontrou, não faz nada
+        if (!fichaAtual) return prev;
 
         const fichaAtualizada =
           typeof updater === "function"
             ? updater(fichaAtual)
             : { ...fichaAtual, ...updater };
 
-        // Agenda o salvamento (debounce) usando o dbId real
+        pendingIds.current.add(fichaAtual.dbId); // 🆕 marca como pendente
+
         if (saveTimeouts.current[fichaAtual.dbId]) {
           clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
         }
@@ -173,6 +185,7 @@ export function useFichas(currentUser) {
             console.error("[API] Erro ao atualizar ficha:", err);
           } finally {
             delete saveTimeouts.current[fichaAtual.dbId];
+            pendingIds.current.delete(fichaAtual.dbId); // 🆕 libera após salvar
           }
         }, 800);
 

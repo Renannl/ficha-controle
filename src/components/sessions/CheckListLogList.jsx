@@ -6,8 +6,9 @@ import {
   formatarTempo,
   formatarNomeUsuario,
 } from "../../utils/tempoUtils";
+import { getMapaEtapasPorItem, ETAPA_LABELS } from "../../utils/etapaUtils";
 
-export default function ChecklistLogList({ fichaId }) {
+export default function ChecklistLogList({ fichaId, tipoPainel }) {
   const { logs, loading } = useChecklistLog(fichaId);
   const { sessoes } = useSessoesTrabalho(fichaId);
 
@@ -16,11 +17,34 @@ export default function ChecklistLogList({ fichaId }) {
     return valor === "feito" ? "concluído" : "N/A";
   }
 
+  const mapaEtapas = useMemo(
+    () => (tipoPainel ? getMapaEtapasPorItem(tipoPainel) : {}),
+    [tipoPainel],
+  );
+
   const logsComTempo = useMemo(() => {
     if (!logs.length) return [];
-    if (!sessoes.length) return logs.map((l) => ({ ...l, duracao: null }));
-    return calcularTemposDasMarcacoes(logs, sessoes, "timestamp");
-  }, [logs, sessoes]);
+    const base = !sessoes.length
+      ? logs.map((l) => ({ ...l, duracao: null }))
+      : calcularTemposDasMarcacoes(logs, sessoes, "timestamp");
+
+    // adiciona a etapa em cada log com base no itemId
+    return base.map((log) => ({
+      ...log,
+      etapa: mapaEtapas[log.itemId] || null,
+    }));
+  }, [logs, sessoes, mapaEtapas]);
+
+  // 🔹 Resumo por etapa
+  const resumoPorEtapa = useMemo(() => {
+    const resumo = {};
+    logsComTempo.forEach((log) => {
+      if (!log.etapa || log.duracao == null) return;
+      if (!resumo[log.etapa]) resumo[log.etapa] = 0;
+      resumo[log.etapa] += log.duracao;
+    });
+    return resumo;
+  }, [logsComTempo]);
 
   const logsExibicao = useMemo(
     () =>
@@ -40,6 +64,18 @@ export default function ChecklistLogList({ fichaId }) {
         </div>
       </div>
 
+      {/* 🔹 Resumo de tempo por etapa */}
+      {Object.keys(resumoPorEtapa).length > 0 && (
+        <div className="resumo-etapas">
+          {Object.entries(resumoPorEtapa).map(([etapa, total]) => (
+            <div key={etapa} className="resumo-etapa-item">
+              <strong>{ETAPA_LABELS[etapa] || etapa}:</strong>{" "}
+              {formatarTempo(total)}
+            </div>
+          ))}
+        </div>
+      )}
+
       {loading && <p className="sessoes-empty">Carregando...</p>}
       {!loading && !logsExibicao.length && (
         <p className="sessoes-empty">Nenhuma marcação registrada ainda.</p>
@@ -56,6 +92,12 @@ export default function ChecklistLogList({ fichaId }) {
                 {log.campo === "sessionMark" &&
                   ` (sessão ${log.sessaoIndex + 1})`}{" "}
                 como <strong>{formatarValor(log.campo, log.valor)}</strong>
+                {log.etapa && (
+                  <span className="etapa-badge">
+                    {" "}
+                    · {ETAPA_LABELS[log.etapa]}
+                  </span>
+                )}
               </span>
               <span className="sessao-duracao">
                 {new Date(log.timestamp).toLocaleString("pt-BR", {

@@ -228,34 +228,7 @@ export default function FichaView({
   }
 
   function updateItemSessionMark(itemIndex, sessionIndex, value) {
-    if (!sessaoIniciada) return; // 🔒
-    if (!podeEditar()) return;
-
-    const item = ficha.items[itemIndex];
-    const novoValor = item.sessionMarks[sessionIndex] === value ? "" : value;
-
-    atualizarFicha(fichaId, (prev) => {
-      const items = [...prev.items];
-      const marks = [...items[itemIndex].sessionMarks];
-      marks[sessionIndex] = novoValor;
-      items[itemIndex] = { ...items[itemIndex], sessionMarks: marks };
-      return { ...prev, items };
-    });
-
-    if (novoValor) {
-      const template = activeChecklistItems.find((c) => c.id === item.id);
-      registrarMarcacao({
-        itemId: item.id,
-        descricao: template?.descricao || `Item ${item.id}`,
-        campo: "sessionMark",
-        valor: novoValor,
-        sessaoIndex: sessionIndex,
-        usuario: user?.nome || user?.username,
-      });
-    }
-  }
-
-  function updateItemSessionMark(itemIndex, sessionIndex, value) {
+    if (!sessaoIniciada) return;
     if (!podeEditar()) return;
 
     const item = ficha.items[itemIndex];
@@ -487,7 +460,10 @@ export default function FichaView({
           {activeTab === "sessions" && (
             <>
               <SessoesTrabalhoList fichaId={ficha.dbId} user={user} />
-              <ChecklistLogList fichaId={ficha.dbId} />
+              <ChecklistLogList
+                fichaId={ficha.dbId}
+                tipoPainel={ficha.tipoPainel}
+              />
             </>
           )}
 

@@ -25,7 +25,9 @@ export default function ChecklistItem({
         className="checklist-item-header"
         onClick={() => onToggleExpand(item.id)}
       >
-        <div className="checklist-item-number">{item.id}</div>
+        <div className="checklist-item-number">
+          {template?.numero ?? item.id}
+        </div>
         <div className="checklist-item-desc">
           {template?.descricao}
           {readOnly && (

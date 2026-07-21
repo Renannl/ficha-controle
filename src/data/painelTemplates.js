@@ -282,41 +282,48 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
   const tpl = painelTemplates[tipoPainel];
   if (!tpl) return [];
 
-  let id = 1;
   const items = [];
+  let contador = 1;
 
-  tpl.montagemMecanica.sequenciaMontagem.forEach((descricao) => {
+  tpl.montagemMecanica.sequenciaMontagem.forEach((descricao, i) => {
     items.push({
-      id: id++,
+      id: `mm-seq-${i}`, // ✅ estável (índice original)
+      numero: contador++, // ✅ exibição sequencial
       descricao,
+      etapa: "montagem_mecanica",
       categoria: `Sequência de Montagem — ${tpl.montagemMecanica.titulo}`,
     });
   });
 
   if (incluirVerificacao) {
-    tpl.verificacaoMontagem.forEach((descricao) => {
+    tpl.verificacaoMontagem.forEach((descricao, i) => {
       items.push({
-        id: id++,
+        id: `mm-ver-${i}`,
+        numero: contador++,
         descricao,
+        etapa: "montagem_mecanica",
         categoria: "Verificação da Montagem",
       });
     });
   }
 
   if (tpl.barramento) {
-    tpl.barramento.sequenciaMontagem.forEach((descricao) => {
+    tpl.barramento.sequenciaMontagem.forEach((descricao, i) => {
       items.push({
-        id: id++,
+        id: `bar-seq-${i}`,
+        numero: contador++,
         descricao,
+        etapa: "barramento",
         categoria: `Barramento — ${tpl.barramento.titulo}`,
       });
     });
-
     if (incluirVerificacao) {
-      tpl.barramento.verificacaoMontagem.forEach((descricao) => {
+      tpl.barramento.verificacaoMontagem.forEach((descricao, i) => {
         items.push({
-          id: id++,
+          id: `bar-ver-${i}`,
+          numero: contador++,
           descricao,
+          etapa: "barramento",
           categoria: "Verificação do Barramento",
         });
       });
@@ -324,19 +331,22 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
   }
 
   if (tpl.cabeamento) {
-    tpl.cabeamento.sequenciaMontagem.forEach((descricao) => {
+    tpl.cabeamento.sequenciaMontagem.forEach((descricao, i) => {
       items.push({
-        id: id++,
+        id: `cab-seq-${i}`,
+        numero: contador++,
         descricao,
+        etapa: "cabeamento",
         categoria: `Cabeamento — ${tpl.cabeamento.titulo}`,
       });
     });
-
     if (incluirVerificacao) {
-      tpl.cabeamento.verificacaoMontagem.forEach((descricao) => {
+      tpl.cabeamento.verificacaoMontagem.forEach((descricao, i) => {
         items.push({
-          id: id++,
+          id: `cab-ver-${i}`,
+          numero: contador++,
           descricao,
+          etapa: "cabeamento",
           categoria: "Verificação do Cabeamento",
         });
       });
@@ -350,40 +360,7 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
 // Inclui tanto "Verificação da Montagem" quanto "Verificação do Barramento",
 // mantendo os IDs consistentes com getPainelChecklistItems(tipoPainel)
 export function getPainelVerificacaoItems(tipoPainel) {
-  const tpl = painelTemplates[tipoPainel];
-  if (!tpl) return [];
-
-  let id = tpl.montagemMecanica.sequenciaMontagem.length + 1;
-
-  const items = [];
-
-  tpl.verificacaoMontagem.forEach((descricao) => {
-    items.push({ id: id++, descricao, categoria: "Verificação da Montagem" });
-  });
-
-  if (tpl.barramento) {
-    id += tpl.barramento.sequenciaMontagem.length;
-
-    tpl.barramento.verificacaoMontagem.forEach((descricao) => {
-      items.push({
-        id: id++,
-        descricao,
-        categoria: "Verificação do Barramento",
-      });
-    });
-  }
-
-  if (tpl.cabeamento) {
-    id += tpl.cabeamento.sequenciaMontagem.length;
-
-    tpl.cabeamento.verificacaoMontagem.forEach((descricao) => {
-      items.push({
-        id: id++,
-        descricao,
-        categoria: "Verificação do Cabeamento",
-      });
-    });
-  }
-
-  return items;
+  return getPainelChecklistItems(tipoPainel, {
+    incluirVerificacao: true,
+  }).filter((item) => item.id.includes("-ver-"));
 }
