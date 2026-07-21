@@ -1,17 +1,8 @@
 // src/utils/tempoUtils.js
 
-/**
- * Calcula o tempo REAL decorrido da ficha (wall-clock),
- * mesclando intervalos sobrepostos quando duas pessoas trabalham ao mesmo tempo.
- *
- * Ex: Pessoa A trabalha 08h-10h, Pessoa B trabalha 09h-11h
- * -> Overlap entre 09h-10h -> tempo real = 08h às 11h = 3h (não 4h)
- */
 export function calcularTempoDecorridoReal(sessoes) {
   if (!sessoes || sessoes.length === 0) return 0;
-
   const agora = Date.now();
-
   const intervalos = sessoes
     .map((s) => {
       const inicio = new Date(s.inicio).getTime();
@@ -25,10 +16,8 @@ export function calcularTempoDecorridoReal(sessoes) {
 
   let totalMs = 0;
   let [inicioAtual, fimAtual] = intervalos[0];
-
   for (let i = 1; i < intervalos.length; i++) {
     const [inicio, fim] = intervalos[i];
-
     if (inicio <= fimAtual) {
       fimAtual = Math.max(fimAtual, fim);
     } else {
@@ -36,8 +25,65 @@ export function calcularTempoDecorridoReal(sessoes) {
       [inicioAtual, fimAtual] = [inicio, fim];
     }
   }
-
   totalMs += fimAtual - inicioAtual;
-
   return Math.floor(totalMs / 1000);
+}
+
+export function calcularTempoDecorridoAte(sessoes, timestampLimite) {
+  if (!sessoes || sessoes.length === 0) return 0;
+  const limite = new Date(timestampLimite).getTime();
+
+  const intervalos = sessoes
+    .map((s) => {
+      const inicio = new Date(s.inicio).getTime();
+      const fimReal = s.fim ? new Date(s.fim).getTime() : Date.now();
+      const fim = Math.min(fimReal, limite);
+      return [inicio, fim];
+    })
+    .filter(
+      ([inicio, fim]) =>
+        fim > inicio && inicio < limite && !isNaN(inicio) && !isNaN(fim),
+    )
+    .sort((a, b) => a[0] - b[0]);
+
+  if (intervalos.length === 0) return 0;
+
+  let totalMs = 0;
+  let [inicioAtual, fimAtual] = intervalos[0];
+  for (let i = 1; i < intervalos.length; i++) {
+    const [inicio, fim] = intervalos[i];
+    if (inicio <= fimAtual) {
+      fimAtual = Math.max(fimAtual, fim);
+    } else {
+      totalMs += fimAtual - inicioAtual;
+      [inicioAtual, fimAtual] = [inicio, fim];
+    }
+  }
+  totalMs += fimAtual - inicioAtual;
+  return Math.floor(totalMs / 1000);
+}
+
+export function calcularTemposDasMarcacoes(
+  marcacoes,
+  sessoes,
+  campoData = "data",
+) {
+  const ordenadas = [...marcacoes].sort(
+    (a, b) => new Date(a[campoData]) - new Date(b[campoData]),
+  );
+
+  let anterior = 0;
+  return ordenadas.map((m) => {
+    const tempoAcumulado = calcularTempoDecorridoAte(sessoes, m[campoData]);
+    const duracao = Math.max(tempoAcumulado - anterior, 0);
+    anterior = tempoAcumulado;
+    return { ...m, tempoAcumulado, duracao };
+  });
+}
+
+export function formatarTempo(segundos) {
+  const h = Math.floor(segundos / 3600);
+  const m = Math.floor((segundos % 3600) / 60);
+  const s = Math.floor(segundos % 60);
+  return `${String(h).padStart(2, "0")}h${String(m).padStart(2, "0")}min${String(s).padStart(2, "0")}s`;
 }

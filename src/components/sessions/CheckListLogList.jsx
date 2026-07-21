@@ -1,12 +1,33 @@
+import { useMemo } from "react";
 import { useChecklistLog } from "../../hooks/useChecklistLog";
+import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
+import {
+  calcularTemposDasMarcacoes,
+  formatarTempo,
+} from "../../utils/tempoUtils";
 
 export default function ChecklistLogList({ fichaId }) {
   const { logs, loading } = useChecklistLog(fichaId);
+  const { sessoes } = useSessoesTrabalho(fichaId);
 
   function formatarValor(campo, valor) {
     if (campo === "resultado") return valor === "ok" ? "OK" : "N/A";
     return valor === "feito" ? "concluído" : "N/A";
   }
+
+  const logsComTempo = useMemo(() => {
+    if (!logs.length) return [];
+    if (!sessoes.length) return logs.map((l) => ({ ...l, duracao: null }));
+    return calcularTemposDasMarcacoes(logs, sessoes, "timestamp");
+  }, [logs, sessoes]);
+
+  const logsExibicao = useMemo(
+    () =>
+      [...logsComTempo].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
+      ),
+    [logsComTempo],
+  );
 
   return (
     <div className="card mb-3">
@@ -19,12 +40,12 @@ export default function ChecklistLogList({ fichaId }) {
       </div>
 
       {loading && <p className="sessoes-empty">Carregando...</p>}
-      {!loading && !logs.length && (
+      {!loading && !logsExibicao.length && (
         <p className="sessoes-empty">Nenhuma marcação registrada ainda.</p>
       )}
 
       <div className="sessoes-trabalho-list">
-        {logs.map((log) => (
+        {logsExibicao.map((log) => (
           <div key={log.id} className="sessao-trabalho-item">
             <div className="sessao-trabalho-info">
               <strong>{log.usuario || "Usuário"}</strong>
@@ -45,6 +66,12 @@ export default function ChecklistLogList({ fichaId }) {
                   second: "2-digit",
                 })}
               </span>
+              {log.duracao !== null && (
+                <span className="sessao-duracao sessao-duracao-tempo">
+                  ⏱ +{formatarTempo(log.duracao)} (total:{" "}
+                  {formatarTempo(log.tempoAcumulado)})
+                </span>
+              )}
             </div>
           </div>
         ))}
