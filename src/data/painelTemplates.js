@@ -14,13 +14,11 @@ export const PAINEL_KEYS = Object.values(TIPOS_PAINEL);
 
 export const painelTemplates = {
   [TIPOS_PAINEL.SOBREPOR_EMBUTIR]: {
-    perguntasIniciais: [
-      "O projeto tem todas as dimensões e cotas necessárias para a montagem?",
-      "Os componentes estão conforme a lista de materiais?",
-    ],
     montagemMecanica: {
       titulo: "Quadro de sobrepor/embutir",
       sequenciaMontagem: [
+        "O projeto tem todas as dimensões e cotas necessárias para a montagem?",
+        "Os componentes estão conforme a lista de materiais?",
         "Conferência do projeto mecânico e layout aprovado (Verificar se tem todas as informações para as etapas seguintes).",
         "Preparo da placa de montagem para a fixação dos componentes (Fixação de trilhos e canaletas).",
         "Realizar recortes e furos no painel conforme projeto (Acabamento com pintura de proteção das partes cortadas).",
@@ -92,13 +90,11 @@ export const painelTemplates = {
   },
 
   [TIPOS_PAINEL.AUTOPORTANTE]: {
-    perguntasIniciais: [
-      "O projeto tem todas as dimensões e cotas necessárias para a montagem?",
-      "Os componentes estão conforme a lista de materiais?",
-    ],
     montagemMecanica: {
       titulo: "Quadro autoportante",
       sequenciaMontagem: [
+        "O projeto tem todas as dimensões e cotas necessárias para a montagem?",
+        "Os componentes estão conforme a lista de materiais?",
         "Conferência do projeto mecânico e layout aprovado.",
         "Montagem do chassi (Torque dos parafusos conforme instrução do fabricante)",
         "Instalação da tampa inferior e superior no chassi (se houver corte ou furação realiza-los antes da instalação)",
@@ -187,13 +183,11 @@ export const painelTemplates = {
   },
 
   [TIPOS_PAINEL.PMT]: {
-    perguntasIniciais: [
-      "O projeto tem todas as dimensões e cotas necessárias para a montagem?",
-      "Os componentes estão conforme a lista de materiais?",
-    ],
     montagemMecanica: {
       titulo: "PMT",
       sequenciaMontagem: [
+        "O projeto tem todas as dimensões e cotas necessárias para a montagem?",
+        "Os componentes estão conforme a lista de materiais?",
         "Conferência do projeto mecânico e layout aprovado.",
         "Instalar travessas para as seccionadoras, TPs e TCs (Torque dos parafusos conforme instrução do fabricante)",
         "Se houver, instalar infra para os equipamentos da concessionária na coluna de medição.",
@@ -290,10 +284,6 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
 
   let id = 1;
   const items = [];
-
-  tpl.perguntasIniciais.forEach((descricao) => {
-    items.push({ id: id++, descricao, categoria: "Perguntas Iniciais" });
-  });
 
   tpl.montagemMecanica.sequenciaMontagem.forEach((descricao) => {
     items.push({
