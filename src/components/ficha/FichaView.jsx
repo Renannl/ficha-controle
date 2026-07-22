@@ -47,7 +47,6 @@ export default function FichaView({
     (s) => !s.fim && s.usuario === user?.username,
   );
 
-  // 1. Busca inicial
   useEffect(() => {
     let cancelled = false;
     async function buscar() {
@@ -64,7 +63,6 @@ export default function FichaView({
     };
   }, [fichaId]);
 
-  // 2. ✅ Mantém ficha sincronizada com o estado global do hook
   useEffect(() => {
     if (!fichaId || !fichas) return;
     const atualizada = fichas.find(
@@ -219,9 +217,8 @@ export default function FichaView({
     }
   }
 
-  // ─── ✅ Novo: atualiza resultado + observação em uma única operação ───
   function updateItemResultado(itemIndex, resultado, observacao = "") {
-    if (!sessaoIniciada) return; // 🔒
+    if (!sessaoIniciada) return;
     const item = ficha.items[itemIndex];
 
     atualizarFicha(fichaId, (prev) => {

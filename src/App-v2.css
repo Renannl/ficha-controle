@@ -94,9 +94,9 @@
   gap: 10px;
   margin-top: 10px;
   padding: 10px 12px;
-  background: var(--bg-secondary, #121212);
-  border: 1px solid var(--border, #2a2a2a);
-  border-left: 2px solid;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
   animation: fadeIn 0.2s ease;
 }
 
@@ -104,6 +104,7 @@
   font-size: 15px;
   line-height: 1.4;
   flex-shrink: 0;
+  color: var(--text-secondary);
 }
 
 .checklist-item-obs-content {
@@ -118,13 +119,13 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--text-secondary, #888);
+  color: var(--text-secondary);
 }
 
 .checklist-item-obs-text {
   margin: 0;
   font-size: 13px;
-  color: var(--text-main, #ddd);
+  color: var(--text-primary);
   line-height: 1.4;
   word-break: break-word;
 }
@@ -5824,11 +5825,12 @@ svg {
 }
 
 .sessao-trabalho-item {
+  position: relative; /* necessário para o canto absoluto */
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 12px 14px 20px; /* padding-bottom extra pra não colidir com o canto */
   border-radius: 10px;
   background: var(--bg-elevated, #1c1c1e);
   border: 1px solid var(--border-color, #2a2a2c);
@@ -5847,10 +5849,48 @@ svg {
   font-size: 14px;
 }
 
+/* 🔹 novo bloco discreto no canto inferior direito */
+.sessao-meta-corner {
+  position: absolute;
+  bottom: 6px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.sessao-trabalho-item {
+  position: relative; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  padding-bottom: 22px; 
+  border-radius: 10px;
+  background: var(--bg-elevated, #1c1c1e);
+  border: 1px solid var(--border-color, #2a2a2c);
+}
+
+.sessao-timestamp-corner {
+  position: absolute;
+  bottom: 4px;
+  right: 10px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+
 .sessao-duracao {
   color: var(--blue-accent);
-  font-weight: 600;
+  font-weight: 500;
 }
+
 
 .sessao-tag-manual {
   display: inline-block;

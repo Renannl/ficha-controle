@@ -99,16 +99,6 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
                   </span>
                 )}
               </span>
-              <span className="sessao-duracao">
-                {new Date(log.timestamp).toLocaleString("pt-BR", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
-              </span>
               {log.duracao !== null && (
                 <span className="sessao-duracao sessao-duracao-tempo">
                   ⏱ +{formatarTempo(log.duracao)} (total:{" "}
@@ -116,6 +106,18 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
                 </span>
               )}
             </div>
+
+            {/* 🔹 timestamp escondido no canto inferior direito */}
+            <span className="sessao-timestamp-corner">
+              {new Date(log.timestamp).toLocaleString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </span>
           </div>
         ))}
       </div>
