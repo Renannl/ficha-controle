@@ -65,7 +65,6 @@ export default function FichaView({
   }, [fichaId]);
 
   // 2. ✅ Mantém ficha sincronizada com o estado global do hook
-  // Recebe fichas como prop e atualiza o estado local sempre que mudar
   useEffect(() => {
     if (!fichaId || !fichas) return;
     const atualizada = fichas.find(
@@ -189,13 +188,6 @@ export default function FichaView({
       user?.role === "admin" ||
       ficha?.userId === user?.username ||
       user?.permissoes?.includes("editar_ficha");
-    console.log("[podeEditar]", {
-      userRole: user?.role,
-      userUsername: user?.username,
-      fichaUserId: ficha?.userId,
-      permissoes: user?.permissoes,
-      ok,
-    });
     return ok;
   }
 
@@ -222,6 +214,30 @@ export default function FichaView({
         descricao: template?.descricao || `Item ${item.id}`,
         campo: "resultado",
         valor: value,
+        usuario: user?.nome || user?.username,
+      });
+    }
+  }
+
+  // ─── ✅ Novo: atualiza resultado + observação em uma única operação ───
+  function updateItemResultado(itemIndex, resultado, observacao = "") {
+    if (!sessaoIniciada) return; // 🔒
+    const item = ficha.items[itemIndex];
+
+    atualizarFicha(fichaId, (prev) => {
+      const items = [...prev.items];
+      items[itemIndex] = { ...items[itemIndex], resultado, observacao };
+      return { ...prev, items };
+    });
+
+    if (resultado) {
+      const template = activeChecklistItems.find((c) => c.id === item.id);
+      registrarMarcacao({
+        itemId: item.id,
+        descricao: template?.descricao || `Item ${item.id}`,
+        campo: "resultado",
+        valor: resultado,
+        observacao,
         usuario: user?.nome || user?.username,
       });
     }
@@ -440,7 +456,9 @@ export default function FichaView({
                   : checklistItems
               }
               onToggleMark={updateItemSessionMark}
-              onSetResultado={(idx, val) => updateItem(idx, "resultado", val)}
+              onSetResultado={(idx, val, observacao) =>
+                updateItemResultado(idx, val, observacao)
+              }
               isTaf={isTaf}
               isPainel={isPainel}
               tafData={ficha.tafData}

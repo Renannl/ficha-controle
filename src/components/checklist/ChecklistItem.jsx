@@ -1,4 +1,8 @@
+// ChecklistItem.jsx
 import ChecklistSessions from "./ChecklistSessions";
+import { useState } from "react";
+import ChecklistObservationModal from "../buttons/ChecklistObservationModal";
+import { FileText } from "lucide-react";
 
 export default function ChecklistItem({
   item,
@@ -14,6 +18,25 @@ export default function ChecklistItem({
   liberado = true,
 }) {
   const hideExpand = isTaf || isPainel;
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pendingResultado, setPendingResultado] = useState(null);
+
+  function abrirModalResultado(valor) {
+    setPendingResultado(valor);
+    setModalOpen(true);
+  }
+
+  function handleConfirmObservacao(observacao) {
+    onResultado(index, pendingResultado, observacao);
+    setModalOpen(false);
+    setPendingResultado(null);
+  }
+
+  function handleCloseModal() {
+    setModalOpen(false);
+    setPendingResultado(null);
+  }
 
   return (
     <div
@@ -38,7 +61,7 @@ export default function ChecklistItem({
               onClick={(e) => {
                 e.stopPropagation();
                 if (readOnly) return;
-                onResultado(index, "ok");
+                abrirModalResultado("ok");
               }}
             >
               {isTaf ? "C" : "OK"}
@@ -49,7 +72,7 @@ export default function ChecklistItem({
               onClick={(e) => {
                 e.stopPropagation();
                 if (readOnly) return;
-                onResultado(index, "na");
+                abrirModalResultado("na");
               }}
             >
               {isTaf ? "NC" : "NA"}
@@ -61,6 +84,24 @@ export default function ChecklistItem({
         )}
       </div>
 
+      {item.observacao && (
+        <div
+          className="checklist-item-obs"
+          style={{
+            borderLeftColor:
+              item.resultado === "ok" ? "var(--green)" : "var(--red)",
+          }}
+        >
+          <span className="checklist-item-obs-icon">
+            <FileText size={16} />
+          </span>
+          <div className="checklist-item-obs-content">
+            <span className="checklist-item-obs-label">Observação</span>
+            <p className="checklist-item-obs-text">{item.observacao}</p>
+          </div>
+        </div>
+      )}
+
       {isExpanded && !isPainel && (
         <ChecklistSessions
           item={item}
@@ -69,6 +110,15 @@ export default function ChecklistItem({
           readOnly={readOnly}
         />
       )}
+
+      <ChecklistObservationModal
+        isOpen={modalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmObservacao}
+        itemLabel={template?.descricao}
+        resultado={pendingResultado}
+        initialValue={item.observacao}
+      />
     </div>
   );
 }

@@ -36,16 +36,17 @@ export default function ChecklistTable({
     return anterior?.resultado === "ok" || anterior?.resultado === "na";
   }
 
-  function handleResultado(index, value) {
+  function handleResultado(index, value, observacao) {
     if (readOnly) return;
-    if (!isItemLiberado(index)) return; // 🔒 trava sequencial
+    if (!isItemLiberado(index)) return;
     const current = ficha.items[index].resultado;
-    onSetResultado(index, current === value ? "" : value);
+    const novoValor = current === value ? "" : value;
+    onSetResultado(index, novoValor, novoValor ? observacao : "");
   }
 
   function handleToggleMark(index, sessionIndex, value) {
     if (readOnly) return;
-    if (!isItemLiberado(index)) return; // 🔒 trava sequencial também nas marcações
+    if (!isItemLiberado(index)) return;
     onToggleMark(index, sessionIndex, value);
   }
 

@@ -11,6 +11,123 @@
   opacity: 0.5 !important;
   font-style: italic;
 }
+/* ── Modal de Observação Flutuante ── */
+.obs-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.obs-modal-content {
+  background: var(--bg-card, #1a1a1a);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.obs-modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+.obs-modal-itemlabel {
+  font-size: 13px;
+  color: var(--text-secondary, #aaa);
+  margin: 4px 0 0;
+}
+
+.obs-modal-close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--text-secondary, #aaa);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.obs-modal-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary, #aaa);
+  margin: 0;
+}
+
+.obs-modal-textarea {
+  min-height: 140px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border, #333);
+  background: var(--bg-secondary, #121212);
+  color: var(--text-main, #fff);
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .obs-modal-content {
+    max-width: 100%;
+    padding: 18px;
+  }
+}
+
+.checklist-item-obs {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--bg-secondary, #121212);
+  border: 1px solid var(--border, #2a2a2a);
+  border-left: 2px solid;
+  animation: fadeIn 0.2s ease;
+}
+
+.checklist-item-obs-icon {
+  font-size: 15px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.checklist-item-obs-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.checklist-item-obs-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #888);
+}
+
+.checklist-item-obs-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-main, #ddd);
+  line-height: 1.4;
+  word-break: break-word;
+}
 
 .checklist-titulo-barramento {
   font-size: 22px;
@@ -590,15 +707,12 @@
 .checklist-item {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
   margin-bottom: 8px;
   overflow: hidden;
   transition: var(--transition);
   animation: fadeIn 0.25s ease forwards;
-}
-
-.checklist-item:last-child {
-  margin-bottom: 0;
 }
 
 .checklist-item.expanded {
