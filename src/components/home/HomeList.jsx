@@ -1,5 +1,6 @@
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
+import { ImportarColecaoExcel } from "../../hooks/ImportarColecaoExcel";
 import { FolderOpen, Plus, Calendar, Search, X, Trash2 } from "lucide-react"; // ✅ Trash2
 
 export default function HomeList({
@@ -19,7 +20,7 @@ export default function HomeList({
   listaUsuarios,
   onOpen,
   onDelete,
-  onDeleteColecao, // ✅ NOVO
+  onDeleteColecao,
   onToggleOperador,
   podeGerenciarOperadores,
   activeDropdownFichaId,
@@ -27,6 +28,7 @@ export default function HomeList({
   selectedFichas = [],
   toggleFichaSelection,
   onOpenColecao,
+  onColecaoImportada,
 }) {
   if (mode === "colecoes") {
     return (
@@ -58,6 +60,14 @@ export default function HomeList({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   autoFocus
+                />
+              )}
+
+              {!showSearch && (
+                <ImportarColecaoExcel
+                  onImportado={(resultado) => {
+                    onColecaoImportada?.(resultado); 
+                  }}
                 />
               )}
             </div>
@@ -136,7 +146,8 @@ export default function HomeList({
                     ) : (
                       <>
                         {preview.map((f) => (
-                          <div key={f.id} className="preview-ficha">
+                          <div key={f.dbId} className="preview-ficha">
+                            {" "}
                             <span className="preview-ficha-dot" />
                             {f.nomeEquipamento ?? f.tipo ?? "Ficha"}
                           </div>
@@ -186,13 +197,13 @@ export default function HomeList({
       ) : (
         filteredFichas.map((ficha, i) => (
           <FichaCard
-            key={ficha.id}
+            key={ficha.dbId}
             ficha={ficha}
             index={i}
             user={user}
             listaUsuarios={listaUsuarios}
-            selected={selectedFichas.includes(ficha.id)}
-            selectionOrder={selectedFichas.indexOf(ficha.id) + 1}
+            selected={selectedFichas.includes(ficha.dbId)}
+            selectionOrder={selectedFichas.indexOf(ficha.dbId) + 1}
             onToggleSelection={toggleFichaSelection}
             onOpen={onOpen}
             onDelete={onDelete}

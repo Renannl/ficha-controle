@@ -1,13 +1,14 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { createEmptyFicha } from "../data/fichaTemplate";
-import { useAuth } from "./useAuth"; // ajuste o caminho
+import { useAuth } from "./useAuth";
 
-const API = "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-function formatarNome(username) {
-  if (!username) return "Sistema";
-  return username
-    .split(".")
+function formatarNome(nome) {
+  if (!nome) return "Sistema";
+  return nome
+    .split(/[.\s]+/)
+    .filter(Boolean)
     .map(
       (parte) => parte.charAt(0).toUpperCase() + parte.slice(1).toLowerCase(),
     )
@@ -17,6 +18,14 @@ function formatarNome(username) {
 function converterFicha(f) {
   return {
     ...f.dados,
+    items: f.dados?.items ?? [], // 🆕
+    operadores: f.dados?.operadores ?? [], // 🆕
+    assinaturas: f.dados?.assinaturas ?? {
+      producao: {},
+      tecnico: {},
+      supervisor: {},
+      qualidade: {},
+    }, // 🆕 evita quebrar .assinaturas.producao.dataUrl
     fotoData: f.dados?.fotoData ?? {
       verificacoes: [],
       responsavelTecnico: "",
@@ -48,7 +57,7 @@ export function useFichas(currentUser) {
   useEffect(() => {
     async function loadFichas() {
       try {
-        const res = await authFetch(`${API}/fichas`);
+        const res = await authFetch(`${API_URL}/fichas`);
         const data = await res.json();
         setFichas(data.map(converterFicha));
       } catch (err) {
@@ -64,7 +73,7 @@ export function useFichas(currentUser) {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await authFetch(`${API}/fichas`);
+        const res = await authFetch(`${API_URL}/fichas`);
         const data = await res.json();
         const remotas = data.map(converterFicha);
 
@@ -92,7 +101,7 @@ export function useFichas(currentUser) {
     const prefixo = prefixos[operacao] || "GEN";
 
     try {
-      const res = await authFetch(`${API}/fichas`);
+      const res = await authFetch(`${API_URL}/fichas`);
       const data = await res.json();
 
       const filtradas = data.filter(
@@ -112,44 +121,96 @@ export function useFichas(currentUser) {
     }
   }
 
+  async function gerarNumeroInd(colecaoId) {
+    try {
+      const res = await authFetch(`${API_URL}/fichas`);
+      const data = await res.json();
+
+      // Fichas que já pertencem a essa coleção
+      const fichasDaColecao = data.filter(
+        (f) => String(f.colecao_id) === String(colecaoId),
+      );
+
+      let base;
+
+      if (fichasDaColecao.length > 0) {
+        // Coleção já tem fichas → reaproveita a base já usada
+        base = String(fichasDaColecao[0].dados?.numeroInd || "").split("-")[0];
+      } else {
+        // Coleção nova → gera a próxima base global (10066, 10067, 10068...)
+        const bases = data
+          .map((f) =>
+            parseInt(String(f.dados?.numeroInd || "").split("-")[0], 10),
+          )
+          .filter((n) => !isNaN(n));
+
+        const maiorBase = bases.length > 0 ? Math.max(...bases) : 10065; // próxima = 10066
+        base = String(maiorBase + 1);
+      }
+
+      // Sequencial dentro da própria coleção
+      const numeros = fichasDaColecao
+        .map((f) =>
+          parseInt(String(f.dados?.numeroInd || "").split("-")[1], 10),
+        )
+        .filter((n) => !isNaN(n));
+
+      const proximo = numeros.length > 0 ? Math.max(...numeros) + 1 : 1;
+      return `${base}-${String(proximo).padStart(2, "0")}`;
+    } catch (err) {
+      console.error(err);
+      return "10066-01";
+    }
+  }
+
   // ─── CRIAR ───
   const criarFicha = useCallback(
-    async (operacaoCodigo, colecaoId) => {
+    async (operacaoCodigo, colecaoId, dadosIniciais = {}) => {
       const codigoGerado = await gerarCodigo(operacaoCodigo);
+      const numeroIndGerado = await gerarNumeroInd(colecaoId); // 🔄 agora recebe colecaoId, não operacaoCodigo
+
       const nova = {
         ...createEmptyFicha(operacaoCodigo),
+        ...dadosIniciais,
         codigo: codigoGerado,
-        operadores: [],
-        criadoPor:
-          currentUser?.displayName ||
-          formatarNome(currentUser?.username) ||
-          "Sistema",
+        numeroInd: numeroIndGerado,
+        revisao: "01",
+        criadoPor: formatarNome(
+          currentUser?.displayName || currentUser?.username,
+        ),
         userId: currentUser?.username || "system",
-        colecao_id: colecaoId || null,
+        operadores: [],
       };
 
       try {
-        const res = await authFetch(`${API}/fichas`, {
+        const res = await authFetch(`${API_URL}/fichas`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(nova),
+          body: JSON.stringify({
+            codigo: nova.codigo,
+            operacao: operacaoCodigo,
+            colecao_id: colecaoId,
+            status: nova.status || "Rascunho",
+            criado_por: nova.criadoPor,
+            user_id: nova.userId,
+            dados: nova,
+          }),
         });
 
-        if (!res)
-          throw new Error("Sessão expirada ou sem resposta do servidor");
-        if (!res.ok) throw new Error("Erro ao criar ficha");
+        if (!res || !res.ok) throw new Error("Erro ao criar ficha");
 
         const data = await res.json();
-        const fichaConvertida = converterFicha(data);
-        setFichas((prev) => [fichaConvertida, ...prev]);
-        return data.id;
+        const nova_ficha = converterFicha(data);
+        setFichas((prev) => [nova_ficha, ...prev]);
+
+        return nova_ficha.dbId; // ⚠️ padronize: dbId, não id
       } catch (err) {
         console.error("[API] Erro ao criar ficha:", err);
         alert("Erro ao criar ficha.");
         return null;
       }
     },
-    [currentUser, authFetch],
+    [currentUser],
   );
 
   // ─── ATUALIZAR ───
@@ -175,7 +236,7 @@ export function useFichas(currentUser) {
 
         saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
           try {
-            const res = await authFetch(`${API}/fichas/${fichaAtual.dbId}`, {
+            const res = await authFetch(`${API_URL}/fichas/${fichaAtual.dbId}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(fichaAtualizada),
@@ -195,6 +256,23 @@ export function useFichas(currentUser) {
       });
     },
     [authFetch],
+  );
+
+  const revisarFicha = useCallback(
+    async (id) => {
+      const ficha = fichas.find((f) => f.id === id);
+      if (!ficha) return;
+
+      const atual = parseInt(ficha.revisao || "0", 10);
+      const novaRevisao = String(atual + 1).padStart(2, "0");
+
+      atualizarFicha(id, (f) => ({
+        ...f,
+        revisao: novaRevisao,
+        status: "Rascunho", // volta pra edição
+      }));
+    },
+    [fichas, atualizarFicha],
   );
 
   // ─── ATUALIZAR OPERADORES ───
@@ -218,7 +296,7 @@ export function useFichas(currentUser) {
       setFichas((prev) => prev.filter((f) => f.dbId !== ficha.dbId));
 
       try {
-        await authFetch(`${API}/fichas/${ficha.dbId}`, { method: "DELETE" });
+        await authFetch(`${API_URL}/fichas/${ficha.dbId}`, { method: "DELETE" });
       } catch (err) {
         console.error("[API] Erro ao excluir ficha:", err);
       }
@@ -284,7 +362,7 @@ export function useFichas(currentUser) {
       if (local) return local;
 
       try {
-        const res = await authFetch(`${API}/fichas/${id}`);
+        const res = await authFetch(`${API_URL}/fichas/${id}`);
         if (!res.ok) return null;
         const data = await res.json();
         return converterFicha(data);
@@ -303,5 +381,6 @@ export function useFichas(currentUser) {
     excluirFicha,
     getFicha,
     atualizarOperadores,
+    revisarFicha,
   };
 }

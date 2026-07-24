@@ -25,7 +25,7 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
               <strong>Nome do Equipamento:</strong> {ficha.nomeEquipamento}
             </td>
             <td>
-              <strong>Nº do Ind.:</strong> {ficha.nrInd}
+              <strong>Nº do Ind.:</strong> {ficha.numeroInd}
             </td>
             <td>
               <strong>QTD:</strong> {ficha.qtd}
@@ -113,7 +113,9 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
           </thead>
           <tbody>
             {templateItems.map((item) => {
-              const fichaItem = ficha.items.find((fi) => fi.id === item.id) || {
+              const fichaItem = (ficha.items || []).find(
+                (fi) => fi.id === item.id,
+              ) || {
                 sessionMarks: [],
                 resultado: "",
               };

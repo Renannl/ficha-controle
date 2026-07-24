@@ -53,7 +53,7 @@ export function useDashboardMetrics(fichas) {
 
       fichaProgress.push({
         id: f.id,
-        nrInd: f.nrInd || "—",
+        numeroInd: f.numeroInd || "—",
         nome: f.nomeEquipamento || "Sem nome",
         tipo: OPERACOES[f.operacao]?.nome || "—",
         pct,

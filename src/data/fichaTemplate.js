@@ -154,7 +154,7 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
     codigo: "PRO-001",
     revisao: "01",
     nomeEquipamento: "",
-    nrInd: "",
+    numeroInd: "",
     obra: "",
     qtd: "",
     cliente: "",

@@ -65,10 +65,10 @@ export default function TafDadosGerais({
             <label>IND</label>
             <input
               type="text"
-              value={ficha.nrInd || ""}
+              value={ficha.numeroInd || ""}
               onChange={(e) =>
                 onUpdate({
-                  nrInd: e.target.value,
+                  numeroInd: e.target.value,
                 })
               }
             />

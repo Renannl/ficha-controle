@@ -1,78 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="theme-color" content="#1a4b50" />
+    <meta
+      name="description"
+      content="Sistema de Fichas de Controle IndusPower"
+    />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#1a4b50" />
-  <meta name="description" content="Sistema de Fichas de Controle IndusPower" />
+    <!-- ─── PWA ─── -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="IndusPower" />
+    <link rel="apple-touch-icon" href="/ip.jpeg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/android-chrome-512x512.png"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
 
-  <!-- ─── PWA ─── -->
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="IndusPower" />
-  <link rel="apple-touch-icon" href="/ip.jpeg" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-  <meta name="mobile-web-app-capable" content="yes" />
+    <!-- ─── Segurança: CSP ─── -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+  default-src 'self';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+  script-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+  img-src 'self' data: https:;
+  connect-src 'self'
+    https://rljrobqmttdvhcwqhihp.supabase.co
+    wss://rljrobqmttdvhcwqhihp.supabase.co
+    http://192.168.101.71:3001
+    ws://192.168.101.71:3001
+    http://192.168.101.71:5173
+    ws://192.168.101.71:5173
+    http://localhost:*
+    ws://localhost:*
+    http://127.0.0.1:*
+    ws://127.0.0.1:*
+    wss://localhost:*;
+"
+    />
 
-  <!-- ─── Segurança: CSP ─── -->
-  <meta
-    http-equiv="Content-Security-Policy"
-    content="
-      connect-src 'self'
-      https://rljrobqmttdvhcwqhihp.supabase.co
-      wss://rljrobqmttdvhcwqhihp.supabase.co
-      ws://localhost:*
-      ws://127.0.0.1:*
-      wss://localhost:*
-      http://192.168.101.108:3001
-      http://192.168.101.108:3001
-      ws://192.168.101.108:5173
-      http://192.168.101.108:5173
-      http://localhost:*
-      http://127.0.0.1:*;
-    "
-  />
+    <!-- ─── Segurança: Políticas adicionais ─── -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      http-equiv="Permissions-Policy"
+      content="camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    />
 
-  <!-- ─── Segurança: Políticas adicionais ─── -->
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />
+    <!-- ─── PWA ─── -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
 
-  <!-- ─── PWA ─── -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="mobile-web-app-capable" content="yes" />
+    <title>Ficha de Controle – IndusPower</title>
 
-  <title>Ficha de Controle – IndusPower</title>
+    <!-- ─── Fonts (único recurso externo permitido pelo CSP) ─── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- ─── Fonts (único recurso externo permitido pelo CSP) ─── -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet" />
+    <!-- ─── PDF Generation ─── -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- ─── PDF Generation ─── -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  </head>
 
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-
-</head>
-
-<body>
-  <noscript>
-    <div
-      style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0f1e;color:#EF5350;font-family:sans-serif;text-align:center;padding:20px;">
-      <div>
-        <h1>⚠ JavaScript Necessário</h1>
-        <p style="color:#7A8FA6;margin-top:8px;">Ative o JavaScript para usar o sistema.</p>
+  <body>
+    <noscript>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          background: #0a0f1e;
+          color: #ef5350;
+          font-family: sans-serif;
+          text-align: center;
+          padding: 20px;
+        "
+      >
+        <div>
+          <h1>⚠ JavaScript Necessário</h1>
+          <p style="color: #7a8fa6; margin-top: 8px">
+            Ative o JavaScript para usar o sistema.
+          </p>
+        </div>
       </div>
-    </div>
-  </noscript>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
-</body>
-
+    </noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

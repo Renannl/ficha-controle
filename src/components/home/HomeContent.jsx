@@ -32,6 +32,7 @@ export default function HomeContent({
   selectedFichas,
   toggleFichaSelection,
   onOpenColecao,
+  onColecaoImportada,
 }) {
   const usuarios = Array.isArray(listaUsuarios) ? listaUsuarios : [];
 
@@ -62,6 +63,7 @@ export default function HomeContent({
         onDeleteColecao={onDeleteColecao}
         user={user}
         listaUsuarios={usuarios}
+        onColecaoImportada={onColecaoImportada}
       />
     );
   }

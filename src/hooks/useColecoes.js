@@ -84,6 +84,7 @@ export function useColecoes() {
   return {
     colecoes,
     criarColecao,
-    deletarColecao, // ✅ exportar
+    deletarColecao,
+    recarregarColecoes: carregar,
   };
 }

@@ -21,7 +21,6 @@ const A4_PRINT_WIDTH = 780;
  *  3. Captura o clone, gera o PDF e remove o clone do DOM.
  */
 
-
 export async function exportBook(fichaIds, elementId = "book-print-root") {
   const originalElement = document.getElementById(elementId);
 
@@ -280,7 +279,7 @@ async function sendToSharePoint(ficha, pdfBlob) {
     const payload = {
       ...ficha,
       pdfBase64: base64Pdf,
-      pdfFileName: `FICHA_${ficha.codigo}_${ficha.nrInd}.pdf`,
+      pdfFileName: `FICHA_${ficha.codigo}_${ficha.numeroInd}.pdf`,
       exportDate: new Date().toISOString(),
     };
 

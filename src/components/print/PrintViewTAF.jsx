@@ -69,7 +69,7 @@ export default function PrintViewTAF({ ficha, op, isBook = false }) {
           </tr>
           <tr>
             <td className="w-33">
-              <strong>IND:</strong> {ficha.nrInd || "____________________"}
+              <strong>IND:</strong> {ficha.numeroInd || "____________________"}
             </td>
             <td className="w-33">
               <strong>TAG:</strong> {ficha.tag || "____________________"}

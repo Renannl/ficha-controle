@@ -9,6 +9,8 @@ import { useColecoes } from "./hooks/useColecoes";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import "./App-v2.css";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth();
   const {
@@ -39,7 +41,7 @@ export default function App() {
   useEffect(() => {
     async function carregarUsuarios() {
       try {
-        const response = await fetch("http://localhost:3001/users", {
+        const response = await fetch(`${API_URL}/users`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

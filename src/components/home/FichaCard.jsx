@@ -51,7 +51,7 @@ export default function FichaCard({
           </div>
 
           <div className="ficha-card-sub">
-            <strong>{ficha.nrInd || "—"}</strong> ·{" "}
+            <strong>{ficha.numeroInd || "—"}</strong> ·{" "}
             {OPERACOES[ficha.operacao]?.nome || "—"} · {ficha.cliente || "—"}
           </div>
 

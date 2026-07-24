@@ -43,7 +43,8 @@ export default function HomeScreen({
   const [selectedColecao, setSelectedColecao] = useState(null);
   const [pendingExport, setPendingExport] = useState(null); // ids pendentes
 
-  const { colecoes, criarColecao, deletarColecao } = useColecoes();
+  const { colecoes, criarColecao, deletarColecao, recarregarColecoes } =
+    useColecoes();
 
   // ── PERMISSIONS ────────────────────────────────
   const podeGerenciar = canManageOperators(user);
@@ -250,6 +251,7 @@ export default function HomeScreen({
         selectedFichas={selectedFichas}
         toggleFichaSelection={toggleFichaSelection}
         onOpenColecao={handleAbrirColecao}
+        onColecaoImportada={recarregarColecoes}
       />
       {/* MODAL EXCLUIR FICHA */}
       <ConfirmModal

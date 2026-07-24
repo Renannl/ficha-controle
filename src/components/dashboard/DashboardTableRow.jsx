@@ -11,7 +11,7 @@ export default function DashboardTableRow({ ficha, user, onApprove }) {
       >
         {ficha.id.slice(0, 8)}
       </td>
-      <td style={{ padding: "10px", fontWeight: 600 }}>{ficha.nrInd}</td>
+      <td style={{ padding: "10px", fontWeight: 600 }}>{ficha.numeroInd}</td>
       <td style={{ padding: "10px" }}>{ficha.nome}</td>
       <td style={{ padding: "10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
