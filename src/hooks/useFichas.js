@@ -54,20 +54,21 @@ export function useFichas(currentUser) {
   }, [fichas]);
 
   // ─── CARREGAR FICHAS ───
-  useEffect(() => {
-    async function loadFichas() {
-      try {
-        const res = await authFetch(`${API_URL}/fichas`);
-        const data = await res.json();
-        setFichas(data.map(converterFicha));
-      } catch (err) {
-        console.error("[API] Erro ao carregar fichas:", err);
-      } finally {
-        setIsLoaded(true);
-      }
+  const loadFichas = useCallback(async () => {
+    try {
+      const res = await authFetch(`${API_URL}/fichas`);
+      const data = await res.json();
+      setFichas(data.map(converterFicha));
+    } catch (err) {
+      console.error("[API] Erro ao carregar fichas:", err);
+    } finally {
+      setIsLoaded(true);
     }
+  }, [authFetch]);
+
+  useEffect(() => {
     loadFichas();
-  }, []);
+  }, [loadFichas]);
 
   // ─── POLLING (não sobrescreve fichas com save pendente) ───
   useEffect(() => {
@@ -236,11 +237,14 @@ export function useFichas(currentUser) {
 
         saveTimeouts.current[fichaAtual.dbId] = setTimeout(async () => {
           try {
-            const res = await authFetch(`${API_URL}/fichas/${fichaAtual.dbId}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(fichaAtualizada),
-            });
+            const res = await authFetch(
+              `${API_URL}/fichas/${fichaAtual.dbId}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(fichaAtualizada),
+              },
+            );
             if (!res || !res.ok) throw new Error("Erro ao atualizar");
           } catch (err) {
             console.error("[API] Erro ao atualizar ficha:", err);
@@ -296,7 +300,9 @@ export function useFichas(currentUser) {
       setFichas((prev) => prev.filter((f) => f.dbId !== ficha.dbId));
 
       try {
-        await authFetch(`${API_URL}/fichas/${ficha.dbId}`, { method: "DELETE" });
+        await authFetch(`${API_URL}/fichas/${ficha.dbId}`, {
+          method: "DELETE",
+        });
       } catch (err) {
         console.error("[API] Erro ao excluir ficha:", err);
       }
@@ -382,5 +388,6 @@ export function useFichas(currentUser) {
     getFicha,
     atualizarOperadores,
     revisarFicha,
+    recarregarFichas: loadFichas,
   };
 }

@@ -21,6 +21,7 @@ export default function App() {
     excluirFicha,
     getFicha,
     atualizarOperadores,
+    recarregarFichas,
   } = useFichas(user);
   const { colecoes } = useColecoes();
   const navigate = useNavigate();
@@ -182,6 +183,7 @@ export default function App() {
           <div className="app">
             <HomeScreen
               fichas={fichas}
+              onFichasAtualizadas={recarregarFichas}
               onNova={handleNova}
               listaUsuarios={usuarios}
               onOpen={handleOpen}

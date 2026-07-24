@@ -1,6 +1,6 @@
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
-import { ImportarColecaoExcel } from "../../hooks/ImportarColecaoExcel";
+import { ImportarColecaoExcel } from "../excel/ImportarColecaoExcel";
 import { FolderOpen, Plus, Calendar, Search, X, Trash2 } from "lucide-react"; // ✅ Trash2
 
 export default function HomeList({
@@ -63,13 +63,6 @@ export default function HomeList({
                 />
               )}
 
-              {!showSearch && (
-                <ImportarColecaoExcel
-                  onImportado={(resultado) => {
-                    onColecaoImportada?.(resultado); 
-                  }}
-                />
-              )}
             </div>
           </div>
         </div>

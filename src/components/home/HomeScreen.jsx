@@ -20,6 +20,7 @@ import { useColecoes } from "../../hooks/useColecoes";
 export default function HomeScreen({
   fichas,
   onNova,
+  onFichasAtualizadas,
   onOpen,
   onDelete,
   user,
@@ -64,6 +65,11 @@ export default function HomeScreen({
     onAtualizarOperadores,
     podeGerenciar,
   });
+
+  const handleColecaoImportada = async (resultado) => {
+    await recarregarColecoes();
+    await onFichasAtualizadas?.();
+  };
 
   const [deleteColecaoId, setDeleteColecaoId] = useState(null);
 
@@ -251,7 +257,7 @@ export default function HomeScreen({
         selectedFichas={selectedFichas}
         toggleFichaSelection={toggleFichaSelection}
         onOpenColecao={handleAbrirColecao}
-        onColecaoImportada={recarregarColecoes}
+        onColecaoImportada={handleColecaoImportada}
       />
       {/* MODAL EXCLUIR FICHA */}
       <ConfirmModal
@@ -312,7 +318,8 @@ export default function HomeScreen({
         onCreate={handleCreateColecao}
         onCreateFicha={handleCreateFicha}
         mode={mode}
-        user={user} // ← adicionar
+        user={user}
+        onColecaoImportada={handleColecaoImportada}
       />
     </div>
   );

@@ -1744,13 +1744,9 @@
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
 }
 
-.new-ficha-menu-header {
-  margin-bottom: 20px;
-}
-
-.new-ficha-menu-header h3 {
-  font-size: 18px;
-  color: var(--text-primary);
+.new-ficha-opt-icon--importar {
+  background: var(--bg-card);
+  color: #0284c7;
 }
 
 .new-ficha-menu-header p {
@@ -4822,12 +4818,6 @@
     bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
   }
 
-  /* Menu de nova ficha */
-  .new-ficha-menu {
-    margin: 12px;
-    max-height: 85vh;
-  }
-
   .new-ficha-opt-btn {
     padding: 12px;
   }
@@ -5693,20 +5683,6 @@ svg {
   padding: 16px;
 }
 
-/* ── Sheet ── */
-.new-ficha-menu {
-  background: var(--card-bg);
-  border-radius: 20px 20px 16px 16px;
-  padding: 20px;
-  width: 100%;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.15);
-  animation: slideUp 0.25s ease;
-}
-
 .new-ficha-opt-icon--fotos {
   background: #7c3aed1a;
   color: #7c3aed;
@@ -5729,13 +5705,6 @@ svg {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 8px;
-}
-
-.new-ficha-menu-header h3 {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
 }
 
 .new-ficha-menu-header p {

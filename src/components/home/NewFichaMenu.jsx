@@ -1,4 +1,13 @@
-import { FolderPlus, Camera, ClipboardList, Image, X, Zap } from "lucide-react";
+import {
+  FolderPlus,
+  Camera,
+  ClipboardList,
+  Image,
+  X,
+  Zap,
+  Upload,
+} from "lucide-react";
+import { ImportarColecaoExcel } from "../excel/ImportarColecaoExcel";
 
 export default function NewFichaMenu({
   show,
@@ -7,6 +16,7 @@ export default function NewFichaMenu({
   onCreateFicha,
   mode = "colecoes",
   user,
+  onColecaoImportada,
 }) {
   if (!show) return null;
 
@@ -104,6 +114,33 @@ export default function NewFichaMenu({
                 </span>
               </div>
             </button>
+
+            <ImportarColecaoExcel
+              onImportado={(resultado) => {
+                onColecaoImportada?.(resultado);
+                onClose();
+              }}
+            >
+              {({ onClick, carregando }) => (
+                <button
+                  className="new-ficha-opt-btn"
+                  onClick={onClick}
+                  disabled={carregando}
+                >
+                  <div className="new-ficha-opt-icon new-ficha-opt-icon--importar">
+                    <Upload size={22} />
+                  </div>
+                  <div className="new-ficha-opt-info">
+                    <span className="new-ficha-opt-title">
+                      {carregando ? "Importando..." : "Importar Coleção"}
+                    </span>
+                    <span className="new-ficha-opt-desc">
+                      Criar a partir de planilha Excel
+                    </span>
+                  </div>
+                </button>
+              )}
+            </ImportarColecaoExcel>
           </div>
         )}
 

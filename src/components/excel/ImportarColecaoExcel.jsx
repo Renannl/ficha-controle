@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { TIPOS_PAINEL, PAINEL_LABELS } from "../data/painelTemplates";
-import { useAuth } from "./useAuth";
+import { TIPOS_PAINEL, PAINEL_LABELS } from "../../data/painelTemplates";
+import { useAuth } from "../../hooks/useAuth";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -52,7 +52,7 @@ function excelValueToISODate(valor) {
   return "";
 }
 
-export function ImportarColecaoExcel({ onImportado }) {
+export function ImportarColecaoExcel({ onImportado, children }) {
   const { authFetch } = useAuth();
   const inputRef = useRef(null);
   const [carregando, setCarregando] = useState(false);
@@ -81,10 +81,10 @@ export function ImportarColecaoExcel({ onImportado }) {
           obra: l["Obra"] || "",
           cliente: String(l["Cliente"] || "").trim(),
           tag: l["Tag"] || "",
-          dataInicio: excelValueToISODate(l["Data Início"] || l["dataInicio"]), // ✅
+          dataInicio: excelValueToISODate(l["Data Início"] || l["dataInicio"]),
           dataTermino: excelValueToISODate(
             l["Data Término"] || l["dataTermino"],
-          ), // ✅
+          ),
           tempoPrevisto: l["Tempo Previsto"] || l["tempoPrevisto"] || "",
           recurso: l["Recurso"] || "",
           tipoPainel: mapearTipoPainel(l["Tipo Painel"] || l["tipoPainel"]),
@@ -150,9 +150,13 @@ export function ImportarColecaoExcel({ onImportado }) {
         onChange={handleFileChange}
         style={{ display: "none" }}
       />
-      <button onClick={() => inputRef.current?.click()} disabled={carregando}>
-        {carregando ? "Importando..." : "📥 Importar Coleção (Excel)"}
-      </button>
+      {children ? (
+        children({ onClick: () => inputRef.current?.click(), carregando })
+      ) : (
+        <button onClick={() => inputRef.current?.click()} disabled={carregando}>
+          {carregando ? "Importando..." : "📥 Importar Coleção (Excel)"}
+        </button>
+      )}
     </>
   );
 }

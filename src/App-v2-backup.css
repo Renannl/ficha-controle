@@ -4449,12 +4449,6 @@
     bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
   }
 
-  /* Menu de nova ficha */
-  .new-ficha-menu {
-    margin: 12px;
-    max-height: 85vh;
-  }
-
   .new-ficha-opt-btn {
     padding: 12px;
   }
