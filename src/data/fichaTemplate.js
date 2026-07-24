@@ -144,9 +144,13 @@ function generateId() {
 }
 
 // Cria uma ficha em branco com todos os campos vazios
-export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
+export function createEmptyFicha(
+  operacaoCodigo = DEFAULT_OPERACAO,
+  tipoPainel = "",
+) {
   const codigo = String(operacaoCodigo);
   const op = OPERACOES[codigo];
+  const isEstrutura = codigo === "10";
 
   return {
     id: generateId(),
@@ -164,12 +168,11 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
     tempoPrevisto: "",
     recurso: "",
     operacao: codigo,
-    tipoPainel: "",
+    tipoPainel: tipoPainel || "", // <- agora aceita valor já preenchido
     colaboradores: "",
     equipe: op.equipe,
     objetivo: op.objetivo,
 
-    // Dados específicos de TAF (Se for modelo 50)
     tafData: op.isTaf
       ? {
           testExecutedWithClient: false,
@@ -213,35 +216,29 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
           functionalNotApplicable: false,
         }
       : null,
+    fotoData: codigo === "80" ? { fotos: [] } : null,
 
-    // Dados específicos de Fotos (Se for modelo 80)
-    fotoData:
-      codigo === "80"
-        ? {
-            fotos: [],
-          }
-        : null,
-
-    // 15 sessões de trabalho
     sessions: Array.from({ length: 15 }, (_, i) => ({
       numero: i + 1,
       data: "",
       hIni: "",
       hFim: "",
     })),
-    // Itens do checklist com marcações por sessão
+
     items:
       codigo === "80"
         ? []
-        : op.items.map((item) => ({
-            id: item.id,
-            descricao: item.descricao,
-            sessao: item.sessao || "",
-            sessionMarks: Array(15).fill(""),
-            resultado: "",
-            foto: "",
-          })),
-    // Rodapé
+        : isEstrutura && tipoPainel
+          ? buildPainelItems(tipoPainel)
+          : op.items.map((item) => ({
+              id: item.id,
+              descricao: item.descricao,
+              sessao: item.sessao || "",
+              sessionMarks: Array(15).fill(""),
+              resultado: "",
+              foto: "",
+            })),
+
     observacoes: "",
     assinaturas: {
       producao: { nome: "", data: "", dataUrl: "" },
@@ -250,19 +247,13 @@ export function createEmptyFicha(operacaoCodigo = DEFAULT_OPERACAO) {
       qualidade: { nome: "", data: "", dataUrl: "" },
     },
     status: "aberta",
-
     statusAprovacao: "aguardando",
-
     motivoAprovacao: "",
     motivoReprovacao: "",
-
     aprovadoPor: "",
     aprovadoEm: "",
-
     reprovadoPor: "",
     reprovadoEm: "",
-
-    finalizadaAt: null,
     finalizadaAt: null,
   };
 }

@@ -29,7 +29,7 @@ export default function OperatorSelector({
           e.stopPropagation();
 
           setActiveDropdownFichaId(
-            activeDropdownFichaId === ficha.id ? null : ficha.id,
+            activeDropdownFichaId === ficha.dbId ? null : ficha.dbId,
           );
         }}
         title="Vincular Operadores"
@@ -37,7 +37,7 @@ export default function OperatorSelector({
         <UserPlus size={13} />
       </button>
 
-      {activeDropdownFichaId === ficha.id && (
+      {activeDropdownFichaId === ficha.dbId && (
         <div
           className="animate-scaleIn"
           style={{
@@ -69,7 +69,9 @@ export default function OperatorSelector({
           </div>
 
           {listaUsuarios
-            .filter((u) => u.nome !== ficha.criadoPor && u.username !== "master")
+            .filter(
+              (u) => u.nome !== ficha.criadoPor && u.username !== "master",
+            )
             .map((u) => {
               const ativo = operadores.some(
                 (op) => op.id === u.id || op.username === u.username,

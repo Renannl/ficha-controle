@@ -36,13 +36,13 @@ export default function FichaCard({
 
   return (
     <div
-      key={ficha.id}
+      key={ficha.dbId}
       className={`ficha-card status-${status}`}
       style={{
         animationDelay: `${index * 0.05}s`,
-        zIndex: activeDropdownFichaId === ficha.id ? 999 : 1,
+        zIndex: activeDropdownFichaId === ficha.dbId ? 999 : 1,
       }}
-      onClick={() => onOpen(ficha.id)}
+      onClick={() => onOpen(ficha.dbId)}
     >
       <div className="ficha-card-top">
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -71,7 +71,7 @@ export default function FichaCard({
                   className="pdf-badge"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onToggleSelection(ficha.id);
+                    onToggleSelection(ficha.dbId);
                   }}
                 >
                   <FaFilePdf className="pdf-icon" />
@@ -81,7 +81,7 @@ export default function FichaCard({
                     <input
                       type="checkbox"
                       checked={selected}
-                      onChange={() => onToggleSelection(ficha.id)}
+                      onChange={() => onToggleSelection(ficha.dbId)}
                     />
 
                     <span
@@ -97,7 +97,7 @@ export default function FichaCard({
         {canDeleteFicha(user) && (
           <button
             className="delete-btn"
-            onClick={(e) => onDelete(e, ficha.id)}
+            onClick={(e) => onDelete(e, ficha.dbId)}
             title="Excluir"
           >
             <Trash2 size={16} />

@@ -57,6 +57,7 @@ export function useFichas(currentUser) {
   const loadFichas = useCallback(async () => {
     try {
       const res = await authFetch(`${API_URL}/fichas`);
+      if (!res) return;
       const data = await res.json();
       setFichas(data.map(converterFicha));
     } catch (err) {
@@ -75,26 +76,26 @@ export function useFichas(currentUser) {
     const interval = setInterval(async () => {
       try {
         const res = await authFetch(`${API_URL}/fichas`);
+        if (!res) return;
         const data = await res.json();
         const remotas = data.map(converterFicha);
 
-        setFichas((prev) => {
-          // mescla: mantém localmente as fichas que têm escrita pendente
-          return remotas.map((remota) => {
+        setFichas((prev) =>
+          remotas.map((remota) => {
             if (pendingIds.current.has(remota.dbId)) {
               const local = prev.find((f) => f.dbId === remota.dbId);
               return local || remota;
             }
             return remota;
-          });
-        });
+          }),
+        );
       } catch (err) {
         console.error("[API] Erro no polling:", err);
       }
     }, 15000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [authFetch]);
 
   // ─── GERAR CÓDIGO ───
   async function gerarCodigo(operacao) {
@@ -369,7 +370,7 @@ export function useFichas(currentUser) {
 
       try {
         const res = await authFetch(`${API_URL}/fichas/${id}`);
-        if (!res.ok) return null;
+        if (!res || !res.ok) return null;
         const data = await res.json();
         return converterFicha(data);
       } catch {

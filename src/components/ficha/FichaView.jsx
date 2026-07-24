@@ -64,13 +64,20 @@ export default function FichaView({
   }, [fichaId]);
 
   useEffect(() => {
-    if (!fichaId || !fichas) return;
+    if (!fichaId || !fichas || !ficha) return;
+    // só atualiza se a ficha já carregada é a mesma do fichaId atual
+    if (
+      String(ficha.dbId) !== String(fichaId) &&
+      String(ficha.id) !== String(fichaId)
+    ) {
+      return; // ainda carregando a ficha nova, não sobrescreve com dado desatualizado
+    }
     const atualizada = fichas.find(
       (f) =>
         String(f.dbId) === String(fichaId) || String(f.id) === String(fichaId),
     );
     if (atualizada) setFicha(atualizada);
-  }, [fichas, fichaId]);
+  }, [fichas, fichaId, ficha]);
 
   // ─── Ajusta aba inicial quando a ficha carregar ───
   useEffect(() => {
