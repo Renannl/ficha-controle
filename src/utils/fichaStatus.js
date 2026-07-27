@@ -36,6 +36,28 @@ export function getApprovalStatus(ficha) {
   return "none";
 }
 
+export function computeStatusField(ficha) {
+  const total = ficha.items?.length || 0;
+
+  if (total === 0) {
+    return ficha.status || "aberta";
+  }
+
+  const done = ficha.items.filter(
+    (i) => i.resultado === "ok" || i.resultado === "na",
+  ).length;
+
+  if (done === total) {
+    return "finalizada";
+  }
+
+  if (done > 0) {
+    return "em andamento";
+  }
+
+  return "aberta";
+}
+
 export function getFichaStatus(ficha) {
   const approval = getApprovalStatus(ficha);
 

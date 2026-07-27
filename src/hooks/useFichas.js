@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { createEmptyFicha } from "../data/fichaTemplate";
 import { useAuth } from "./useAuth";
+import { computeStatusField } from "../utils/fichaStatus";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -38,6 +39,8 @@ function converterFicha(f) {
     updated_at: f.updated_at,
     colecao_id: f.colecao_id,
     colecao: f.colecoes ?? null,
+    sessao_ativa: f.sessao_ativa ?? null,
+    tempo_acumulado_segundos: Number(f.tempo_acumulado_segundos) || 0,
   };
 }
 
@@ -192,7 +195,7 @@ export function useFichas(currentUser) {
             codigo: nova.codigo,
             operacao: operacaoCodigo,
             colecao_id: colecaoId,
-            status: nova.status || "Rascunho",
+            status: computeStatusField(nova) || "aberta",
             criado_por: nova.criadoPor,
             user_id: nova.userId,
             dados: nova,
@@ -205,7 +208,7 @@ export function useFichas(currentUser) {
         const nova_ficha = converterFicha(data);
         setFichas((prev) => [nova_ficha, ...prev]);
 
-        return nova_ficha.dbId; // ⚠️ padronize: dbId, não id
+        return nova_ficha.dbId;
       } catch (err) {
         console.error("[API] Erro ao criar ficha:", err);
         alert("Erro ao criar ficha.");
@@ -225,12 +228,18 @@ export function useFichas(currentUser) {
 
         if (!fichaAtual) return prev;
 
-        const fichaAtualizada =
+        let fichaAtualizada =
           typeof updater === "function"
             ? updater(fichaAtual)
             : { ...fichaAtual, ...updater };
 
-        pendingIds.current.add(fichaAtual.dbId); // 🆕 marca como pendente
+        // 🆕 Recalcula o status com base no progresso do checklist
+        fichaAtualizada = {
+          ...fichaAtualizada,
+          status: computeStatusField(fichaAtualizada),
+        };
+
+        pendingIds.current.add(fichaAtual.dbId);
 
         if (saveTimeouts.current[fichaAtual.dbId]) {
           clearTimeout(saveTimeouts.current[fichaAtual.dbId]);
@@ -251,7 +260,7 @@ export function useFichas(currentUser) {
             console.error("[API] Erro ao atualizar ficha:", err);
           } finally {
             delete saveTimeouts.current[fichaAtual.dbId];
-            pendingIds.current.delete(fichaAtual.dbId); // 🆕 libera após salvar
+            pendingIds.current.delete(fichaAtual.dbId);
           }
         }, 800);
 
@@ -274,7 +283,13 @@ export function useFichas(currentUser) {
       atualizarFicha(id, (f) => ({
         ...f,
         revisao: novaRevisao,
-        status: "Rascunho", // volta pra edição
+        statusAprovacao: "aguardando",
+        motivoAprovacao: "",
+        motivoReprovacao: "",
+        items: (f.items || []).map((item) => ({
+          ...item,
+          resultado: "",
+        })),
       }));
     },
     [fichas, atualizarFicha],
@@ -291,7 +306,6 @@ export function useFichas(currentUser) {
   // ─── EXCLUIR ───
   const excluirFicha = useCallback(
     async (id) => {
-      // useFichas.js — excluirFicha
       const ficha = fichasRef.current.find(
         (f) => String(f.id) === String(id) || String(f.dbId) === String(id),
       );

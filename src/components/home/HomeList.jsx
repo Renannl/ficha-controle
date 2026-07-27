@@ -1,7 +1,21 @@
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
 import { ImportarColecaoExcel } from "../excel/ImportarColecaoExcel";
-import { FolderOpen, Plus, Calendar, Search, X, Trash2 } from "lucide-react"; // ✅ Trash2
+import { FolderOpen, Plus, Calendar, Search, X, Trash2 } from "lucide-react";
+import { getFichaStatus } from "../../utils/fichaStatus";
+
+function getStatusColor(status) {
+  const cores = {
+    empty: "var(--text-muted)",
+    progress: "var(--yellow-accent, #eab308)",
+    done: "var(--green-accent, #22c55e)",
+    waiting: "var(--yellow-accent, #eab308)",
+    approved: "var(--green-accent, #22c55e)",
+    rejected: "var(--red-accent, #ef4444)",
+  };
+
+  return cores[status] || "var(--blue-accent)";
+}
 
 export default function HomeList({
   mode = "fichas",
@@ -62,7 +76,6 @@ export default function HomeList({
                   autoFocus
                 />
               )}
-
             </div>
           </div>
         </div>
@@ -141,7 +154,12 @@ export default function HomeList({
                         {preview.map((f) => (
                           <div key={f.dbId} className="preview-ficha">
                             {" "}
-                            <span className="preview-ficha-dot" />
+                            <span
+                              className="preview-ficha-dot"
+                              style={{
+                                background: getStatusColor(getFichaStatus(f)),
+                              }}
+                            />
                             {f.nomeEquipamento ?? f.tipo ?? "Ficha"}
                           </div>
                         ))}

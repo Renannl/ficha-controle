@@ -5535,8 +5535,40 @@ svg {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--blue-accent);
   flex-shrink: 0;
+}
+
+.ficha-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(46, 158, 91, 0.12);
+  color: #2e9e5b;
+  border: 1px solid rgba(46, 158, 91, 0.3);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ficha-timer-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2e9e5b;
+  animation: ficha-timer-pulse 1.5s infinite;
+}
+
+@keyframes ficha-timer-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.ficha-timer-badge.parado {
+  background: rgba(120, 120, 120, 0.12);
+  color: var(--text-secondary, #888);
+  border: 1px solid rgba(120, 120, 120, 0.25);
 }
 
 .preview-ficha-more {

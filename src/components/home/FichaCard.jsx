@@ -1,6 +1,7 @@
 import { getFichaStatus, getProgressPct } from "../../utils/fichaStatus";
 import { OPERACOES } from "../../data/fichaTemplate";
 import { canDeleteFicha, canGeneratePdf } from "../../utils/hasPermission";
+import FichaTimerBadge from "./FichaTimerBadge";
 import {
   User,
   Tag,
@@ -46,8 +47,22 @@ export default function FichaCard({
     >
       <div className="ficha-card-top">
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="ficha-card-title">
-            {ficha.nomeEquipamento || "Sem nome"}
+          <div
+            className="ficha-card-title"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            {ficha.dados?.nomeEquipamento ||
+              ficha.nomeEquipamento ||
+              "Sem nome"}
+            <FichaTimerBadge
+              sessaoAtiva={ficha.sessao_ativa}
+              tempoAcumulado={ficha.tempo_acumulado_segundos}
+            />
           </div>
 
           <div className="ficha-card-sub">
