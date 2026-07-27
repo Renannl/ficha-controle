@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, Fragment } from "react";
 import { useChecklistLog } from "../../hooks/useChecklistLog";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import {
@@ -28,14 +28,12 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
       ? logs.map((l) => ({ ...l, duracao: null }))
       : calcularTemposDasMarcacoes(logs, sessoes, "timestamp");
 
-    // adiciona a etapa em cada log com base no itemId
     return base.map((log) => ({
       ...log,
       etapa: mapaEtapas[log.itemId] || null,
     }));
   }, [logs, sessoes, mapaEtapas]);
 
-  // 🔹 Resumo por etapa
   const resumoPorEtapa = useMemo(() => {
     const resumo = {};
     logsComTempo.forEach((log) => {
@@ -64,7 +62,6 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
         </div>
       </div>
 
-      {/* 🔹 Resumo de tempo por etapa */}
       {Object.keys(resumoPorEtapa).length > 0 && (
         <div className="resumo-etapas">
           {Object.entries(resumoPorEtapa).map(([etapa, total]) => (
@@ -82,44 +79,58 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
       )}
 
       <div className="sessoes-trabalho-list">
-        {logsExibicao.map((log) => (
-          <div key={log.id} className="sessao-trabalho-item">
-            <div className="sessao-trabalho-info">
-              <strong>{formatarNomeUsuario(log.usuario) || "Usuário"}</strong>
-              <span>
-                {" "}
-                marcou <strong>{log.descricao}</strong>
-                {log.campo === "sessionMark" &&
-                  ` (sessão ${log.sessaoIndex + 1})`}{" "}
-                como <strong>{formatarValor(log.campo, log.valor)}</strong>
-                {log.etapa && (
-                  <span className="etapa-badge">
-                    {" "}
-                    · {ETAPA_LABELS[log.etapa]}
-                  </span>
-                )}
-              </span>
-              {log.duracao !== null && (
-                <span className="sessao-duracao sessao-duracao-tempo">
-                  ⏱ +{formatarTempo(log.duracao)} (total:{" "}
-                  {formatarTempo(log.tempoAcumulado)})
-                </span>
-              )}
-            </div>
+        {logsExibicao.map((log, index) => {
+          // 🔹 Verifica se é a primeira marcação dessa etapa (comparando com o item anterior)
+          const etapaAnterior = index > 0 ? logsExibicao[index - 1].etapa : null;
+          const mostrarTituloEtapa =
+            log.etapa && log.etapa !== etapaAnterior;
 
-            {/* 🔹 timestamp escondido no canto inferior direito */}
-            <span className="sessao-timestamp-corner">
-              {new Date(log.timestamp).toLocaleString("pt-BR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
-            </span>
-          </div>
-        ))}
+          return (
+            <Fragment key={log.id}>
+              {mostrarTituloEtapa && (
+                <div className="etapa-titulo-divisor">
+                  {ETAPA_LABELS[log.etapa] || log.etapa}
+                </div>
+              )}
+
+              <div className="sessao-trabalho-item">
+                <div className="sessao-trabalho-info">
+                  <strong>{formatarNomeUsuario(log.usuario) || "Usuário"}</strong>
+                  <span>
+                    {" "}
+                    marcou <strong>{log.descricao}</strong>
+                    {log.campo === "sessionMark" &&
+                      ` (sessão ${log.sessaoIndex + 1})`}{" "}
+                    como <strong>{formatarValor(log.campo, log.valor)}</strong>
+                    {log.etapa && (
+                      <span className="etapa-badge">
+                        {" "}
+                        · {ETAPA_LABELS[log.etapa]}
+                      </span>
+                    )}
+                  </span>
+                  {log.duracao !== null && (
+                    <span className="sessao-duracao sessao-duracao-tempo">
+                      ⏱ +{formatarTempo(log.duracao)} (total:{" "}
+                      {formatarTempo(log.tempoAcumulado)})
+                    </span>
+                  )}
+                </div>
+
+                <span className="sessao-timestamp-corner">
+                  {new Date(log.timestamp).toLocaleString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </span>
+              </div>
+            </Fragment>
+          );
+        })}
       </div>
     </div>
   );

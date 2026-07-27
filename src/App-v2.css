@@ -5561,14 +5561,31 @@ svg {
 }
 
 @keyframes ficha-timer-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .ficha-timer-badge.parado {
   background: rgba(120, 120, 120, 0.12);
   color: var(--text-secondary, #888);
   border: 1px solid rgba(120, 120, 120, 0.25);
+}
+
+.etapa-titulo-divisor {
+  margin: 16px 0 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--blue-accent);
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 6px;
+  letter-spacing: 0.5px;
 }
 
 .preview-ficha-more {
@@ -5864,13 +5881,13 @@ svg {
 }
 
 .sessao-trabalho-item {
-  position: relative; 
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  padding-bottom: 22px; 
+  padding-bottom: 22px;
   border-radius: 10px;
   background: var(--bg-elevated, #1c1c1e);
   border: 1px solid var(--border-color, #2a2a2c);
@@ -5886,12 +5903,10 @@ svg {
   pointer-events: none;
 }
 
-
 .sessao-duracao {
   color: var(--blue-accent);
   font-weight: 500;
 }
-
 
 .sessao-tag-manual {
   display: inline-block;
