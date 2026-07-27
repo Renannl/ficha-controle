@@ -13,7 +13,11 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
   const { sessoes } = useSessoesTrabalho(fichaId);
 
   function formatarValor(campo, valor) {
-    if (campo === "resultado") return valor === "ok" ? "OK" : "N/A";
+    if (campo === "resultado") {
+      if (valor === "ok") return "OK";
+      if (valor === "erro") return "ERRO";
+      return "N/A";
+    }
     return valor === "feito" ? "concluído" : "N/A";
   }
 
@@ -81,9 +85,9 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
       <div className="sessoes-trabalho-list">
         {logsExibicao.map((log, index) => {
           // 🔹 Verifica se é a primeira marcação dessa etapa (comparando com o item anterior)
-          const etapaAnterior = index > 0 ? logsExibicao[index - 1].etapa : null;
-          const mostrarTituloEtapa =
-            log.etapa && log.etapa !== etapaAnterior;
+          const etapaAnterior =
+            index > 0 ? logsExibicao[index - 1].etapa : null;
+          const mostrarTituloEtapa = log.etapa && log.etapa !== etapaAnterior;
 
           return (
             <Fragment key={log.id}>
@@ -95,7 +99,9 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
 
               <div className="sessao-trabalho-item">
                 <div className="sessao-trabalho-info">
-                  <strong>{formatarNomeUsuario(log.usuario) || "Usuário"}</strong>
+                  <strong>
+                    {formatarNomeUsuario(log.usuario) || "Usuário"}
+                  </strong>
                   <span>
                     {" "}
                     marcou <strong>{log.descricao}</strong>

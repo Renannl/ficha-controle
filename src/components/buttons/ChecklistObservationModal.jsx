@@ -27,6 +27,24 @@ export default function ChecklistObservationModal({
   };
 
   const isOk = resultado === "ok";
+  const isErro = resultado === "erro";
+
+  const icon = isOk ? "✅" : isErro ? "❌" : "➖";
+  const bgColor = isOk
+    ? "var(--green-glow)"
+    : isErro
+    ? "var(--red-glow)"
+    : "var(--yellow-glow)";
+  const textColor = isOk
+    ? "var(--green)"
+    : isErro
+    ? "var(--red)"
+    : "var(--yellow)";
+  const title = isOk
+    ? "Item Aprovado"
+    : isErro
+    ? "Item com Erro"
+    : "Item Não Aplicável";
 
   const modalContent = (
     <div className="obs-modal-overlay animate-fadeIn">
@@ -35,16 +53,16 @@ export default function ChecklistObservationModal({
           <div
             className="confirm-modal-icon"
             style={{
-              background: isOk ? "var(--green-glow)" : "var(--yellow-glow)",
-              color: isOk ? "var(--green)" : "var(--yellow)",
+              background: bgColor,
+              color: textColor,
               marginBottom: 0,
             }}
           >
-            {isOk ? "✅" : "➖"}
+            {icon}
           </div>
           <div>
             <h3 className="confirm-modal-title" style={{ margin: 0 }}>
-              {isOk ? "Item Aprovado" : "Item Não Aplicável"}
+              {title}
             </h3>
           </div>
           <button className="obs-modal-close" onClick={onClose}>
@@ -60,7 +78,9 @@ export default function ChecklistObservationModal({
         )}
 
         <p className="obs-modal-subtitle">
-          Descreva a observação referente a este item:
+          {isErro
+            ? "Descreva o problema encontrado neste item:"
+            : "Descreva a observação referente a este item:"}
         </p>
 
         <textarea

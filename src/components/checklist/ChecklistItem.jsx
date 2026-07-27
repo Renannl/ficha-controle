@@ -2,7 +2,7 @@
 import ChecklistSessions from "./ChecklistSessions";
 import { useState } from "react";
 import ChecklistObservationModal from "../buttons/ChecklistObservationModal";
-import { FileText } from "lucide-react";
+import { FileText, X } from "lucide-react";
 
 export default function ChecklistItem({
   item,
@@ -38,6 +38,13 @@ export default function ChecklistItem({
     setPendingResultado(null);
   }
 
+  // 🔹 OK não abre modal, marca direto sem observação
+  function handleOkClick(e) {
+    e.stopPropagation();
+    if (readOnly) return;
+    onResultado(index, "ok", "");
+  }
+
   return (
     <div
       className={`checklist-item ${isExpanded ? "expanded" : ""} ${
@@ -58,11 +65,7 @@ export default function ChecklistItem({
             <button
               className={`resultado-btn ${item.resultado === "ok" ? "ok-active" : ""}`}
               disabled={readOnly}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (readOnly) return;
-                abrirModalResultado("ok");
-              }}
+              onClick={handleOkClick}
             >
               {isTaf ? "C" : "OK"}
             </button>
@@ -77,6 +80,21 @@ export default function ChecklistItem({
             >
               {isTaf ? "NC" : "NA"}
             </button>
+            {/* 🔹 Novo botão X — indica erro, sempre abre modal */}
+            <button
+              className={`resultado-btn resultado-btn-erro ${
+                item.resultado === "erro" ? "erro-active" : ""
+              }`}
+              disabled={readOnly}
+              title="Marcar como erro"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (readOnly) return;
+                abrirModalResultado("erro");
+              }}
+            >
+              <X size={16} />
+            </button>
           </div>
         </div>
         {!hideExpand && (
@@ -89,7 +107,11 @@ export default function ChecklistItem({
           className="checklist-item-obs"
           style={{
             borderLeftColor:
-              item.resultado === "ok" ? "var(--green)" : "var(--red)",
+              item.resultado === "ok"
+                ? "var(--green)"
+                : item.resultado === "erro"
+                ? "var(--red)"
+                : "var(--yellow, orange)",
           }}
         >
           <span className="checklist-item-obs-icon">

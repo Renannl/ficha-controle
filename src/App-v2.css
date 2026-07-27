@@ -73,12 +73,18 @@
   padding: 14px;
   border-radius: 10px;
   border: 1px solid var(--border, #333);
-  background: var(--bg-secondary, #121212);
-  color: var(--text-main, #fff);
+  background: var(--bg-secondary);
+  color: var(--text-primary, #fff);
   font-size: 15px;
   line-height: 1.5;
   resize: vertical;
   box-sizing: border-box;
+}
+
+.btn-modal-confirm.btn-success {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
 }
 
 @media (max-width: 480px) {
@@ -762,6 +768,16 @@
   gap: 4px;
 }
 
+.resultado-btn-erro {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.resultado-btn-erro.erro-active {
+  background: var(--red);
+  color: #fff;
+}
+
 .resultado-btn {
   padding: 5px 12px;
   border-radius: var(--radius-xs);
@@ -786,9 +802,8 @@
 }
 
 .resultado-btn.na-active {
-  background: var(--red-bg);
-  border-color: var(--red-border);
-  color: var(--red);
+  border-color: var(--amber);
+  color: var(--amber);
 }
 
 /* Sessions row inside expanded item */
@@ -3958,9 +3973,15 @@
 }
 
 [data-theme="dark"] .resultado-btn.na-active {
-  background: rgba(211, 47, 47, 0.15);
-  border-color: rgba(211, 47, 47, 0.3);
-  color: #fc8181;
+  background: rgba(214, 158, 46, 0.15);
+  border-color: rgba(214, 158, 46, 0.3);
+  color: #ebac2f; /* mesmo tom do seu badge-amber dark */
+}
+
+[data-theme="dark"] .resultado-btn-erro.erro-active {
+  background: rgba(211, 47, 47, 0.25);
+  border-color: rgba(211, 47, 47, 0.4);
+  color: #fff;
 }
 
 /* ─── New Ficha Menu ─── */
