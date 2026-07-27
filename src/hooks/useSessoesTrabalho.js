@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { authFetch } from "../services/apiClient";
 import { calcularTempoDecorridoReal } from "../utils/tempoUtils";
+
+const POLL_INTERVAL_MS = 15000; // busca dados reais do backend a cada 15s
 
 export function useSessoesTrabalho(fichaId) {
   const [sessoes, setSessoes] = useState([]);
   const [totalSegundos, setTotalSegundos] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [tick, setTick] = useState(0); // ⏱️ força recálculo a cada segundo
+  const [tick, setTick] = useState(0);
 
   const loadSessoes = useCallback(async () => {
     if (!fichaId) return;
@@ -33,36 +35,38 @@ export function useSessoesTrabalho(fichaId) {
     loadSessoes();
   }, [loadSessoes]);
 
-  // ⏱️ Atualiza o "tick" a cada segundo apenas se houver sessão aberta
   const haSessaoAberta = useMemo(
     () => sessoes.some((s) => !s.fim),
     [sessoes],
   );
 
+  // ⏱️ tick visual: atualiza o cronômetro a cada segundo (client-side)
   useEffect(() => {
     if (!haSessaoAberta) return;
-    const interval = setInterval(() => {
-      setTick((t) => t + 1);
-    }, 1000);
+    const interval = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(interval);
   }, [haSessaoAberta]);
 
-  // Recalcula tempo decorrido considerando o tick (tempo real)
+  // 🔄 poll real: busca do backend se a sessão ainda está de fato aberta
+  useEffect(() => {
+    if (!haSessaoAberta) return;
+    const poll = setInterval(() => {
+      loadSessoes();
+    }, POLL_INTERVAL_MS);
+    return () => clearInterval(poll);
+  }, [haSessaoAberta, loadSessoes]);
+
   const tempoDecorridoSegundos = useMemo(
     () => calcularTempoDecorridoReal(sessoes),
     [sessoes, tick], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  // Recalcula total (homem-hora) somando segundos "ao vivo" das sessões abertas
   const totalSegundosAoVivo = useMemo(() => {
     const agora = Date.now();
     return sessoes.reduce((acc, s) => {
-      if (s.fim) {
-        return acc + Number(s.duracao_segundos || 0);
-      }
+      if (s.fim) return acc + Number(s.duracao_segundos || 0);
       const inicioMs = new Date(s.inicio).getTime();
-      const decorrido = (agora - inicioMs) / 1000;
-      return acc + decorrido;
+      return acc + (agora - inicioMs) / 1000;
     }, 0);
   }, [sessoes, tick]); // eslint-disable-line react-hooks/exhaustive-deps
 

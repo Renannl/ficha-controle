@@ -34,7 +34,9 @@ export default function FichaView({
   const [ficha, setFicha] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("info");
-  const { sessoes, loadSessoes } = useSessoesTrabalho(ficha?.dbId);
+  const sessoesTrabalho = useSessoesTrabalho(ficha?.dbId);
+  const { sessoes, loading: sessoesLoading, loadSessoes } = sessoesTrabalho;
+
   const [successModal, setSuccessModal] = useState({
     isOpen: false,
     title: "",
@@ -392,6 +394,7 @@ export default function FichaView({
         .length || 0;
     return total > 0 ? Math.round((done / total) * 100) : 0;
   }
+
   const operacaoStr = String(ficha?.operacao ?? "");
   const isTaf = operacaoStr === "50";
   const isFoto = operacaoStr === "80";
@@ -481,7 +484,11 @@ export default function FichaView({
 
           {activeTab === "sessions" && (
             <>
-              <SessoesTrabalhoList fichaId={ficha.dbId} user={user} />
+              <SessoesTrabalhoList
+                fichaId={fichaId}
+                user={user}
+                sessoesTrabalho={sessoesTrabalho}
+              />
               <ChecklistLogList
                 fichaId={ficha.dbId}
                 tipoPainel={ficha.tipoPainel}
@@ -525,8 +532,10 @@ export default function FichaView({
         </nav>
 
         <BotaoSessaoTrabalho
-          fichaId={ficha.dbId}
+          fichaId={fichaId}
           user={user}
+          sessoes={sessoes}
+          loading={sessoesLoading}
           onChange={loadSessoes}
         />
       </div>

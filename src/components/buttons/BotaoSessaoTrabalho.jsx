@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { authFetch } from "../../services/apiClient";
 
 function formatarTempo(segundos) {
@@ -8,36 +8,23 @@ function formatarTempo(segundos) {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export default function BotaoSessaoTrabalho({ fichaId, user, onChange }) {
-  const [sessaoAtiva, setSessaoAtiva] = useState(null);
-  const [totalSegundos, setTotalSegundos] = useState(0);
+export default function BotaoSessaoTrabalho({ fichaId, user, sessoes, onChange }) {
   const [tempoAtual, setTempoAtual] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const carregarSessoes = useCallback(async () => {
-    const res = await authFetch(`/fichas/${fichaId}/sessoes`);
-    if (!res || !res.ok) return;
-    const data = await res.json();
-    setTotalSegundos(data.totalSegundos);
-
-    const aberta = data.sessoes.find(
-      (s) => !s.fim && s.usuario === user?.username,
-    );
-    setSessaoAtiva(aberta || null);
-  }, [fichaId, user?.username]);
+  const sessaoAtiva = sessoes?.find(
+    (s) => !s.fim && s.usuario === user?.username,
+  ) || null;
 
   useEffect(() => {
-    if (fichaId) carregarSessoes();
-  }, [fichaId, carregarSessoes]);
-
-  useEffect(() => {
-    if (!sessaoAtiva) return;
-
+    if (!sessaoAtiva) {
+      setTempoAtual(0);
+      return;
+    }
     const inicio = new Date(sessaoAtiva.inicio).getTime();
     const atualizar = () => setTempoAtual((Date.now() - inicio) / 1000);
     atualizar();
     const interval = setInterval(atualizar, 1000);
-
     return () => clearInterval(interval);
   }, [sessaoAtiva]);
 
@@ -48,17 +35,13 @@ export default function BotaoSessaoTrabalho({ fichaId, user, onChange }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
-
       if (!res) return;
       const data = await res.json();
-
       if (!res.ok) {
         alert(data.error || "Erro ao iniciar sessão.");
         return;
       }
-
-      setSessaoAtiva(data);
-      onChange?.();
+      await onChange?.(); // 🔑 recarrega a fonte única de verdade
     } finally {
       setLoading(false);
     }
@@ -72,19 +55,13 @@ export default function BotaoSessaoTrabalho({ fichaId, user, onChange }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessaoId: sessaoAtiva?.id }),
       });
-
       if (!res) return;
       const data = await res.json();
-
       if (!res.ok) {
         alert(data.error || "Erro ao pausar sessão.");
         return;
       }
-
-      setSessaoAtiva(null);
-      setTempoAtual(0);
-      await carregarSessoes();
-      onChange?.();
+      await onChange?.(); // 🔑 recarrega a fonte única de verdade
     } finally {
       setLoading(false);
     }

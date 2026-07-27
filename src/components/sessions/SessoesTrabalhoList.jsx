@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pencil } from "lucide-react";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import EditarSessaoModal from "./EditarSessaoModal";
@@ -22,17 +22,43 @@ function formatarDuracao(segundos) {
   return `${h}h${m}min${sec}s`;
 }
 
-export default function SessoesTrabalhoList({ fichaId, user }) {
+function calcularDuracao(sessao) {
+  if (sessao.fim) {
+    return sessao.duracao_segundos;
+  }
+
+  const inicio = new Date(sessao.inicio).getTime();
+  const agora = Date.now();
+  return Math.floor((agora - inicio) / 1000);
+}
+
+export default function SessoesTrabalhoList({
+  fichaId,
+  user,
+  sessoesTrabalho,
+}) {
   const {
     sessoes,
     totalSegundos,
     tempoDecorridoSegundos,
     loading,
     updateSessao,
-  } = useSessoesTrabalho(fichaId);
+  } = sessoesTrabalho;
   const [sessaoEditando, setSessaoEditando] = useState(null);
+  const [, setTick] = useState(0);
 
   const isAdmin = user?.role === "admin";
+
+  useEffect(() => {
+    const temSessaoAtiva = sessoes.some((s) => !s.fim);
+    if (!temSessaoAtiva) return;
+
+    const interval = setInterval(() => {
+      setTick((t) => t + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [sessoes]);
 
   return (
     <div className="sessions-panel">
@@ -85,7 +111,7 @@ export default function SessoesTrabalhoList({ fichaId, user }) {
                   {formatarData(s.inicio)} → {formatarData(s.fim)}
                 </span>
                 <span className="sessao-duracao">
-                  {formatarDuracao(s.duracao_segundos)}
+                  {formatarDuracao(calcularDuracao(s))}
                 </span>
                 {s.origem === "manual" && (
                   <span
