@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { authFetch } from "../services/apiClient";
 import { calcularTempoDecorridoReal } from "../utils/tempoUtils";
 
@@ -6,6 +6,7 @@ export function useSessoesTrabalho(fichaId) {
   const [sessoes, setSessoes] = useState([]);
   const [totalSegundos, setTotalSegundos] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [tick, setTick] = useState(0); // ⏱️ força recálculo a cada segundo
 
   const loadSessoes = useCallback(async () => {
     if (!fichaId) return;
@@ -32,10 +33,38 @@ export function useSessoesTrabalho(fichaId) {
     loadSessoes();
   }, [loadSessoes]);
 
-  const tempoDecorridoSegundos = useMemo(
-    () => calcularTempoDecorridoReal(sessoes),
+  // ⏱️ Atualiza o "tick" a cada segundo apenas se houver sessão aberta
+  const haSessaoAberta = useMemo(
+    () => sessoes.some((s) => !s.fim),
     [sessoes],
   );
+
+  useEffect(() => {
+    if (!haSessaoAberta) return;
+    const interval = setInterval(() => {
+      setTick((t) => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [haSessaoAberta]);
+
+  // Recalcula tempo decorrido considerando o tick (tempo real)
+  const tempoDecorridoSegundos = useMemo(
+    () => calcularTempoDecorridoReal(sessoes),
+    [sessoes, tick], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  // Recalcula total (homem-hora) somando segundos "ao vivo" das sessões abertas
+  const totalSegundosAoVivo = useMemo(() => {
+    const agora = Date.now();
+    return sessoes.reduce((acc, s) => {
+      if (s.fim) {
+        return acc + Number(s.duracao_segundos || 0);
+      }
+      const inicioMs = new Date(s.inicio).getTime();
+      const decorrido = (agora - inicioMs) / 1000;
+      return acc + decorrido;
+    }, 0);
+  }, [sessoes, tick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateSessao = useCallback(
     async (sessaoId, payload) => {
@@ -72,10 +101,10 @@ export function useSessoesTrabalho(fichaId) {
 
   return {
     sessoes,
-    totalSegundos,
+    totalSegundos: totalSegundosAoVivo,
     tempoDecorridoSegundos,
     loading,
-    loadSessoes, // ✅ este é o "refetch"
+    loadSessoes,
     updateSessao,
     deleteSessao,
   };
