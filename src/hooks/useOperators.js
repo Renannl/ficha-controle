@@ -33,6 +33,7 @@ export function useOperators({ user, onAtualizarOperadores, podeGerenciar }) {
             id: usuario.id,
             nome: usuario.nome,
             username: usuario.username,
+            role: usuario.role,
           },
         ];
       }

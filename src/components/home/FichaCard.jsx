@@ -2,6 +2,7 @@ import { getFichaStatus, getProgressPct } from "../../utils/fichaStatus";
 import { OPERACOES } from "../../data/fichaTemplate";
 import { canDeleteFicha, canGeneratePdf } from "../../utils/hasPermission";
 import FichaTimerBadge from "./FichaTimerBadge";
+import { getRoleColor } from "../../utils/roleColors";
 import {
   User,
   Tag,
@@ -165,13 +166,13 @@ export default function FichaCard({
               {operadores.map((op, idx) => (
                 <div
                   key={op.id || idx}
-                  title={op.nome}
+                  title={`${op.nome} (${op.role || "sem cargo"})`}
                   style={{
                     width: "24px",
                     height: "24px",
                     borderRadius: "50%",
-                    backgroundColor: "var(--blue-accent)",
-                    color: "var(--bg-card)",
+                    backgroundColor: getRoleColor(op.role), // 👈 cor dinâmica pelo cargo
+                    color: "#ffffff",
                     border: "2px solid var(--bg-card)",
                     display: "flex",
                     alignItems: "center",

@@ -1,4 +1,5 @@
 import { UserPlus } from "lucide-react";
+import { agruparUsuariosPorCargo, getRoleColor } from "../../utils/roleColors";
 
 export default function OperatorSelector({
   ficha,
@@ -9,6 +10,12 @@ export default function OperatorSelector({
   setActiveDropdownFichaId,
   onToggleOperador,
 }) {
+  const usuariosFiltrados = listaUsuarios.filter(
+    (u) => u.nome !== ficha.criadoPor && u.username !== "master",
+  );
+
+  const grupos = agruparUsuariosPorCargo(usuariosFiltrados);
+
   return (
     <div style={{ position: "relative" }}>
       <button
@@ -27,7 +34,6 @@ export default function OperatorSelector({
         }}
         onClick={(e) => {
           e.stopPropagation();
-
           setActiveDropdownFichaId(
             activeDropdownFichaId === ficha.dbId ? null : ficha.dbId,
           );
@@ -44,8 +50,8 @@ export default function OperatorSelector({
             position: "absolute",
             right: 0,
             top: "30px",
-            width: "180px",
-            maxHeight: "160px",
+            width: "200px",
+            maxHeight: "260px",
             backgroundColor: "var(--bg-elevated)",
             border: "1px solid var(--border)",
             borderRadius: "var(--radius-xs)",
@@ -68,52 +74,84 @@ export default function OperatorSelector({
             Escalar Equipe
           </div>
 
-          {listaUsuarios
-            .filter(
-              (u) => u.nome !== ficha.criadoPor && u.username !== "master",
-            )
-            .map((u) => {
-              const ativo = operadores.some(
-                (op) => op.id === u.id || op.username === u.username,
-              );
+          {grupos.map((grupo) => (
+            <div key={grupo.role}>
+              {/* Cabeçalho do grupo com a cor do cargo */}
+              <div
+                style={{
+                  padding: "5px 10px 3px",
+                  fontSize: "9px",
+                  fontWeight: "800",
+                  textTransform: "uppercase",
+                  color: grupo.color,
+                  letterSpacing: "0.03em",
+                }}
+              >
+                {grupo.label}
+              </div>
 
-              return (
-                <button
-                  key={u.id}
-                  onClick={(e) => onToggleOperador(e, ficha, u)}
-                  style={{
-                    width: "100%",
-                    padding: "6px 10px",
-                    fontSize: "12px",
-                    textAlign: "left",
-                    background: ativo ? "var(--blue-glow)" : "transparent",
-                    color: ativo
-                      ? "var(--blue-primary)"
-                      : "var(--text-secondary)",
-                    border: "none",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <span
+              {grupo.usuarios.map((u) => {
+                const ativo = operadores.some(
+                  (op) => op.id === u.id || op.username === u.username,
+                );
+
+                return (
+                  <button
+                    key={u.id}
+                    onClick={(e) => onToggleOperador(e, ficha, u)}
                     style={{
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      flex: 1,
+                      width: "100%",
+                      padding: "6px 10px",
+                      fontSize: "12px",
+                      textAlign: "left",
+                      background: ativo ? `${grupo.color}22` : "transparent",
+                      color: ativo ? grupo.color : "var(--text-secondary)",
+                      border: "none",
+                      borderLeft: `3px solid ${grupo.color}`,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "6px",
                     }}
                   >
-                    {u.nome || u.username}
-                  </span>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        flex: 1,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "6px",
+                          height: "6px",
+                          borderRadius: "50%",
+                          background: grupo.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span
+                        style={{
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {u.nome || u.username}
+                      </span>
+                    </span>
 
-                  {ativo && <span style={{ fontSize: "9px" }}>🟢</span>}
-                </button>
-              );
-            })}
+                    {ativo && <span style={{ fontSize: "9px" }}>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
 
-          {listaUsuarios.length === 0 && (
+          {usuariosFiltrados.length === 0 && (
             <div
               style={{
                 padding: "6px 10px",
