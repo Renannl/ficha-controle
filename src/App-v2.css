@@ -3493,19 +3493,19 @@
   background: var(--blue-glow);
   color: var(--blue-accent);
 }
-.role-badge.role-producao {
-  background: #fff3e0;
-  color: #ef6c00;
+.role-badge.role-montagem {
+  background: #f8bc5a;
+  color: #ffffff;
 }
 
-.role-badge.role-projetos {
+.role-badge.role-cabeamento {
   background: #4e944ecb;
   color: #ffffff;
 }
 
-.role-badge.role-corretor {
-  background: #ff6464e3;
-  color: #000000;
+.role-badge.role-barramento {
+  background: #5969f3e3;
+  color: #fffefe;
 }
 
 /* Botões de Ação com Efeito Glow */

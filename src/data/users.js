@@ -17,15 +17,15 @@ export const INITIAL_USERS = [
 
 export const ROLES = {
   admin: "Administrador (SuperAdmin)",
-  producao: "Produção (Campo)",
-  projetos: "Projetos (Aprovação)",
-  corretor: "Corretor (Revisão Final)",
+  montagem: "Montagem Mecânica",
+  cabeamento: "Cabeamento",
+  barramento: "Barramento",
 };
 
 export const ROLE_PRESETS = {
-  producao: ["taf", "controle", "fotos"],
+  montagem: ["taf", "controle", "fotos"],
 
-  projetos: [
+  cabeamento: [
     "taf",
     "controle",
     "fotos",
@@ -34,7 +34,7 @@ export const ROLE_PRESETS = {
     "ver_aprovacao",
   ],
 
-  corretor: ["ver_enviadas", "rejeitar", "editar_ficha"],
+  barramento: ["ver_enviadas", "rejeitar", "editar_ficha"],
 
   admin: [
     "taf",

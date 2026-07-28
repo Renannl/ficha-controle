@@ -33,9 +33,9 @@ export function useUsers() {
 
       const roleOrder = {
         admin: 1,
-        corretor: 2,
-        projetos: 3,
-        producao: 4,
+        barramento: 2,
+        cabeamento: 3,
+        montagem: 4,
       };
 
       const sortedUsers = [...data].sort((a, b) => {
