@@ -2,8 +2,6 @@ import SignatureBlock from "./SignatureBlock";
 import SignatureFinalize from "./SignatureFinalize";
 
 const ROLES = [
-  { key: "producao", label: "Produção" },
-  { key: "tecnico", label: "Técnico Responsável" },
   { key: "supervisor", label: "Supervisor de Produção" },
   { key: "qualidade", label: "Responsável pela Qualidade" },
 ];

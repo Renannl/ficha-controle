@@ -3,17 +3,28 @@ import FichaCard from "./FichaCard";
 import { ImportarColecaoExcel } from "../excel/ImportarColecaoExcel";
 import { FolderOpen, Plus, Calendar, Search, X, Trash2 } from "lucide-react";
 import { getFichaStatus } from "../../utils/fichaStatus";
+import { getColecaoStatus } from "../../utils/colecaoStatus";
 
 function getStatusColor(status) {
   const cores = {
-    empty: "var(--text-muted)",
-    progress: "var(--yellow-accent, #eab308)",
-    done: "var(--green-accent, #22c55e)",
-    waiting: "var(--yellow-accent, #eab308)",
-    approved: "var(--green-accent, #22c55e)",
-    rejected: "var(--red-accent, #ef4444)",
+    vazia: "var(--text-muted)",
+    andamento: "#f59e0b",
+    completa: "#22c55e",
+    erro: "#ef4444",
   };
 
+  return cores[status] || "var(--blue-accent)";
+}
+
+function getFichaStatusColor(status) {
+  const cores = {
+    empty: "var(--text-muted)",
+    progress: "#eab308",
+    done: "#22c55e",
+    waiting: "#eab308",
+    approved: "#22c55e",
+    rejected: "#ef4444",
+  };
   return cores[status] || "var(--blue-accent)";
 }
 
@@ -90,6 +101,7 @@ export default function HomeList({
               const fichasDaCol = fichas.filter((f) => f.colecao_id === col.id);
               const preview = fichasDaCol.slice(0, 2);
               const resto = fichasDaCol.length - preview.length;
+              const colecaoStatus = getColecaoStatus(fichasDaCol);
 
               const dataCriacao = col.created_at
                 ? new Date(col.created_at).toLocaleDateString("pt-BR", {
@@ -102,7 +114,7 @@ export default function HomeList({
               return (
                 <div
                   key={col.id}
-                  className="colecao-card"
+                  className={`colecao-card ${colecaoStatus !== "vazia" ? `status-${colecaoStatus}` : ""}`}
                   onClick={() => onOpenColecao(col)}
                 >
                   <div className="colecao-card-top">
@@ -118,9 +130,14 @@ export default function HomeList({
                       </div>
                     </div>
 
-                    {/* ✅ Badge + botão de excluir juntos, à direita */}
                     <div className="colecao-card-actions">
-                      <div className="colecao-card-badge">
+                      <div
+                        className="colecao-card-badge"
+                        style={{
+                          color: getStatusColor(colecaoStatus),
+                          borderColor: getStatusColor(colecaoStatus),
+                        }}
+                      >
                         {fichasDaCol.length}{" "}
                         {fichasDaCol.length === 1 ? "ficha" : "fichas"}
                       </div>
@@ -157,7 +174,9 @@ export default function HomeList({
                             <span
                               className="preview-ficha-dot"
                               style={{
-                                background: getStatusColor(getFichaStatus(f)),
+                                background: getFichaStatusColor(
+                                  getFichaStatus(f),
+                                ),
                               }}
                             />
                             {f.nomeEquipamento ?? f.tipo ?? "Ficha"}

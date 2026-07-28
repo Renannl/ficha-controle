@@ -398,6 +398,55 @@
   transform: scale(0.9);
 }
 
+/* ──────────────────────────────────────────────
+   Status Visual da Coleção (borda lateral + fundo)
+────────────────────────────────────────────── */
+
+/* Amarela — tem ficha(s), mas ainda em andamento */
+.colecao-card.status-andamento::before {
+  background: linear-gradient(180deg, #f59e0b, #d97706);
+}
+
+.colecao-card.status-andamento {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.colecao-card.status-andamento .colecao-card-icon {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #f59e0b;
+}
+
+/* Vermelha — alguma ficha com item em ERRO */
+.colecao-card.status-erro::before {
+  background: linear-gradient(180deg, #ef4444, #dc2626);
+}
+
+.colecao-card.status-erro {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.colecao-card.status-erro .colecao-card-icon {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+}
+
+/* Verde — coleção completa (todas as fichas concluídas e sem erro) */
+.colecao-card.status-completa::before {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+}
+
+.colecao-card.status-completa {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.colecao-card.status-completa .colecao-card-icon {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.25);
+  color: #22c55e;
+}
+
 [data-theme="dark"] .colecao-card-delete-btn:hover {
   background: rgba(211, 47, 47, 0.1);
 }
