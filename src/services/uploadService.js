@@ -10,7 +10,7 @@ export async function uploadFoto(file, ficha) {
   }
   try {
     const formData = new FormData();
-    formData.append("fichaId", ficha.dbId); // ✅ corrigido
+    formData.append("fichaId", ficha.dbId);
     formData.append("file", file);
 
     const response = await authFetch(`${API_URL}/upload-foto`, {
@@ -26,7 +26,7 @@ export async function uploadFoto(file, ficha) {
     }
 
     const data = await response.json();
-    return `${API_URL}/uploads/${data.caminho}`;
+    return data.caminho;
   } catch (err) {
     console.error("[Upload Foto]", err);
     alert("Erro ao enviar foto: " + err.message);
@@ -83,7 +83,7 @@ export async function uploadPdf(pdfBlob, ficha) {
     }
 
     const data = await response.json();
-    return { ...data, url: `${API_URL}/uploads/${data.caminho}` };
+    return { ...data, url: data.caminho };
   } catch (err) {
     console.error("[Upload PDF]", err);
     alert("Erro ao enviar PDF: " + err.message);

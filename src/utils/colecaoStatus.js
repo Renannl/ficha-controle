@@ -15,10 +15,14 @@ export function getColecaoStatus(fichasDaCol) {
 
   // 🟢 Tudo concluído (preenchida ou aprovada)
   const todasCompletas = statusFichas.every(
-    (s) => s === "done" || s === "approved"
+    (s) => s === "done" || s === "approved",
   );
   if (todasCompletas) return "completa";
 
-  // 🟡 Tem fichas, mas nem tudo concluído (empty, progress, waiting)
+  // ⚪ Nenhuma ficha foi iniciada ainda (todas "empty")
+  const todasVazias = statusFichas.every((s) => s === "empty");
+  if (todasVazias) return "vazia"; // ✅ novo check
+
+  // 🟡 Tem fichas, mas pelo menos uma já foi iniciada (progress, waiting, etc.)
   return "andamento";
 }
