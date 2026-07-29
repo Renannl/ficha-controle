@@ -29,7 +29,7 @@ export default function FichaView({
   excluirFicha,
   origem,
 }) {
-  const { fichaId, id: colecaoId } = useParams();
+  const { fichaId, colecaoId } = useParams();
   const navigate = useNavigate();
   const [ficha, setFicha] = useState(null);
   const [loading, setLoading] = useState(true);

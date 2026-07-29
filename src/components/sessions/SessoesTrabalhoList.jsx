@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Pencil } from "lucide-react";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import EditarSessaoModal from "./EditarSessaoModal";
+import { formatarNomeUsuario } from "../../utils/tempoUtils";
 
 function formatarData(iso) {
   if (!iso) return "em andamento";
@@ -106,7 +107,7 @@ export default function SessoesTrabalhoList({
           {sessoes.map((s) => (
             <div key={s.id} className="sessao-trabalho-item">
               <div className="sessao-trabalho-info">
-                <strong>{s.usuario}</strong>
+                <strong>{formatarNomeUsuario(s.usuario) || "Usuário"}</strong>
                 <span>
                   {formatarData(s.inicio)} → {formatarData(s.fim)}
                 </span>

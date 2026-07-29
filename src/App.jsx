@@ -153,17 +153,24 @@ export default function App() {
     qualidade: "90",
   };
 
+  function handleOpen(id, colecaoId = null) {
+    if (colecaoId) {
+      navigate(`/colecao/${colecaoId}/ficha/${id}`);
+    } else {
+      navigate(`/dashboard/ficha/${id}`);
+    }
+  }
+
   async function handleNova(tipo, colecaoId = null) {
     const operacaoCodigo = TIPO_PARA_OPERACAO[tipo] ?? tipo;
     const id = await criarFicha(operacaoCodigo, colecaoId);
     if (!id) return;
 
-    // ✅ Sempre navega para o dashboard — sem rota de coleção
-    navigate(`/dashboard/ficha/${id}`);
-  }
-
-  function handleOpen(id) {
-    navigate(`/dashboard/ficha/${id}`);
+    if (colecaoId) {
+      navigate(`/colecao/${colecaoId}/ficha/${id}`);
+    } else {
+      navigate(`/dashboard/ficha/${id}`);
+    }
   }
 
   function handleDelete(e, id) {
@@ -198,6 +205,28 @@ export default function App() {
           </div>
         }
       />
+
+      <Route
+        path="/colecao/:colecaoId"
+        element={
+          <div className="app">
+            <HomeScreen
+              fichas={fichas}
+              onFichasAtualizadas={recarregarFichas}
+              onNova={handleNova}
+              listaUsuarios={usuarios}
+              onOpen={handleOpen}
+              onDelete={handleDelete}
+              onAtualizarOperadores={atualizarOperadores}
+              user={user}
+              onLogout={logout}
+              theme={theme}
+              onToggleTheme={toggleTheme}
+              onOpenAdmin={() => navigate("/admin")}
+            />
+          </div>
+        }
+      />
       {/* Ficha aberta pelo dashboard */}
       <Route
         path="/dashboard/ficha/:fichaId"
@@ -209,6 +238,20 @@ export default function App() {
             getFicha={getFicha}
             excluirFicha={excluirFicha}
             origem="dashboard"
+          />
+        }
+      />
+
+      <Route
+        path="/colecao/:colecaoId/ficha/:fichaId"
+        element={
+          <FichaView
+            user={user}
+            fichas={fichas}
+            atualizarFicha={atualizarFicha}
+            getFicha={getFicha}
+            excluirFicha={excluirFicha}
+            origem="colecao"
           />
         }
       />

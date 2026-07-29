@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom"; // 🆕 faltava
 import ConfirmModal from "../buttons/ConfirmModal";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
 import { useLocalStorageState } from "../../hooks/useLocalStorageState";
@@ -41,14 +42,23 @@ export default function HomeScreen({
   const [activeDropdownFichaId, setActiveDropdownFichaId] = useState(null);
   const [bookFichas, setBookFichas] = useState([]);
   const [selectedFichas, setSelectedFichas] = useState([]);
-  const [selectedColecao, setSelectedColecao] = useState(null);
-  const [pendingExport, setPendingExport] = useState(null); // ids pendentes
+  const [pendingExport, setPendingExport] = useState(null);
+  const [deleteColecaoId, setDeleteColecaoId] = useState(null);
+
+  const navigate = useNavigate();
+  const { colecaoId } = useParams(); // 🆕 vem da URL /colecao/:colecaoId
 
   const { colecoes, criarColecao, deletarColecao, recarregarColecoes } =
     useColecoes();
 
   // ── PERMISSIONS ────────────────────────────────
   const podeGerenciar = canManageOperators(user);
+
+  // 🆕 selectedColecao derivada da URL (sem useState duplicado)
+  const selectedColecao = useMemo(() => {
+    if (!colecaoId) return null;
+    return colecoes.find((c) => String(c.id) === String(colecaoId)) || null;
+  }, [colecaoId, colecoes]);
 
   // ── FICHAS DA COLEÇÃO ABERTA ───────────────────
   const fichasDaColecao = useMemo(() => {
@@ -71,8 +81,6 @@ export default function HomeScreen({
     await onFichasAtualizadas?.();
   };
 
-  const [deleteColecaoId, setDeleteColecaoId] = useState(null);
-
   function handleDeleteColecao(e, id) {
     e?.stopPropagation?.();
     setDeleteColecaoId(id);
@@ -90,7 +98,7 @@ export default function HomeScreen({
     }
   };
 
-  // filtra coleções pelo termo de busca (reaproveita searchTerm)
+  // filtra coleções pelo termo de busca
   const filteredColecoes = useMemo(() => {
     if (!searchTerm) return colecoes;
     const term = searchTerm.toLowerCase();
@@ -101,9 +109,23 @@ export default function HomeScreen({
     );
   }, [colecoes, searchTerm]);
 
-  // ✅ Já está correto, só confirme que está assim:
+  // ── NAVEGAÇÃO (única versão, via URL) ──────────
+  const handleAbrirColecao = (colecao) => {
+    navigate(`/colecao/${colecao.id}`);
+    setSelectedFichas([]);
+    setSearchTerm("");
+    setViewMode("list");
+  };
+
+  const handleVoltarColecoes = () => {
+    navigate("/dashboard");
+    setSelectedFichas([]);
+    setSearchTerm("");
+    setViewMode("list");
+  };
+
   const handleCreateFicha = (tipo) => {
-    if (!selectedColecao?.id) return; // segurança extra
+    if (!selectedColecao?.id) return;
     onNova(tipo, selectedColecao.id);
     setShowNewMenu(false);
   };
@@ -118,18 +140,14 @@ export default function HomeScreen({
     return () => window.removeEventListener("abrir-book-pdf", handler);
   }, []);
 
-  // Só dispara o export DEPOIS que bookFichas foi commitado e renderizado
   useEffect(() => {
     if (!pendingExport) return;
-
-    // requestAnimationFrame garante que o browser já pintou o DOM novo
     const raf = requestAnimationFrame(() => {
       requestAnimationFrame(async () => {
         await exportBook(pendingExport);
         setPendingExport(null);
       });
     });
-
     return () => cancelAnimationFrame(raf);
   }, [bookFichas, pendingExport]);
 
@@ -174,18 +192,9 @@ export default function HomeScreen({
     );
   };
 
-  const handleAbrirColecao = (colecao) => {
-    setSelectedColecao(colecao);
-    setSelectedFichas([]);
-    setSearchTerm("");
-    setViewMode("list");
-  };
-
-  const handleVoltarColecoes = () => {
-    setSelectedColecao(null);
-    setSelectedFichas([]);
-    setSearchTerm("");
-    setViewMode("list");
+  // 🆕 onOpen agora repassa o colecaoId (se estiver dentro de uma coleção)
+  const handleOpenFicha = (id) => {
+    onOpen(id, selectedColecao?.id ?? null);
   };
 
   // ── RENDER ─────────────────────────────────────
@@ -196,7 +205,7 @@ export default function HomeScreen({
         <div className="login-bg-circle login-bg-circle-2" />
         <div className="login-bg-circle login-bg-circle-3" />
       </div>
-      {/* HEADER */}
+
       <HomeHeader
         user={user}
         theme={theme}
@@ -205,7 +214,7 @@ export default function HomeScreen({
         onLogout={onLogout}
         stats={stats}
       />
-      {/* VIEW TOGGLE */}
+
       <HomeViewToggle
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -215,7 +224,7 @@ export default function HomeScreen({
         handleTouchEnd={handleTouchEnd}
         selectedColecao={selectedColecao}
       />
-      {/* BREADCRUMB — só dentro de coleção no modo list */}
+
       {selectedColecao && viewMode === "list" && (
         <div className="colecao-breadcrumb">
           <button className="colecao-back-btn" onClick={handleVoltarColecoes}>
@@ -227,7 +236,7 @@ export default function HomeScreen({
           </span>
         </div>
       )}
-      {/* CONTENT */}
+
       <HomeContent
         viewMode={viewMode}
         fichas={fichas}
@@ -247,7 +256,7 @@ export default function HomeScreen({
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
         listaUsuarios={listaUsuarios}
-        onOpen={onOpen}
+        onOpen={handleOpenFicha}
         onDelete={handleDelete}
         onDeleteColecao={handleDeleteColecao}
         onToggleOperador={handleToggleOperadorFicha}
@@ -259,7 +268,7 @@ export default function HomeScreen({
         onOpenColecao={handleAbrirColecao}
         onColecaoImportada={handleColecaoImportada}
       />
-      {/* MODAL EXCLUIR FICHA */}
+
       <ConfirmModal
         isOpen={!!deleteId}
         title="Excluir Ficha?"
@@ -280,7 +289,6 @@ export default function HomeScreen({
         onCancel={() => setDeleteColecaoId(null)}
       />
 
-      {/* BARRA DE SELEÇÃO PDF — só dentro de coleção */}
       {canGeneratePdf(user) && selectedFichas.length > 0 && selectedColecao && (
         <div className="selection-bar">
           <div className="selection-info">
@@ -310,7 +318,6 @@ export default function HomeScreen({
         <BookPrintView fichas={bookFichas} />
       </div>
 
-      {/* FAB */}
       <HomeFab onClick={() => setShowNewMenu(true)} />
       <NewFichaMenu
         show={showNewMenu}
