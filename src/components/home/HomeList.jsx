@@ -103,6 +103,11 @@ export default function HomeList({
               const resto = fichasDaCol.length - preview.length;
               const colecaoStatus = getColecaoStatus(fichasDaCol);
 
+              // 🆕 verifica se alguma ficha da coleção tem sessão ativa
+              const temTrabalhoEmAndamento = fichasDaCol.some(
+                (f) => f.sessao_ativa,
+              );
+
               const dataCriacao = col.created_at
                 ? new Date(col.created_at).toLocaleDateString("pt-BR", {
                     day: "2-digit",
@@ -124,6 +129,17 @@ export default function HomeList({
                     <div className="colecao-card-info">
                       <div className="colecao-card-title">
                         {col.cliente ?? "Sem nome"}
+                        {temTrabalhoEmAndamento && (
+                          <span
+                            className="colecao-card-timer-badge"
+                            title={`Em andamento: ${fichasDaCol
+                              .filter((f) => f.sessao_ativa)
+                              .map((f) => f.sessao_ativa.usuario)
+                              .join(", ")}`}
+                          >
+                            ● em andamento
+                          </span>
+                        )}
                       </div>
                       <div className="colecao-card-sub">
                         {col.descricao ?? "Sem descrição"}{" "}

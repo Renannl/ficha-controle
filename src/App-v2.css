@@ -6042,6 +6042,30 @@ svg {
   color: #ffc107;
 }
 
+.colecao-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.colecao-card-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #22c55e;
+  animation: pulse-dot 1.5s infinite;
+  white-space: nowrap;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+
 .btn-icon-edit {
   background: none;
   border: none;
