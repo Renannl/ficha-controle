@@ -1,4 +1,5 @@
-import { useMemo, Fragment } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useChecklistLog } from "../../hooks/useChecklistLog";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import {
@@ -11,6 +12,7 @@ import { getMapaEtapasPorItem, ETAPA_LABELS } from "../../utils/etapaUtils";
 export default function ChecklistLogList({ fichaId, tipoPainel }) {
   const { logs, loading } = useChecklistLog(fichaId);
   const { sessoes } = useSessoesTrabalho(fichaId);
+  const [gruposAbertos, setGruposAbertos] = useState({}); // 🆕
 
   function formatarValor(campo, valor) {
     if (campo === "resultado") {
@@ -38,16 +40,6 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
     }));
   }, [logs, sessoes, mapaEtapas]);
 
-  const resumoPorEtapa = useMemo(() => {
-    const resumo = {};
-    logsComTempo.forEach((log) => {
-      if (!log.etapa || log.duracao == null) return;
-      if (!resumo[log.etapa]) resumo[log.etapa] = 0;
-      resumo[log.etapa] += log.duracao;
-    });
-    return resumo;
-  }, [logsComTempo]);
-
   const logsExibicao = useMemo(
     () =>
       [...logsComTempo].sort(
@@ -55,6 +47,42 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
       ),
     [logsComTempo],
   );
+
+  // 🆕 Agrupa por etapa (mantendo "sem etapa" como grupo próprio)
+  const grupos = useMemo(() => {
+    const map = {};
+    logsExibicao.forEach((log) => {
+      const chave = log.etapa || "_sem_etapa";
+      if (!map[chave]) {
+        map[chave] = { etapa: chave, logs: [], totalDuracao: 0 };
+      }
+      map[chave].logs.push(log);
+      if (log.duracao != null) map[chave].totalDuracao += log.duracao;
+    });
+
+    // ordena grupos pela data mais recente do primeiro log de cada um
+    return Object.values(map).sort((a, b) => {
+      const dataA = new Date(a.logs[0]?.timestamp || 0);
+      const dataB = new Date(b.logs[0]?.timestamp || 0);
+      return dataB - dataA;
+    });
+  }, [logsExibicao]);
+
+  // 🆕 Abre o grupo mais recente por padrão
+  useEffect(() => {
+    if (!grupos.length) return;
+    setGruposAbertos((prev) => {
+      if (Object.keys(prev).length > 0) return prev; // não sobrescreve escolha do usuário
+      return { [grupos[0].etapa]: true };
+    });
+  }, [grupos]);
+
+  function toggleGrupo(etapa) {
+    setGruposAbertos((prev) => ({ ...prev, [etapa]: !prev[etapa] }));
+  }
+
+  console.log("sessoes:", sessoes);
+  console.log("logsComTempo:", logsComTempo);
 
   return (
     <div className="card mb-3">
@@ -66,75 +94,87 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
         </div>
       </div>
 
-      {Object.keys(resumoPorEtapa).length > 0 && (
-        <div className="resumo-etapas">
-          {Object.entries(resumoPorEtapa).map(([etapa, total]) => (
-            <div key={etapa} className="resumo-etapa-item">
-              <strong>{ETAPA_LABELS[etapa] || etapa}:</strong>{" "}
-              {formatarTempo(total)}
-            </div>
-          ))}
-        </div>
-      )}
-
       {loading && <p className="sessoes-empty">Carregando...</p>}
       {!loading && !logsExibicao.length && (
         <p className="sessoes-empty">Nenhuma marcação registrada ainda.</p>
       )}
 
-      <div className="sessoes-trabalho-list">
-        {logsExibicao.map((log, index) => {
-          // 🔹 Verifica se é a primeira marcação dessa etapa (comparando com o item anterior)
-          const etapaAnterior =
-            index > 0 ? logsExibicao[index - 1].etapa : null;
-          const mostrarTituloEtapa = log.etapa && log.etapa !== etapaAnterior;
+      {/* 🆕 Grupos por etapa, colapsáveis */}
+      <div className="sessoes-grupos-list">
+        {grupos.map((grupo) => {
+          const aberto = !!gruposAbertos[grupo.etapa];
+          const label =
+            grupo.etapa === "_sem_etapa"
+              ? "Sem etapa definida"
+              : ETAPA_LABELS[grupo.etapa] || grupo.etapa;
 
           return (
-            <Fragment key={log.id}>
-              {mostrarTituloEtapa && (
-                <div className="etapa-titulo-divisor">
-                  {ETAPA_LABELS[log.etapa] || log.etapa}
+            <div key={grupo.etapa} className="sessao-grupo">
+              <button
+                className="sessao-grupo-header"
+                onClick={() => toggleGrupo(grupo.etapa)}
+              >
+                <div className="sessao-grupo-header-left">
+                  {aberto ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                  <strong>{label}</strong>
                 </div>
-              )}
 
-              <div className="sessao-trabalho-item">
-                <div className="sessao-trabalho-info">
-                  <strong>
-                    {formatarNomeUsuario(log.usuario) || "Usuário"}
-                  </strong>
-                  <span>
-                    {" "}
-                    marcou <strong>{log.descricao}</strong>
-                    {log.campo === "sessionMark" &&
-                      ` (sessão ${log.sessaoIndex + 1})`}{" "}
-                    como <strong>{formatarValor(log.campo, log.valor)}</strong>
-                    {log.etapa && (
-                      <span className="etapa-badge">
-                        {" "}
-                        · {ETAPA_LABELS[log.etapa]}
-                      </span>
-                    )}
+                <div className="sessao-grupo-header-right">
+                  <span className="sessao-grupo-count">
+                    {grupo.logs.length}{" "}
+                    {grupo.logs.length === 1 ? "marcação" : "marcações"}
                   </span>
-                  {log.duracao !== null && (
-                    <span className="sessao-duracao sessao-duracao-tempo">
-                      ⏱ +{formatarTempo(log.duracao)} (total:{" "}
-                      {formatarTempo(log.tempoAcumulado)})
+                  {grupo.totalDuracao > 0 && (
+                    <span className="sessao-grupo-total">
+                      {formatarTempo(grupo.totalDuracao)}
                     </span>
                   )}
                 </div>
+              </button>
 
-                <span className="sessao-timestamp-corner">
-                  {new Date(log.timestamp).toLocaleString("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })}
-                </span>
-              </div>
-            </Fragment>
+              {aberto && (
+                <div className="sessoes-trabalho-list sessoes-trabalho-list--scroll">
+                  {grupo.logs.map((log) => (
+                    <div key={log.id} className="sessao-trabalho-item">
+                      <div className="sessao-trabalho-info">
+                        <strong>
+                          {formatarNomeUsuario(log.usuario) || "Usuário"}
+                        </strong>
+                        <span>
+                          {" "}
+                          marcou <strong>{log.descricao}</strong>
+                          {log.campo === "sessionMark" &&
+                            ` (sessão ${log.sessaoIndex + 1})`}{" "}
+                          como{" "}
+                          <strong>{formatarValor(log.campo, log.valor)}</strong>
+                        </span>
+                        {log.duracao !== null && (
+                          <span className="sessao-duracao sessao-duracao-tempo">
+                            ⏱ +{formatarTempo(log.duracao)} (total:{" "}
+                            {formatarTempo(log.tempoAcumulado)})
+                          </span>
+                        )}
+                      </div>
+
+                      <span className="sessao-timestamp-corner">
+                        {new Date(log.timestamp).toLocaleString("pt-BR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>

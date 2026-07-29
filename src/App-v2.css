@@ -5906,22 +5906,76 @@ svg {
   color: #f59e0b;
 }
 
-.sessoes-trabalho-list {
+.sessoes-grupos-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 10px; /* 🔄 mais respiro entre os grupos */
 }
 
-.sessao-trabalho-item {
-  position: relative; /* necessário para o canto absoluto */
+.sessao-grupo {
+  border: 1px solid var(--bg-base);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sessao-grupo-header {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 12px 14px;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  background: var(--bg-base);
+}
+
+.sessao-grupo-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+}
+
+.sessao-grupo-header-right {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  padding: 12px 14px 20px; /* padding-bottom extra pra não colidir com o canto */
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sessao-grupo-total {
+  font-weight: 600;
+  color: var(--blue-accent);
+}
+
+.sessao-tag-ativa {
+  font-size: 11px;
+  color: #2e9e5b;
+  font-weight: 600;
+}
+
+/* 🔄 Área de scroll maior + itens espaçados, sem bordas coladas */
+.sessoes-trabalho-list--scroll {
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 🔄 Cada item agora tem seu próprio "cartão" separado, sem colar */
+.sessao-trabalho-item {
+  border: 1px solid var(--border-color-light, #ececec);
   border-radius: 10px;
-  background: var(--bg-elevated, #1c1c1e);
-  border: 1px solid var(--border-color, #2a2a2c);
+  padding: 10px 12px;
+  background: var(--bg-card, #fafafa);
+}
+
+.sessao-trabalho-item + .sessao-trabalho-item {
+  margin-top: 0; /* já resolvido pelo gap do flex */
 }
 
 .sessao-trabalho-info {
