@@ -124,9 +124,9 @@ export default function HomeScreen({
     setViewMode("list");
   };
 
-  const handleCreateFicha = (tipo) => {
+  const handleCreateFicha = (tipo, fichaProducao = null) => {
     if (!selectedColecao?.id) return;
-    onNova(tipo, selectedColecao.id);
+    onNova(tipo, selectedColecao.id, fichaProducao);
     setShowNewMenu(false);
   };
 
@@ -327,6 +327,7 @@ export default function HomeScreen({
         mode={mode}
         user={user}
         onColecaoImportada={handleColecaoImportada}
+        fichasDaColecao={fichasDaColecao}
       />
     </div>
   );

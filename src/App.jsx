@@ -161,9 +161,20 @@ export default function App() {
     }
   }
 
-  async function handleNova(tipo, colecaoId = null) {
+  async function handleNova(tipo, colecaoId = null, fichaProducao = null) {
     const operacaoCodigo = TIPO_PARA_OPERACAO[tipo] ?? tipo;
-    const id = await criarFicha(operacaoCodigo, colecaoId);
+
+    const dadosIniciais = {};
+    if (fichaProducao) {
+      dadosIniciais.numeroInd = fichaProducao.numeroInd;
+    }
+
+    const id = await criarFicha(
+      operacaoCodigo,
+      colecaoId,
+      dadosIniciais,
+      fichaProducao?.dbId ?? null,
+    );
     if (!id) return;
 
     if (colecaoId) {

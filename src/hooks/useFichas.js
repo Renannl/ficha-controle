@@ -41,6 +41,7 @@ function converterFicha(f) {
     colecao: f.colecoes ?? null,
     sessao_ativa: f.sessao_ativa ?? null,
     tempo_acumulado_segundos: Number(f.tempo_acumulado_segundos) || 0,
+    ficha_producao_id: f.ficha_producao_id ?? null,
   };
 }
 
@@ -170,9 +171,18 @@ export function useFichas(currentUser) {
 
   // ─── CRIAR ───
   const criarFicha = useCallback(
-    async (operacaoCodigo, colecaoId, dadosIniciais = {}) => {
+    async (
+      operacaoCodigo,
+      colecaoId,
+      dadosIniciais = {},
+      fichaProducaoId = null,
+    ) => {
       const codigoGerado = await gerarCodigo(operacaoCodigo);
-      const numeroIndGerado = await gerarNumeroInd(colecaoId); // 🔄 agora recebe colecaoId, não operacaoCodigo
+
+      // 🆕 TAF vinculado reaproveita o numeroInd da produção; senão gera normal
+      const numeroIndGerado = dadosIniciais.numeroInd
+        ? dadosIniciais.numeroInd
+        : await gerarNumeroInd(colecaoId);
 
       const nova = {
         ...createEmptyFicha(operacaoCodigo),
@@ -195,6 +205,7 @@ export function useFichas(currentUser) {
             codigo: nova.codigo,
             operacao: operacaoCodigo,
             colecao_id: colecaoId,
+            ficha_producao_id: fichaProducaoId, // 🆕
             status: computeStatusField(nova) || "aberta",
             criado_por: nova.criadoPor,
             user_id: nova.userId,
