@@ -167,6 +167,9 @@ export default function App() {
     const dadosIniciais = {};
     if (fichaProducao) {
       dadosIniciais.numeroInd = fichaProducao.numeroInd;
+      dadosIniciais.nomeEquipamento = fichaProducao.nomeEquipamento;
+      dadosIniciais.obra = fichaProducao.obra;
+      dadosIniciais.tag = fichaProducao.tag;
     }
 
     const id = await criarFicha(
@@ -177,11 +180,11 @@ export default function App() {
     );
     if (!id) return;
 
-    if (colecaoId) {
-      navigate(`/colecao/${colecaoId}/ficha/${id}`);
-    } else {
-      navigate(`/dashboard/ficha/${id}`);
-    }
+    navigate(
+      colecaoId
+        ? `/colecao/${colecaoId}/ficha/${id}`
+        : `/dashboard/ficha/${id}`,
+    );
   }
 
   function handleDelete(e, id) {

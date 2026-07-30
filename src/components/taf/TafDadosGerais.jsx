@@ -36,7 +36,6 @@ export default function TafDadosGerais({
           </label>
         </div>
 
-        <div className="taf-form-row">
           <div className="taf-input-group">
             <label>Nome do Quadro/Painel</label>
             <input
@@ -49,16 +48,6 @@ export default function TafDadosGerais({
               }
             />
           </div>
-
-          <div className="taf-input-group">
-            <label>Identificador</label>
-            <input
-              type="text"
-              value={tafData.identificador || ""}
-              onChange={(e) => handleChange("identificador", e.target.value)}
-            />
-          </div>
-        </div>
 
         <div className="taf-form-row">
           <div className="taf-input-group">
@@ -166,17 +155,6 @@ export default function TafDadosGerais({
             />
           </div>
 
-          <div className="taf-input-group">
-            <label>Quem fez a Proposta</label>
-            <input
-              type="text"
-              value={tafData.quemFezProposta || ""}
-              onChange={(e) => handleChange("quemFezProposta", e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="taf-form-row">
           <div className="taf-input-group">
             <label>Data de Fechamento da Proposta</label>
             <input

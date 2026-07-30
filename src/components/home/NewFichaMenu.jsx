@@ -37,14 +37,23 @@ export default function NewFichaMenu({
   };
 
   // Fichas de produção disponíveis na coleção atual
-  const fichasProducao = fichasDaColecao.filter(
-    (f) => String(f.operacao) === "10",
-  );
+  const fichasProducao = fichasDaColecao.filter((f) => {
+    if (String(f.operacao) !== "10") return false;
+
+    // Bloqueia se já existe uma TAF vinculada a esta ficha de produção
+    const jaTemTaf = fichasDaColecao.some(
+      (t) =>
+        String(t.operacao) === "50" &&
+        String(t.ficha_producao_id) === String(f.dbId),
+    );
+
+    return !jaTemTaf;
+  });
 
   const handleClickTaf = () => {
     if (fichasProducao.length === 0) {
       alert(
-        "Nenhuma ficha de produção encontrada nesta coleção. Crie uma ficha de produção antes de criar a TAF.",
+        "Nenhuma ficha de produção disponível para vincular. Crie uma nova ficha de produção ou verifique se todas já possuem TAF.",
       );
       return;
     }

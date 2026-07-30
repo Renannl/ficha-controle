@@ -177,13 +177,11 @@ export function createEmptyFicha(
       ? {
           testExecutedWithClient: false,
           testExecutedWithoutClient: false,
-          identificador: "",
           tensao: "",
           cubiculo: "",
           testadores: "",
           dataTeste: "",
           prazoEntrega: "",
-          quemFezProposta: "",
           dataFechamentoProposta: "",
           instrumentosSelecionados: [
             "alicate",
