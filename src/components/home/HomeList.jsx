@@ -1,7 +1,16 @@
+import { useState } from "react";
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
 import { ImportarColecaoExcel } from "../excel/ImportarColecaoExcel";
-import { FolderOpen, Plus, Calendar, Search, X, Trash2 } from "lucide-react";
+import {
+  FolderOpen,
+  Plus,
+  Calendar,
+  Search,
+  X,
+  Trash2,
+  ChevronDown,
+} from "lucide-react";
 import { getFichaStatus } from "../../utils/fichaStatus";
 import { getColecaoStatus } from "../../utils/colecaoStatus";
 
@@ -55,7 +64,11 @@ export default function HomeList({
   onOpenColecao,
   onColecaoImportada,
 }) {
+  const [expandedColecaoId, setExpandedColecaoId] = useState(null);
+
   if (mode === "colecoes") {
+    const LIMITE_PREVIEW = 3;
+
     return (
       <div className="home-list animate-scaleIn">
         <div className="home-list-header">
@@ -99,8 +112,13 @@ export default function HomeList({
           <div className="colecoes-grid">
             {colecoes.map((col) => {
               const fichasDaCol = fichas.filter((f) => f.colecao_id === col.id);
-              const preview = fichasDaCol.slice(0, 2);
-              const resto = fichasDaCol.length - preview.length;
+              const isExpanded = expandedColecaoId === col.id;
+
+              const preview = isExpanded
+                ? fichasDaCol
+                : fichasDaCol.slice(0, LIMITE_PREVIEW);
+
+              const resto = fichasDaCol.length - LIMITE_PREVIEW;
               const colecaoStatus = getColecaoStatus(fichasDaCol);
 
               // 🆕 verifica se alguma ficha da coleção tem sessão ativa
@@ -186,7 +204,6 @@ export default function HomeList({
                       <>
                         {preview.map((f) => (
                           <div key={f.dbId} className="preview-ficha">
-                            {" "}
                             <span
                               className="preview-ficha-dot"
                               style={{
@@ -199,8 +216,25 @@ export default function HomeList({
                           </div>
                         ))}
                         {resto > 0 && (
-                          <div className="preview-ficha-more">
-                            +{resto} ficha{resto > 1 ? "s" : ""}
+                          <div
+                            className="preview-ficha-more"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedColecaoId(isExpanded ? null : col.id);
+                            }}
+                          >
+                            {isExpanded
+                              ? "ver menos"
+                              : `+${resto} ficha${resto > 1 ? "s" : ""}`}
+                            <ChevronDown
+                              size={12}
+                              style={{
+                                transform: isExpanded
+                                  ? "rotate(180deg)"
+                                  : "rotate(0deg)",
+                                transition: "transform 0.2s ease",
+                              }}
+                            />
                           </div>
                         )}
                       </>

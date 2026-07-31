@@ -661,9 +661,77 @@
 }
 
 .ficha-meta-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* PRO - Produção (azul, mantém o padrão atual) */
+.ficha-meta-code--pro {
   background: var(--blue-glow);
   border: 1px solid var(--blue-accent);
   color: var(--blue-primary);
+}
+
+/* TAF - Testes (âmbar/laranja) */
+.ficha-meta-code--taf {
+  background: rgba(11, 105, 245, 0.12);
+  border: 1px solid rgba(11, 120, 245, 0.4);
+  color: #0b84f5;
+}
+
+/* QUA - Qualidade (violeta) */
+.ficha-meta-code--foto {
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #a855f7;
+}
+
+.colecao-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-height: 300px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.preview-ficha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  align-self: stretch;
+  animation: fadeInPreview 0.25s ease;
+}
+
+.preview-ficha-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blue-primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.preview-ficha-more:hover {
+  background: var(--blue-accent);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.preview-ficha-more:active {
+  transform: translateY(0);
 }
 
 .home-empty {
@@ -5662,7 +5730,7 @@ svg {
   font-size: 11px;
   color: var(--text-muted);
   text-align: center;
-  padding: 2px 0;
+  padding: 2px;
 }
 
 /* Card vazio (sem fichas ainda) */

@@ -36,6 +36,24 @@ export default function FichaCard({
   const pct = getProgressPct(ficha);
   const operadores = ficha.operadores || []; // Garante o array de operadores ativos no card
 
+  function getCodigoTagClass(codigo) {
+    if (!codigo) return "ficha-meta-code";
+    const prefixo = codigo.split("-")[0]?.toUpperCase();
+
+    switch (prefixo) {
+      case "PRO":
+        return "ficha-meta-code ficha-meta-code--pro";
+      case "TAF":
+        return "ficha-meta-code ficha-meta-code--taf";
+      case "FOTO":
+        return "ficha-meta-code ficha-meta-code--foto";
+      case "QUA":
+        return "ficha-meta-code ficha-meta-code--qua";
+      default:
+        return "ficha-meta-code";
+    }
+  }
+
   return (
     <div
       key={ficha.dbId}
@@ -77,7 +95,7 @@ export default function FichaCard({
               {ficha.criadoPor || ficha.userId || "-"}
             </span>
 
-            <span className="ficha-meta-code">
+            <span className={getCodigoTagClass(ficha.codigo)}>
               <Tag size={14} />
               {ficha.codigo || "-"}
             </span>
