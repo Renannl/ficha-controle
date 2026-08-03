@@ -157,14 +157,32 @@ export default function FichaView({
     );
   }
 
+  // ─── Detecta reedição de ficha já aprovada e sobe a revisão ───
+  function marcarReedicaoSeAprovada() {
+    if (!ficha) return;
+    if (ficha.statusAprovacao === "aprovado" && ficha.status === "finalizada") {
+      const revisaoAtual = parseInt(ficha.revisao || "1", 10);
+      const novaRevisao = String(revisaoAtual + 1).padStart(2, "0");
+
+      atualizarFicha(fichaId, (prev) => ({
+        ...prev,
+        status: "andamento",
+        statusAprovacao: "revisao",
+        revisao: novaRevisao,
+      }));
+    }
+  }
+
   // ─── Helpers de update ───
   function updateField(field, value) {
     if (!ficha || !podeEditar()) return;
+    marcarReedicaoSeAprovada();
     atualizarFicha(fichaId, (prev) => ({ ...prev, [field]: value }));
   }
 
   function updateItem(itemIndex, key, value) {
     if (!ficha || !sessaoIniciada) return;
+    marcarReedicaoSeAprovada();
     const item = ficha.items?.[itemIndex];
     if (!item) return;
 
@@ -188,6 +206,7 @@ export default function FichaView({
 
   function updateItemResultado(itemIndex, resultado, observacao = "") {
     if (!ficha || !sessaoIniciada) return;
+    marcarReedicaoSeAprovada();
     const item = ficha.items?.[itemIndex];
     if (!item) return;
 
@@ -212,7 +231,7 @@ export default function FichaView({
 
   function updateItemSessionMark(itemIndex, sessionIndex, value) {
     if (!ficha || !sessaoIniciada || !podeEditar()) return;
-
+    marcarReedicaoSeAprovada();
     const item = ficha.items?.[itemIndex];
     if (!item) return;
     const novoValor = item.sessionMarks?.[sessionIndex] === value ? "" : value;
@@ -240,6 +259,7 @@ export default function FichaView({
 
   function updateSession(sessionIndex, field, value) {
     if (!ficha || !podeEditar()) return;
+    marcarReedicaoSeAprovada();
     atualizarFicha(fichaId, (prev) => {
       const sessions = [...(prev?.sessions ?? [])];
       sessions[sessionIndex] = { ...sessions[sessionIndex], [field]: value };
@@ -249,6 +269,7 @@ export default function FichaView({
 
   function updateSignature(role, dataUrl) {
     if (!ficha || !podeEditar()) return;
+    marcarReedicaoSeAprovada();
     atualizarFicha(fichaId, (prev) => ({
       ...prev,
       assinaturas: {
@@ -264,6 +285,7 @@ export default function FichaView({
 
   function updateSignatureName(role, nome) {
     if (!ficha || !podeEditar()) return;
+    marcarReedicaoSeAprovada();
     atualizarFicha(fichaId, (prev) => ({
       ...prev,
       assinaturas: {
@@ -340,21 +362,19 @@ export default function FichaView({
         faltando.push(labels[role] || `Assinatura (${role})`);
       }
     });
+    if (
+      (ficha.statusAprovacao === "revisao" ||
+        ficha.statusAprovacao === "reprovado") &&
+      !ficha.alteracoesFeitas?.trim()
+    ) {
+      faltando.push("Campo 'Alterações Feitas' (obrigatório em revisão)");
+    }
 
     return faltando;
   }
 
   async function handleFinalizar() {
     if (!ficha) return;
-
-    if (
-      (ficha.status === "finalizada" ||
-        ficha.statusAprovacao === "reprovado") &&
-      (!ficha.alteracoesFeitas || !ficha.alteracoesFeitas.trim())
-    ) {
-      alert("⚠️ Preencha o campo 'Alterações Feitas' antes de finalizar.");
-      return;
-    }
 
     const faltando = getCamposFaltantes();
     if (faltando.length > 0) {

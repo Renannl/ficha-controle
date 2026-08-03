@@ -285,8 +285,9 @@ export function useFichas(currentUser) {
 
   const revisarFicha = useCallback(
     async (id) => {
-      const ficha = fichas.find((f) => f.id === id);
-      if (!ficha) return;
+      const ficha = fichas.find(
+        (f) => String(f.id) === String(id) || String(f.dbId) === String(id),
+      );
 
       const atual = parseInt(ficha.revisao || "0", 10);
       const novaRevisao = String(atual + 1).padStart(2, "0");

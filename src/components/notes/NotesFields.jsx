@@ -5,7 +5,8 @@ export default function NotesFields({
   onChangeAlteracoes,
 }) {
   const showAlteracoes =
-    ficha?.status === "finalizada" || ficha?.statusAprovacao === "reprovado";
+    ficha?.statusAprovacao === "reprovado" ||
+    ficha?.statusAprovacao === "revisao";
 
   return (
     <div

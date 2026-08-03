@@ -37,6 +37,10 @@ export function getApprovalStatus(ficha) {
 }
 
 export function computeStatusField(ficha) {
+  if (ficha.status === "finalizada") {
+    return "finalizada";
+  }
+
   const total = ficha.items?.length || 0;
 
   if (total === 0) {
@@ -46,10 +50,6 @@ export function computeStatusField(ficha) {
   const done = ficha.items.filter(
     (i) => i.resultado === "ok" || i.resultado === "na",
   ).length;
-
-  if (done === total) {
-    return "finalizada";
-  }
 
   if (done > 0) {
     return "em andamento";
