@@ -4,7 +4,6 @@ import ChecklistTable from "../checklist/ChecklistTable";
 import SessoesTrabalhoList from "../sessions/SessoesTrabalhoList";
 import NotesSection from "../notes/NotesSection";
 import SignatureSection from "../signatures/SignatureSection";
-import PrintView from "../print/PrintView";
 import TafPanel from "../taf/TafPanel";
 import PhotoPanel from "../photoupload/PhotoPanel";
 import ConsideracoesPanel from "../consideracoes/ConsideracoesPanel";
@@ -18,7 +17,6 @@ import { useChecklistLog } from "../../hooks/useChecklistLog";
 import { getChecklistItems, buildPainelItems } from "../../data/fichaTemplate";
 import { getPainelChecklistItems } from "../../data/painelTemplates";
 import { useNavigate, useParams } from "react-router-dom";
-import { exportFicha } from "../../services/sharepointService";
 import { useState, useEffect, useCallback } from "react";
 
 export default function FichaView({
@@ -67,12 +65,11 @@ export default function FichaView({
 
   useEffect(() => {
     if (!fichaId || !fichas || !ficha) return;
-    // só atualiza se a ficha já carregada é a mesma do fichaId atual
     if (
       String(ficha.dbId) !== String(fichaId) &&
       String(ficha.id) !== String(fichaId)
     ) {
-      return; // ainda carregando a ficha nova, não sobrescreve com dado desatualizado
+      return;
     }
     const atualizada = fichas.find(
       (f) =>
@@ -90,15 +87,15 @@ export default function FichaView({
     else setActiveTab("info");
   }, [ficha?.operacao]);
 
-  // ─── Callbacks estáveis para fotoData ───
+  // ─── Callbacks estáveis ───
   const handleUpdateFotoData = useCallback(
     (updater) => {
       atualizarFicha(fichaId, (prev) => ({
         ...prev,
         fotoData:
           typeof updater === "function"
-            ? updater(prev.fotoData ?? {})
-            : { ...prev.fotoData, ...updater },
+            ? updater(prev?.fotoData ?? {})
+            : { ...prev?.fotoData, ...updater },
       }));
     },
     [fichaId, atualizarFicha],
@@ -118,25 +115,23 @@ export default function FichaView({
         ...prev,
         fotoData:
           typeof updater === "function"
-            ? updater(prev.fotoData ?? {})
-            : { ...prev.fotoData, ...updater },
+            ? updater(prev?.fotoData ?? {})
+            : { ...prev?.fotoData, ...updater },
       }));
     },
     [fichaId, atualizarFicha],
   );
 
-  // ─── Callback estável para tafData ───
   const handleUpdateTaf = useCallback(
     (newData) => {
       atualizarFicha(fichaId, (prev) => ({
         ...prev,
-        tafData: { ...prev.tafData, ...newData },
+        tafData: { ...prev?.tafData, ...newData },
       }));
     },
     [fichaId, atualizarFicha],
   );
 
-  // ─── Callback estável para TafPanel ───
   const handleUpdateTafPanel = useCallback(
     (newData) => {
       atualizarFicha(fichaId, (prev) => ({ ...prev, ...newData }));
@@ -144,7 +139,6 @@ export default function FichaView({
     [fichaId, atualizarFicha],
   );
 
-  // ─── Voltar ───
   function handleBack() {
     if (origem === "colecao") {
       navigate(`/colecao/${colecaoId}`);
@@ -153,63 +147,29 @@ export default function FichaView({
     }
   }
 
-  // ─── Loading ───
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          gap: 16,
-          background: "var(--bg-base)",
-          color: "var(--text-secondary)",
-        }}
-      >
-        <div className="login-spinner" />
-        <p style={{ fontSize: 14 }}>Carregando ficha...</p>
-      </div>
-    );
-  }
-
-  // ─── Não encontrada ───
-  if (!ficha) {
-    return (
-      <div
-        style={{
-          padding: 32,
-          textAlign: "center",
-          color: "var(--text-secondary)",
-        }}
-      >
-        Ficha não encontrada.
-      </div>
-    );
-  }
-
   // ─── Permissão ───
   function podeEditar() {
-    const ok =
+    if (!ficha) return false;
+    return (
       user?.role === "admin" ||
       ficha?.userId === user?.username ||
-      user?.permissoes?.includes("editar_ficha");
-    return ok;
+      user?.permissoes?.includes("editar_ficha")
+    );
   }
 
   // ─── Helpers de update ───
   function updateField(field, value) {
-    if (!podeEditar()) return;
+    if (!ficha || !podeEditar()) return;
     atualizarFicha(fichaId, (prev) => ({ ...prev, [field]: value }));
   }
 
   function updateItem(itemIndex, key, value) {
-    if (!sessaoIniciada) return; // 🔒
-    const item = ficha.items[itemIndex];
+    if (!ficha || !sessaoIniciada) return;
+    const item = ficha.items?.[itemIndex];
+    if (!item) return;
 
     atualizarFicha(fichaId, (prev) => {
-      const items = [...prev.items];
+      const items = [...(prev?.items ?? [])];
       items[itemIndex] = { ...items[itemIndex], [key]: value };
       return { ...prev, items };
     });
@@ -227,11 +187,12 @@ export default function FichaView({
   }
 
   function updateItemResultado(itemIndex, resultado, observacao = "") {
-    if (!sessaoIniciada) return;
-    const item = ficha.items[itemIndex];
+    if (!ficha || !sessaoIniciada) return;
+    const item = ficha.items?.[itemIndex];
+    if (!item) return;
 
     atualizarFicha(fichaId, (prev) => {
-      const items = [...prev.items];
+      const items = [...(prev?.items ?? [])];
       items[itemIndex] = { ...items[itemIndex], resultado, observacao };
       return { ...prev, items };
     });
@@ -250,15 +211,15 @@ export default function FichaView({
   }
 
   function updateItemSessionMark(itemIndex, sessionIndex, value) {
-    if (!sessaoIniciada) return;
-    if (!podeEditar()) return;
+    if (!ficha || !sessaoIniciada || !podeEditar()) return;
 
-    const item = ficha.items[itemIndex];
-    const novoValor = item.sessionMarks[sessionIndex] === value ? "" : value;
+    const item = ficha.items?.[itemIndex];
+    if (!item) return;
+    const novoValor = item.sessionMarks?.[sessionIndex] === value ? "" : value;
 
     atualizarFicha(fichaId, (prev) => {
-      const items = [...prev.items];
-      const marks = [...items[itemIndex].sessionMarks];
+      const items = [...(prev?.items ?? [])];
+      const marks = [...(items[itemIndex]?.sessionMarks ?? [])];
       marks[sessionIndex] = novoValor;
       items[itemIndex] = { ...items[itemIndex], sessionMarks: marks };
       return { ...prev, items };
@@ -278,22 +239,22 @@ export default function FichaView({
   }
 
   function updateSession(sessionIndex, field, value) {
-    if (!podeEditar()) return;
+    if (!ficha || !podeEditar()) return;
     atualizarFicha(fichaId, (prev) => {
-      const sessions = [...prev.sessions];
+      const sessions = [...(prev?.sessions ?? [])];
       sessions[sessionIndex] = { ...sessions[sessionIndex], [field]: value };
       return { ...prev, sessions };
     });
   }
 
   function updateSignature(role, dataUrl) {
-    if (!podeEditar()) return;
+    if (!ficha || !podeEditar()) return;
     atualizarFicha(fichaId, (prev) => ({
       ...prev,
       assinaturas: {
-        ...prev.assinaturas,
+        ...prev?.assinaturas,
         [role]: {
-          ...prev.assinaturas[role],
+          ...prev?.assinaturas?.[role],
           dataUrl,
           data: dataUrl ? new Date().toLocaleDateString("pt-BR") : "",
         },
@@ -302,18 +263,85 @@ export default function FichaView({
   }
 
   function updateSignatureName(role, nome) {
-    if (!podeEditar()) return;
+    if (!ficha || !podeEditar()) return;
     atualizarFicha(fichaId, (prev) => ({
       ...prev,
       assinaturas: {
-        ...prev.assinaturas,
-        [role]: { ...prev.assinaturas[role], nome },
+        ...prev?.assinaturas,
+        [role]: { ...prev?.assinaturas?.[role], nome },
       },
     }));
   }
 
   function handleOperacaoChange(novoCodigo) {
+    if (!ficha) return;
     atualizarFicha(fichaId, (prev) => ({ ...prev, operacao: novoCodigo }));
+  }
+
+  // ─── Validação de completude ───
+  function getCamposFaltantes() {
+    if (!ficha) return [];
+    const faltando = [];
+
+    const opStr = String(ficha.operacao ?? "");
+    const taf = opStr === "50";
+    const foto = opStr === "80";
+
+    if (!foto) {
+      const camposBasicos = {
+        nomeEquipamento: "Nome do Equipamento",
+        numeroInd: "Número IND",
+        obra: "Obra",
+        cliente: "Cliente",
+        tag: "TAG",
+        dataInicio: "Data de Início",
+        dataTermino: "Data de Término",
+      };
+      Object.entries(camposBasicos).forEach(([campo, label]) => {
+        if (!ficha[campo] || String(ficha[campo]).trim() === "") {
+          faltando.push(label);
+        }
+      });
+    }
+
+    if (!foto && ficha.items?.length > 0) {
+      const itensSemResultado = ficha.items.filter(
+        (item) => !item?.resultado || String(item.resultado).trim() === "",
+      );
+      if (itensSemResultado.length > 0) {
+        faltando.push(
+          `Checklist incompleto (${itensSemResultado.length} item(ns) sem resultado)`,
+        );
+      }
+    }
+
+    if (taf) {
+      const tafData = ficha.tafData || {};
+      if (!tafData.dataTeste) faltando.push("Data do Teste (TAF)");
+      if (!tafData.testadores || !tafData.testadores.trim())
+        faltando.push("Testadores (TAF)");
+    }
+
+    if (foto) {
+      const fotos = ficha.fotoData?.fotos || [];
+      if (fotos.length === 0) {
+        faltando.push("Nenhuma foto enviada");
+      }
+    }
+
+    const rolesObrigatorios = foto ? [] : ["supervisor", "qualidade"];
+    rolesObrigatorios.forEach((role) => {
+      const assinatura = ficha.assinaturas?.[role];
+      if (!assinatura?.dataUrl || !assinatura?.nome?.trim()) {
+        const labels = {
+          supervisor: "Assinatura do Supervisor",
+          qualidade: "Assinatura da Qualidade",
+        };
+        faltando.push(labels[role] || `Assinatura (${role})`);
+      }
+    });
+
+    return faltando;
   }
 
   async function handleFinalizar() {
@@ -328,22 +356,30 @@ export default function FichaView({
       return;
     }
 
+    const faltando = getCamposFaltantes();
+    if (faltando.length > 0) {
+      setSuccessModal({
+        isOpen: true,
+        title: "Ficha incompleta",
+        message:
+          "Preencha os seguintes campos antes de finalizar:\n\n• " +
+          faltando.join("\n• "),
+        type: "danger",
+      });
+      return;
+    }
+
     atualizarFicha(fichaId, {
       status: "finalizada",
       statusAprovacao: "aguardando",
       finalizadaAt: new Date().toISOString(),
     });
 
-    await new Promise((r) => setTimeout(r, 500));
-    const success = await exportFicha(ficha, "print-view-root");
-
     setSuccessModal({
       isOpen: true,
-      title: success ? "Sucesso!" : "Erro",
-      message: success
-        ? "Ficha finalizada com sucesso!"
-        : "Erro ao gerar o PDF.",
-      type: success ? "success" : "danger",
+      title: "Sucesso!",
+      message: "Ficha finalizada com sucesso!",
+      type: "success",
     });
   }
 
@@ -388,20 +424,57 @@ export default function FichaView({
   }
 
   function getProgress() {
-    const total = ficha?.items?.length || 0;
+    if (!ficha) return 0;
+    const total = ficha.items?.length || 0;
     const done =
-      ficha?.items?.filter((i) => i.resultado === "ok" || i.resultado === "na")
+      ficha.items?.filter((i) => i.resultado === "ok" || i.resultado === "na")
         .length || 0;
     return total > 0 ? Math.round((done / total) * 100) : 0;
+  }
+
+  // ─── Loading ───
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          gap: 16,
+          background: "var(--bg-base)",
+          color: "var(--text-secondary)",
+        }}
+      >
+        <div className="login-spinner" />
+        <p style={{ fontSize: 14 }}>Carregando ficha...</p>
+      </div>
+    );
+  }
+
+  // ─── Não encontrada ───
+  if (!ficha) {
+    return (
+      <div
+        style={{
+          padding: 32,
+          textAlign: "center",
+          color: "var(--text-secondary)",
+        }}
+      >
+        Ficha não encontrada.
+      </div>
+    );
   }
 
   const operacaoStr = String(ficha?.operacao ?? "");
   const isTaf = operacaoStr === "50";
   const isFoto = operacaoStr === "80";
-  const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
-  const checklistItems = getChecklistItems(ficha.operacao);
+  const isPainel = operacaoStr === "10" && !!ficha?.tipoPainel;
+  const checklistItems = getChecklistItems(ficha?.operacao);
   const activeChecklistItems = isPainel
-    ? getPainelChecklistItems(ficha.tipoPainel, { incluirVerificacao: false })
+    ? getPainelChecklistItems(ficha?.tipoPainel, { incluirVerificacao: false })
     : checklistItems;
 
   const tabs = isTaf
@@ -457,7 +530,7 @@ export default function FichaView({
               ficha={ficha}
               checklistItems={
                 isPainel
-                  ? getPainelChecklistItems(ficha.tipoPainel, {
+                  ? getPainelChecklistItems(ficha?.tipoPainel, {
                       incluirVerificacao: false,
                     })
                   : checklistItems
@@ -468,7 +541,7 @@ export default function FichaView({
               }
               isTaf={isTaf}
               isPainel={isPainel}
-              tafData={ficha.tafData}
+              tafData={ficha?.tafData}
               onUpdateTaf={handleUpdateTaf}
               readOnly={!sessaoIniciada}
             />
@@ -490,8 +563,8 @@ export default function FichaView({
                 sessoesTrabalho={sessoesTrabalho}
               />
               <ChecklistLogList
-                fichaId={ficha.dbId}
-                tipoPainel={ficha.tipoPainel}
+                fichaId={ficha?.dbId}
+                tipoPainel={ficha?.tipoPainel}
               />
             </>
           )}
@@ -499,7 +572,7 @@ export default function FichaView({
           {activeTab === "notes" && (
             <NotesSection
               ficha={ficha}
-              observacoes={ficha.observacoes}
+              observacoes={ficha?.observacoes}
               onChange={(val) => updateField("observacoes", val)}
               onChangeAlteracoes={(val) => updateField("alteracoesFeitas", val)}
               isFoto={isFoto}
@@ -510,7 +583,7 @@ export default function FichaView({
           {activeTab === "signatures" && (
             <SignatureSection
               ficha={ficha}
-              assinaturas={ficha.assinaturas}
+              assinaturas={ficha?.assinaturas}
               onSign={updateSignature}
               onNameChange={updateSignatureName}
               onFinalizar={handleFinalizar}
@@ -538,10 +611,6 @@ export default function FichaView({
           loading={sessoesLoading}
           onChange={loadSessoes}
         />
-      </div>
-
-      <div style={{ position: "fixed", top: 0, left: 0, zIndex: -9999 }}>
-        <PrintView ficha={ficha} />
       </div>
 
       <ConfirmModal

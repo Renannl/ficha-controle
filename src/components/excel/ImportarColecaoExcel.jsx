@@ -158,6 +158,7 @@ export function ImportarColecaoExcel({ onImportado, children }) {
           tempoPrevisto: l["Tempo Previsto"] || "",
           recurso: l["Recurso"] || "",
           tipoPainel: mapearTipoPainel(l["Tipo Painel"]),
+          revisao: "01", // 🆕 sempre inicia como revisão 01
         }));
 
         const payload = {

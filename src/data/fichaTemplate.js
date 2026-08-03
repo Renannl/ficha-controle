@@ -143,7 +143,6 @@ function generateId() {
   );
 }
 
-// Cria uma ficha em branco com todos os campos vazios
 export function createEmptyFicha(
   operacaoCodigo = DEFAULT_OPERACAO,
   tipoPainel = "",
@@ -160,7 +159,6 @@ export function createEmptyFicha(
     nomeEquipamento: "",
     numeroInd: "",
     obra: "",
-    qtd: "",
     cliente: "",
     tag: "",
     dataInicio: "",
@@ -168,11 +166,10 @@ export function createEmptyFicha(
     tempoPrevisto: "",
     recurso: "",
     operacao: codigo,
-    tipoPainel: tipoPainel || "", // <- agora aceita valor já preenchido
+    tipoPainel: tipoPainel || "",
     colaboradores: "",
     equipe: op.equipe,
     objetivo: op.objetivo,
-
     tafData: op.isTaf
       ? {
           testExecutedWithClient: false,

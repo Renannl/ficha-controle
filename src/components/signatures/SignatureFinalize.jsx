@@ -4,16 +4,15 @@ export default function SignatureFinalize({ onFinalizar }) {
       <div className="finalize-card">
         <div className="finalize-header">
           <h3>Finalizar Ficha</h3>
-
-          <p>Conclua a operação e gere o relatório oficial (PDF)</p>
+          <p>Conclua a operação para enviar para aprovação</p>
         </div>
 
         <button
           className="btn btn-primary btn-lg finalize-btn"
           onClick={onFinalizar}
         >
-          <span className="btn-icon">💾</span>
-          Finalizar e Gerar PDF
+          <span className="btn-icon">✅</span>
+          Finalizar Ficha
         </button>
 
         <p
@@ -25,7 +24,7 @@ export default function SignatureFinalize({ onFinalizar }) {
             marginTop: "8px",
           }}
         >
-          O relatório será gerado com os dados preenchidos até agora.
+          Todos os campos e assinaturas obrigatórias precisam estar preenchidos.
         </p>
       </div>
     </div>

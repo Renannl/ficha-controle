@@ -23,21 +23,15 @@ export default function InfoEquipmentSection({
           />
         </div>
 
-        <div className="form-grid form-grid-2">
-          <div className="field">
-            <label>Cliente</label>
-            <input
-              value={clienteTravado}
-              readOnly
-              disabled
-              title="Definido automaticamente pela coleção vinculada"
-              style={{ cursor: "not-allowed", opacity: 0.75 }}
-            />
-          </div>
-          <div className="field">
-            <label>QTD</label>
-            <input value={ficha.qtd} onChange={handle("qtd")} placeholder="1" />
-          </div>
+        <div className="field">
+          <label>Cliente</label>
+          <input
+            value={clienteTravado}
+            readOnly
+            disabled
+            title="Definido automaticamente pela coleção vinculada"
+            style={{ cursor: "not-allowed", opacity: 0.75 }}
+          />
         </div>
 
         <div className="form-grid form-grid-2">
