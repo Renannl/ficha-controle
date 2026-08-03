@@ -36,11 +36,11 @@ export default function NewFichaMenu({
     });
   };
 
-  // Fichas de produção disponíveis na coleção atual
   const fichasProducao = fichasDaColecao.filter((f) => {
     if (String(f.operacao) !== "10") return false;
 
-    // Bloqueia se já existe uma TAF vinculada a esta ficha de produção
+    if (f.statusAprovacao !== "aprovado") return false;
+
     const jaTemTaf = fichasDaColecao.some(
       (t) =>
         String(t.operacao) === "50" &&
@@ -53,7 +53,10 @@ export default function NewFichaMenu({
   const handleClickTaf = () => {
     if (fichasProducao.length === 0) {
       alert(
-        "Nenhuma ficha de produção disponível para vincular. Crie uma nova ficha de produção ou verifique se todas já possuem TAF.",
+        "Nenhuma ficha de produção disponível para vincular.\n\n" +
+          "Verifique se:\n" +
+          "• A ficha de produção já foi aprovada\n" +
+          "• Ela ainda não possui uma TAF vinculada",
       );
       return;
     }
