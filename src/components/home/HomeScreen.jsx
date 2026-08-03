@@ -302,7 +302,7 @@ export default function HomeScreen({
             className="generate-pdf-btn"
             onClick={() => {
               const fichasBook = selectedFichas
-                .map((id) => fichasDaColecao.find((f) => f.id === id))
+                .map((id) => fichasDaColecao.find((f) => f.dbId === id))
                 .filter(Boolean);
 
               window.dispatchEvent(

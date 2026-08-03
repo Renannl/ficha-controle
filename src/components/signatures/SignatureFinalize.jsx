@@ -11,8 +11,7 @@ export default function SignatureFinalize({ onFinalizar }) {
           className="btn btn-primary btn-lg finalize-btn"
           onClick={onFinalizar}
         >
-          <span className="btn-icon">✅</span>
-          Finalizar Ficha
+          Finalizar
         </button>
 
         <p
