@@ -536,6 +536,7 @@ export default function FichaView({
                 onChange={updateField}
                 onOperacaoChange={handleOperacaoChange}
                 onTipoPainelChange={handleTipoPainelChange}
+                sessoesTrabalho={sessoesTrabalho}
               />
             ) : (
               <ConsideracoesPanel

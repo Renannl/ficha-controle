@@ -10,11 +10,11 @@ export default function InfoCard({
   onChange,
   onOperacaoChange,
   onTipoPainelChange,
+  sessoesTrabalho,
 }) {
   const operacaoAtual = OPERACOES[ficha.operacao];
   const handle = (field) => (e) => onChange(field, e.target.value);
 
-  // Cliente vem da coleção vinculada; se não houver coleção, cai no valor legado da própria ficha
   const clienteTravado = ficha.colecao?.cliente ?? ficha.cliente ?? "";
 
   return (
@@ -32,7 +32,9 @@ export default function InfoCard({
         handle={handle}
         operacaoAtual={operacaoAtual}
         onOperacaoChange={onOperacaoChange}
-        onTipoPainelChange={onTipoPainelChange} // ← e aqui
+        onTipoPainelChange={onTipoPainelChange}
+        sessoes={sessoesTrabalho?.sessoes || []}
+        loadingSessoes={sessoesTrabalho?.loading}
       />
 
       <OperationInfoBanner />

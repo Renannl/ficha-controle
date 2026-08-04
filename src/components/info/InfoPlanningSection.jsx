@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { OPERACOES, OPERACAO_KEYS } from "../../data/fichaTemplate";
 import { PAINEL_LABELS, PAINEL_KEYS } from "../../data/painelTemplates";
+import { formatarNomeUsuario } from "../../utils/tempoUtils";
 
 export default function InfoPlanningSection({
   ficha,
@@ -7,8 +9,14 @@ export default function InfoPlanningSection({
   operacaoAtual,
   onOperacaoChange,
   onTipoPainelChange,
+  sessoes = [],
 }) {
   const isEstrutura = String(ficha.operacao) === "10";
+
+  const colaboradoresTexto = useMemo(() => {
+    const unicos = [...new Set(sessoes.map((s) => s.usuario).filter(Boolean))];
+    return unicos.map(formatarNomeUsuario).join(", ");
+  }, [sessoes]);
 
   return (
     <div className="card mb-3">
@@ -98,8 +106,7 @@ export default function InfoPlanningSection({
           <label>Colaboradores</label>
           <input
             disabled
-            value={ficha.colaboradores}
-            onChange={handle("colaboradores")}
+            value={colaboradoresTexto || "Nenhum colaborador registrado ainda"}
             placeholder="Automático"
           />
         </div>
