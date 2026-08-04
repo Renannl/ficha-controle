@@ -314,7 +314,19 @@ export default function HomeScreen({
           </button>
         </div>
       )}
-      <div style={{ position: "absolute", left: "-99999px", top: 0 }}>
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 0,
+          height: 0,
+          overflow: "hidden",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+        aria-hidden="true"
+      >
         <BookPrintView fichas={bookFichas} />
       </div>
 

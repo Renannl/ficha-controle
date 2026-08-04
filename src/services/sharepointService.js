@@ -1,26 +1,72 @@
 import { uploadPdf, uploadBook } from "./uploadService";
 /**
- * Serviço de Integração com SharePoint e Exportação de PDF
- * Preparado para Power Automate / Microsoft Flow.
+ * Serviço de Exportação de PDF (Ficha / Book)
  */
 
-const POWER_AUTOMATE_URL = import.meta.env.VITE_POWER_AUTOMATE_URL || "";
-
-// A4 a 96 DPI ≈ 794px de largura. Usamos 780px para garantir que
-// as margens do jsPDF não cortem nenhum conteúdo.
+// A4 a 96 DPI ≈ 794px de largura. Usamos 780px como fallback,
+// mas a largura REAL é calculada dinamicamente a partir do clone.
 const A4_PRINT_WIDTH = 780;
+
+function injectPrintStylesOverride(clonedDoc) {
+  const style = clonedDoc.createElement("style");
+  style.innerHTML = `
+    .print-view-root, .book-mode,
+    .print-view-root *, .book-mode * {
+      box-sizing: border-box !important;
+      max-width: none !important;
+    }
+    .print-view-root, .book-mode {
+      width: 100% !important;
+      display: block !important;
+      overflow: hidden !important;
+    }
+    .print-view-root > *, .book-mode > * {
+      width: 100% !important;
+    }
+    .print-view-root table, .book-mode table {
+      width: 100% !important;
+      table-layout: fixed !important;
+      border-collapse: collapse !important;
+    }
+    .print-view-root td, .print-view-root th,
+    .book-mode td, .book-mode th {
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+    .print-info-table td, .print-checklist-table td, .print-checklist-table th {
+      word-wrap: break-word;
+      padding: 3px 6px !important;
+      font-size: 10px !important;
+      line-height: 1.2 !important;
+    }
+    .print-checklist-table thead {
+      display: table-header-group;
+    }
+    .print-view-root, .book-mode,
+    .print-view-root *, .book-mode * {
+      flex-shrink: 1 !important;
+    }
+  `;
+  clonedDoc.head.appendChild(style);
+}
+
+async function waitForImages(container) {
+  const imgs = Array.from(container.querySelectorAll("img"));
+  await Promise.all(
+    imgs.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+        setTimeout(resolve, 5000);
+      });
+    }),
+  );
+}
 
 /**
  * Gera um PDF a partir de um elemento HTML e o salva/envia.
- *
- * Estratégia:
- *  1. Clona o elemento de impressão (que fica escondido com display:none)
- *  2. Posiciona o clone FORA da viewport (left: -9999px) mas visível para
- *     o browser (sem display:none), garantindo renderização completa pelo
- *     html2canvas.
- *  3. Captura o clone, gera o PDF e remove o clone do DOM.
  */
-
 export async function exportBook(fichaIds, elementId = "book-print-root") {
   const originalElement = document.getElementById(elementId);
 
@@ -52,29 +98,42 @@ export async function exportBook(fichaIds, elementId = "book-print-root") {
   tempWrapper.appendChild(printClone);
   document.body.appendChild(tempWrapper);
 
-  await new Promise((r) => setTimeout(r, 1500));
+  await waitForImages(printClone);
+  await new Promise((r) => setTimeout(r, 300));
+
+  const realWidth = Math.max(A4_PRINT_WIDTH, Math.ceil(printClone.scrollWidth));
 
   try {
     const pdfBlob = await window
       .html2pdf()
       .set({
-        margin: [0.5, 1.5, 12, 2],
+        margin: [8, 8, 8, 8],
         filename: "BOOK.pdf",
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+        html2canvas: {
+          scale: Math.min(window.devicePixelRatio || 1, 2),
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          width: realWidth,
+          height: printClone.scrollHeight,
+          windowWidth: realWidth,
+          windowHeight: printClone.scrollHeight,
+          onclone: (clonedDoc) => injectPrintStylesOverride(clonedDoc),
+        },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["css"] },
+        pagebreak: {
+          mode: ["css", "legacy"],
+          avoid: [".foto-frame"],
+        },
       })
       .from(printClone)
       .output("blob");
 
-    // 🔹 Upload pro backend, vinculando às fichas
     const uploadResult = await uploadBook(pdfBlob, fichaIds);
     if (!uploadResult) {
       console.warn("[exportBook] Book gerado, mas falhou o envio ao servidor.");
     }
 
-    // Download local (mantido)
     const url = URL.createObjectURL(pdfBlob);
     const link = document.createElement("a");
     link.href = url;
@@ -114,21 +173,17 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
     );
   }
 
-  // ── Forçar Tema Claro Temporário ─────────────────────────────────────────
-  // Garante que o PDF nunca sofra com letras invisíveis caso o usuário
-  // esteja usando o modo escuro (textos brancos no fundo branco do PDF).
   const currentTheme =
     document.documentElement.getAttribute("data-theme") || "light";
   document.documentElement.setAttribute("data-theme", "light");
 
-  // ── Overlay de carregamento ──────────────────────────────────────────────
   const overlay = document.createElement("div");
   overlay.style.cssText = `
     position: fixed; top: 0; left: 0; 
     width: 100vw; height: 100vh;
     background: rgba(10,15,30,0.98);
     backdrop-filter: blur(5px);
-    z-index: 2147483647; /* Máximo possível */
+    z-index: 2147483647;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     color: #fff; font-family: Inter, sans-serif;
@@ -142,7 +197,6 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
   `;
   document.body.appendChild(overlay);
 
-  // ── Clone de Renderização Otimizado ──────────────────────────────────────
   const tempWrapper = document.createElement("div");
   tempWrapper.style.cssText = `position:absolute;top:0;left:0;width:${A4_PRINT_WIDTH}px;opacity:0.01;z-index:-1;pointer-events:none;`;
   const printClone = originalElement.cloneNode(true);
@@ -155,7 +209,6 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
     }
   });
 
-  // Otimização de imagens para evitar estouro de RAM no mobile
   printClone.querySelectorAll("img").forEach((img) => {
     img.style.maxWidth = "100%";
     img.style.height = "auto";
@@ -166,11 +219,13 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
   tempWrapper.appendChild(printClone);
   document.body.appendChild(tempWrapper);
 
-  await new Promise((r) => setTimeout(r, 1800)); // Tempo para o celular "desenhar" o clone aplicando o modo claro
+  await waitForImages(printClone);
+  await new Promise((r) => setTimeout(r, 300));
+
+  const realWidth = Math.max(A4_PRINT_WIDTH, Math.ceil(printClone.scrollWidth));
 
   const safeFilename = `FICHA_${(ficha.codigo || "DOC").replace(/[^a-z0-9]/gi, "_")}.pdf`;
 
-  // ── Safeguard: Timeout para não travar o app ──
   const timeoutId = setTimeout(() => {
     if (document.body.contains(overlay)) {
       document.body.removeChild(overlay);
@@ -179,7 +234,7 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
         "A geração demorou demais. O celular pode estar com pouca memória livre. Tente remover algumas fotos ou fechar outros aplicativos.",
       );
     }
-  }, 25000); // 25 segundos de limite
+  }, 25000);
 
   try {
     const statusText = document.getElementById("ov-status");
@@ -187,10 +242,9 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
 
     console.log("[Export] Ficha a ser exportada:", ficha.id, ficha.operacao);
 
-    // Configuração de Margens Inteligentes (Top, Right, Bottom, Left em mm)
     const isMobile = window.innerWidth <= 768;
-    const marginPC = [0.5, 1.5, 12, 2]; // << EDITE AQUI AS MARGENS DO PC
-    const marginMobile = [2, 5, 7, 0.5]; // << NÃO TOQUE AQUI (Margens otimizadas Mobile)
+    const marginPC = [8, 8, 8, 8];
+    const marginMobile = [8, 5, 10, 5];
 
     const finalMargin = isMobile ? marginMobile : marginPC;
 
@@ -201,11 +255,14 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
         filename: safeFilename,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
-          scale: window.devicePixelRatio > 1 ? 2.5 : 2,
+          scale: Math.min(window.devicePixelRatio || 1, 2),
           useCORS: true,
           backgroundColor: "#ffffff",
-          logging: false,
-          letterRendering: true,
+          width: realWidth,
+          height: printClone.scrollHeight,
+          windowWidth: realWidth,
+          windowHeight: printClone.scrollHeight,
+          onclone: (clonedDoc) => injectPrintStylesOverride(clonedDoc),
         },
         jsPDF: {
           unit: "mm",
@@ -213,8 +270,8 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
           orientation: "portrait",
         },
         pagebreak: {
-          mode: ["css"],
-          avoid: [".foto-frame", "tr"],
+          mode: ["css", "legacy"],
+          avoid: [".foto-frame"],
         },
       })
       .from(printClone)
@@ -228,7 +285,6 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
       console.warn(
         "[Export] PDF gerado localmente, mas falhou o envio ao servidor.",
       );
-      // opcional: notificar o usuário de forma não bloqueante
     }
 
     if (statusText) statusText.innerText = "Iniciando download...";
@@ -258,45 +314,6 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
       document.body.removeChild(tempWrapper);
     if (document.body.contains(overlay)) document.body.removeChild(overlay);
 
-    // RESTAURA O TEMA DO USUÁRIO
     document.documentElement.setAttribute("data-theme", currentTheme);
-  }
-}
-
-/**
- * Envia os dados e o PDF para um fluxo do Power Automate.
- * No SharePoint, o JSON vira uma linha na lista e o PDF um arquivo na pasta.
- */
-async function sendToSharePoint(ficha, pdfBlob) {
-  try {
-    // Converte o PDF para Base64 para trafegar no JSON do Power Automate
-    const base64Pdf = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(",")[1]);
-      reader.readAsDataURL(pdfBlob);
-    });
-
-    const payload = {
-      ...ficha,
-      pdfBase64: base64Pdf,
-      pdfFileName: `FICHA_${ficha.codigo}_${ficha.numeroInd}.pdf`,
-      exportDate: new Date().toISOString(),
-    };
-
-    const response = await fetch(POWER_AUTOMATE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok) {
-      console.log(
-        "[Export] Sucesso ao enviar para SharePoint via Power Automate",
-      );
-    } else {
-      console.error("[Export] Falha no Power Automate:", response.statusText);
-    }
-  } catch (err) {
-    console.error("[Export] Erro na conexão com SharePoint/Flow:", err);
   }
 }

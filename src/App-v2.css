@@ -721,7 +721,9 @@
   color: var(--blue-primary);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
 }
 
 .preview-ficha-more:hover {
@@ -1432,6 +1434,10 @@
   .form-grid-3 {
     grid-template-columns: 1fr 1fr 1fr;
   }
+}
+
+html, body {
+  overflow-x: hidden;
 }
 
 /* ──────────────────────────────────────────────
@@ -6129,10 +6135,14 @@ svg {
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
-
 
 .btn-icon-edit {
   background: none;
