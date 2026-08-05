@@ -1443,16 +1443,7 @@ html, body {
 /* ──────────────────────────────────────────────
    Print View Styles (PDF Generation)
 ────────────────────────────────────────────── */
-.print-only {
-  display: none !important;
-  /* Escondido nativamente na tela — o JS clone remove esta classe */
-  width: 794px;
-  /* Deve coincidir com A4_PRINT_WIDTH em sharepointService.js    */
-  background: white !important;
-  color: black !important;
-  padding: 20px;
-  box-sizing: border-box !important;
-}
+
 
 @media print {
   /* Esconde a UI normal */
@@ -1462,14 +1453,6 @@ html, body {
   .main-content,
   .fab {
     display: none !important;
-  }
-
-  /* Mostra o bloco de impressão */
-  .print-only {
-    display: block !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 10mm !important;
   }
 
   * {
@@ -1518,7 +1501,7 @@ html, body {
 }
 
 .book-mode {
-  width: 794px;
+  width: 100%;
   background: white !important;
   color: black !important;
   padding: 20px;

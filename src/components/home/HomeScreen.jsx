@@ -14,7 +14,7 @@ import HomeContent from "./HomeContent";
 import HomeFab from "./HomeFab";
 import { useHomeFilters } from "../../hooks/useHomeFilters";
 import BookPrintView from "../print/BookPrintView";
-import { exportBook } from "../../services/sharepointService";
+import { generateFichaPdf, generateBookPdf } from "../../services/exportPdfEngine";
 import { FileInputIcon } from "lucide-react";
 import { useColecoes } from "../../hooks/useColecoes";
 
@@ -144,7 +144,7 @@ export default function HomeScreen({
     if (!pendingExport) return;
     const raf = requestAnimationFrame(() => {
       requestAnimationFrame(async () => {
-        await exportBook(pendingExport);
+        await generateBookPdf(pendingExport);
         setPendingExport(null);
       });
     });

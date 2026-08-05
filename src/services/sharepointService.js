@@ -3,51 +3,98 @@ import { uploadPdf, uploadBook } from "./uploadService";
  * Serviço de Exportação de PDF (Ficha / Book)
  */
 
-// A4 a 96 DPI ≈ 794px de largura. Usamos 780px como fallback,
-// mas a largura REAL é calculada dinamicamente a partir do clone.
 const A4_PRINT_WIDTH = 780;
+
+function copyHeadStyles(clonedDoc) {
+  const nodes = document.querySelectorAll('style, link[rel="stylesheet"]');
+  const loadPromises = [];
+
+  nodes.forEach((node) => {
+    const clone = node.cloneNode(true);
+    clonedDoc.head.appendChild(clone);
+
+    // Se for <link>, espera o carregamento real do CSS no novo doc
+    if (node.tagName === "LINK") {
+      loadPromises.push(
+        new Promise((resolve) => {
+          clone.onload = resolve;
+          clone.onerror = resolve; // não trava se falhar
+          setTimeout(resolve, 2000); // fallback de segurança
+        }),
+      );
+    }
+  });
+
+  return Promise.all(loadPromises);
+}
 
 function injectPrintStylesOverride(clonedDoc) {
   const style = clonedDoc.createElement("style");
   style.innerHTML = `
-    .print-view-root, .book-mode,
-    .print-view-root *, .book-mode * {
-      box-sizing: border-box !important;
-      max-width: none !important;
+    html, body {
+      width: ${A4_PRINT_WIDTH}px !important;
+      background: #fff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
     }
-    .print-view-root, .book-mode {
-      width: 100% !important;
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    .print-only,
+    .book-mode {
       display: block !important;
-      overflow: hidden !important;
-    }
-    .print-view-root > *, .book-mode > * {
       width: 100% !important;
     }
-    .print-view-root table, .book-mode table {
-      width: 100% !important;
-      table-layout: fixed !important;
-      border-collapse: collapse !important;
-    }
-    .print-view-root td, .print-view-root th,
-    .book-mode td, .book-mode th {
-      word-break: break-word !important;
-      overflow-wrap: break-word !important;
-    }
-    .print-info-table td, .print-checklist-table td, .print-checklist-table th {
-      word-wrap: break-word;
-      padding: 3px 6px !important;
-      font-size: 10px !important;
-      line-height: 1.2 !important;
-    }
-    .print-checklist-table thead {
-      display: table-header-group;
-    }
-    .print-view-root, .book-mode,
-    .print-view-root *, .book-mode * {
-      flex-shrink: 1 !important;
+
+    /* 🔑 FORÇA o layout "mobile" das tabelas/grids, 
+       ignorando @media queries do desktop */
+    .print-checklist-table,
+    .fotos-grid,
+    .taf-pdf-table {
+      display: table !important; /* ou o display correto do modo mobile */
     }
   `;
   clonedDoc.head.appendChild(style);
+}
+
+function forceFullWidth(root, width) {
+  root.style.setProperty("transform", "none", "important");
+  root.style.setProperty("zoom", "1", "important");
+  root.style.setProperty("width", `${width}px`, "important");
+  root.style.setProperty("max-width", `${width}px`, "important");
+  root.style.setProperty("margin", "0", "important");
+}
+
+/**
+ * 🆕 Copia todos os <style> e <link rel="stylesheet"> do documento real
+ * para o clone, garantindo que classes de CSS Modules/styled-components
+ * sejam aplicadas corretamente durante a captura do html2canvas.
+ */
+
+function disableViewportConstraint() {
+  const meta = document.querySelector('meta[name="viewport"]');
+  const original = meta ? meta.getAttribute("content") : null;
+  if (meta) {
+    meta.setAttribute(
+      "content",
+      `width=${A4_PRINT_WIDTH + 50}, initial-scale=1`,
+    );
+  }
+  return { meta, original };
+}
+
+function restoreViewportConstraint({ meta, original }) {
+  if (meta && original !== null) {
+    meta.setAttribute("content", original);
+  }
+}
+
+function resetScrollPosition() {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollLeft = 0;
+  document.body.scrollLeft = 0;
 }
 
 async function waitForImages(container) {
@@ -65,7 +112,7 @@ async function waitForImages(container) {
 }
 
 /**
- * Gera um PDF a partir de um elemento HTML e o salva/envia.
+ * Gera um PDF (Book) a partir de um elemento HTML e o salva/envia.
  */
 export async function exportBook(fichaIds, elementId = "book-print-root") {
   const originalElement = document.getElementById(elementId);
@@ -81,19 +128,28 @@ export async function exportBook(fichaIds, elementId = "book-print-root") {
     return false;
   }
 
+  const currentTheme =
+    document.documentElement.getAttribute("data-theme") || "light";
+  document.documentElement.setAttribute("data-theme", "light");
+
   const tempWrapper = document.createElement("div");
   tempWrapper.style.cssText = `
     position:absolute; top:0; left:0;
     width:${A4_PRINT_WIDTH}px;
+    background:#fff;
     opacity:0.01; z-index:-1; pointer-events:none;
   `;
 
   const printClone = originalElement.cloneNode(true);
+  printClone.id = elementId;
   printClone.style.cssText = `
     display:block !important;
     width:${A4_PRINT_WIDTH}px !important;
+    max-width:${A4_PRINT_WIDTH}px !important;
     background:#fff !important;
   `;
+
+  forceFullWidth(printClone, A4_PRINT_WIDTH);
 
   tempWrapper.appendChild(printClone);
   document.body.appendChild(tempWrapper);
@@ -101,7 +157,9 @@ export async function exportBook(fichaIds, elementId = "book-print-root") {
   await waitForImages(printClone);
   await new Promise((r) => setTimeout(r, 300));
 
-  const realWidth = Math.max(A4_PRINT_WIDTH, Math.ceil(printClone.scrollWidth));
+  resetScrollPosition();
+  const viewportState = disableViewportConstraint();
+  await new Promise((r) => setTimeout(r, 100));
 
   try {
     const pdfBlob = await window
@@ -111,14 +169,19 @@ export async function exportBook(fichaIds, elementId = "book-print-root") {
         filename: "BOOK.pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
-          scale: Math.min(window.devicePixelRatio || 1, 2),
+          scale: 2,
           useCORS: true,
           backgroundColor: "#ffffff",
-          width: realWidth,
+          width: A4_PRINT_WIDTH,
           height: printClone.scrollHeight,
-          windowWidth: realWidth,
+          windowWidth: A4_PRINT_WIDTH,
           windowHeight: printClone.scrollHeight,
-          onclone: (clonedDoc) => injectPrintStylesOverride(clonedDoc),
+          scrollX: 0,
+          scrollY: 0,
+          onclone: async (clonedDoc) => {
+            await copyHeadStyles(clonedDoc);
+            injectPrintStylesOverride(clonedDoc); // essa é síncrona, não precisa de await
+          },
         },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: {
@@ -152,10 +215,17 @@ export async function exportBook(fichaIds, elementId = "book-print-root") {
     alert("Erro ao gerar Book: " + err.message);
     return false;
   } finally {
-    document.body.removeChild(tempWrapper);
+    restoreViewportConstraint(viewportState);
+    if (document.body.contains(tempWrapper)) {
+      document.body.removeChild(tempWrapper);
+    }
+    document.documentElement.setAttribute("data-theme", currentTheme);
   }
 }
 
+/**
+ * Gera um PDF (Ficha) a partir de um elemento HTML e o salva/envia.
+ */
 export async function exportFicha(ficha, elementId = "print-view-root") {
   const originalElement = document.getElementById(elementId);
   if (!originalElement) {
@@ -198,9 +268,12 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
   document.body.appendChild(overlay);
 
   const tempWrapper = document.createElement("div");
-  tempWrapper.style.cssText = `position:absolute;top:0;left:0;width:${A4_PRINT_WIDTH}px;opacity:0.01;z-index:-1;pointer-events:none;`;
+  tempWrapper.style.cssText = `position:absolute;top:0;left:0;width:${A4_PRINT_WIDTH}px;background:#fff;opacity:0.01;z-index:-1;pointer-events:none;`;
   const printClone = originalElement.cloneNode(true);
+  printClone.id = elementId;
   printClone.classList.remove("print-only");
+
+  forceFullWidth(printClone, A4_PRINT_WIDTH);
 
   printClone.querySelectorAll(".foto-frame").forEach((frame) => {
     const img = frame.querySelector("img");
@@ -214,7 +287,7 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
     img.style.height = "auto";
     img.style.objectFit = "contain";
   });
-  printClone.style.cssText = `display:block !important;width:${A4_PRINT_WIDTH}px !important;background:#fff !important;padding:20px !important;`;
+  printClone.style.cssText = `display:block !important;width:${A4_PRINT_WIDTH}px !important;max-width:${A4_PRINT_WIDTH}px !important;background:#fff !important;padding:20px !important;`;
 
   tempWrapper.appendChild(printClone);
   document.body.appendChild(tempWrapper);
@@ -222,7 +295,9 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
   await waitForImages(printClone);
   await new Promise((r) => setTimeout(r, 300));
 
-  const realWidth = Math.max(A4_PRINT_WIDTH, Math.ceil(printClone.scrollWidth));
+  resetScrollPosition();
+  const viewportState = disableViewportConstraint();
+  await new Promise((r) => setTimeout(r, 100));
 
   const safeFilename = `FICHA_${(ficha.codigo || "DOC").replace(/[^a-z0-9]/gi, "_")}.pdf`;
 
@@ -255,14 +330,19 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
         filename: safeFilename,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
-          scale: Math.min(window.devicePixelRatio || 1, 2),
+          scale: 2,
           useCORS: true,
           backgroundColor: "#ffffff",
-          width: realWidth,
+          width: A4_PRINT_WIDTH,
           height: printClone.scrollHeight,
-          windowWidth: realWidth,
+          windowWidth: A4_PRINT_WIDTH,
           windowHeight: printClone.scrollHeight,
-          onclone: (clonedDoc) => injectPrintStylesOverride(clonedDoc),
+          scrollX: 0,
+          scrollY: 0,
+          onclone: (clonedDoc) => {
+            copyHeadStyles(clonedDoc);
+            injectPrintStylesOverride(clonedDoc);
+          },
         },
         jsPDF: {
           unit: "mm",
@@ -310,6 +390,7 @@ export async function exportFicha(ficha, elementId = "print-view-root") {
     return false;
   } finally {
     clearTimeout(timeoutId);
+    restoreViewportConstraint(viewportState);
     if (document.body.contains(tempWrapper))
       document.body.removeChild(tempWrapper);
     if (document.body.contains(overlay)) document.body.removeChild(overlay);

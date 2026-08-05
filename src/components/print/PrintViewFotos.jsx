@@ -71,7 +71,7 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
 
           <tbody>
             {fotos.map((foto, i) => (
-              <tr key={foto.id}>
+              <tr key={foto.id ?? i}>
                 <td
                   style={{
                     border: "1.5px solid #000",
