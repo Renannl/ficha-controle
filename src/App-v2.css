@@ -2643,6 +2643,25 @@ html, body {
   gap: 8px;
 }
 
+.section-title-row td {
+  background: #000 !important;
+  color: #fff !important;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+  padding: 6px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none !important;
+}
+
+.section-title-row {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+  break-after: avoid !important;
+}
+
+
 /* ========================================================= */
 /* RELATORIO FOTOGRAFICO - PDF */
 /* ========================================================= */

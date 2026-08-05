@@ -37,7 +37,7 @@ export default function SignatureSection({
           <div>
             <h2>Assinaturas</h2>
 
-            <p>Executante, Técnico, Supervisor e Responsável pela Qualidade</p>
+            <p>Supervisor e Responsável pela Qualidade</p>
           </div>
         </div>
       </div>

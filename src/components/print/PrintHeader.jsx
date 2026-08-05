@@ -15,9 +15,6 @@ export default function PrintHeader({ ficha }) {
             <strong>Código:</strong> {ficha.codigo}
           </td>
           <td className="info-cell">
-            <strong>Folha:</strong> {ficha.folha}
-          </td>
-          <td className="info-cell">
             <strong>Revisão:</strong> {ficha.revisao}
           </td>
         </tr>

@@ -24,11 +24,8 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
             <td colSpan="2">
               <strong>Nome do Equipamento:</strong> {ficha.nomeEquipamento}
             </td>
-            <td>
+            <td colSpan="2">
               <strong>Nº do Ind.:</strong> {ficha.numeroInd}
-            </td>
-            <td>
-              <strong>QTD:</strong> {ficha.qtd}
             </td>
           </tr>
           <tr>
@@ -112,39 +109,62 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
             )}
           </thead>
           <tbody>
-            {templateItems.map((item) => {
-              const fichaItem = (ficha.items || []).find(
-                (fi) => fi.id === item.id,
-              ) || {
-                sessionMarks: [],
-                resultado: "",
-              };
+            {(() => {
+              let categoriaAtual = null;
+              const totalCols = isPainel ? 2 : 17; // colSpan da linha de título preto
 
-              const marks = isPainel
-                ? []
-                : Array(15)
-                    .fill("")
-                    .map((_, i) => (fichaItem.sessionMarks || [])[i] || "");
+              return templateItems.map((item) => {
+                const rows = [];
 
-              return (
-                <tr key={item.id}>
-                  <td className="text-center">{item.id}</td>
-                  <td className="item-desc">{item.descricao}</td>
-                  {!isPainel &&
-                    marks.map((mark, i) => (
-                      <td key={i} className="text-center mark-cell">
-                        {mark === "feito" ? "✓" : mark === "na" ? "—" : ""}
-                      </td>
-                    ))}
-                  <td className="text-center res-mark">
-                    {fichaItem.resultado === "ok" ? "X" : ""}
-                  </td>
-                  <td className="text-center res-mark">
-                    {fichaItem.resultado === "na" ? "X" : ""}
-                  </td>
-                </tr>
-              );
-            })}
+                // Se mudou a categoria, injeta a linha de título preto antes do item
+                if (item.categoria !== categoriaAtual) {
+                  categoriaAtual = item.categoria;
+                  rows.push(
+                    <tr
+                      key={`title-${item.categoria}`}
+                      className="section-title-row"
+                    >
+                      <td colSpan={totalCols + 2}>{item.categoria}</td>
+                    </tr>,
+                  );
+                }
+
+                const fichaItem = (ficha.items || []).find(
+                  (fi) => fi.id === item.id,
+                ) || {
+                  sessionMarks: [],
+                  resultado: "",
+                };
+
+                const marks = isPainel
+                  ? []
+                  : Array(15)
+                      .fill("")
+                      .map((_, i) => (fichaItem.sessionMarks || [])[i] || "");
+
+                rows.push(
+                  <tr key={item.id}>
+                    <td className="text-center">{item.numero}</td>
+                    <td className="item-desc">{item.descricao}</td>
+                    {!isPainel &&
+                      marks.map((mark, i) => (
+                        <td key={i} className="text-center mark-cell">
+                          {mark === "feito" ? "✓" : mark === "na" ? "—" : ""}
+                        </td>
+                      ))}
+                    <td className="text-center res-mark">
+                      {fichaItem.resultado === "ok" ? "X" : ""}
+                    </td>
+                    <td className="text-center res-mark">
+                      {fichaItem.resultado === "na" ? "X" : ""}
+                    </td>
+                  </tr>,
+                );
+
+                return <Fragment key={`wrap-${item.id}`}>{rows}</Fragment>;
+              });
+            })()}
+
             <tr className="goal-row">
               <td colSpan="2">
                 <strong>Objetivo:</strong> {op?.objetivo}
@@ -188,55 +208,6 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
       >
         <tbody>
           <tr>
-            {ficha.operacao !== "50" && (
-              <td
-                className="sig-box"
-                style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
-              >
-                <div className="sig-line">
-                  {ficha.assinaturas.producao.dataUrl ? (
-                    <img
-                      src={ficha.assinaturas.producao.dataUrl}
-                      alt="Assinatura"
-                    />
-                  ) : (
-                    <div style={{ height: "35px" }}></div>
-                  )}
-                </div>
-
-                <div className="sig-label">Produção</div>
-
-                <div className="sig-name">
-                  {ficha.assinaturas.producao.nome || "____________________"}
-                </div>
-
-                <div className="sig-date">
-                  Data: {ficha.assinaturas.producao.data || "__/__/____"}
-                </div>
-              </td>
-            )}
-            <td
-              className="sig-box"
-              style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
-            >
-              <div className="sig-line">
-                {ficha.assinaturas.tecnico.dataUrl ? (
-                  <img
-                    src={ficha.assinaturas.tecnico.dataUrl}
-                    alt="Assinatura"
-                  />
-                ) : (
-                  <div style={{ height: "35px" }}></div>
-                )}
-              </div>
-              <div className="sig-label">Técnico Responsável</div>
-              <div className="sig-name">
-                {ficha.assinaturas.tecnico.nome || "____________________"}
-              </div>
-              <div className="sig-date">
-                Data: {ficha.assinaturas.tecnico.data || "__/__/____"}
-              </div>
-            </td>
             <td
               className="sig-box"
               style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
@@ -251,7 +222,7 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
                   <div style={{ height: "35px" }}></div>
                 )}
               </div>
-              <div className="sig-label">Supervisor IndusPower</div>
+              <div className="sig-label">Supervisor de Produção</div>
               <div className="sig-name">
                 {ficha.assinaturas.supervisor.nome || "____________________"}
               </div>
@@ -273,7 +244,7 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
                   <div style={{ height: "35px" }}></div>
                 )}
               </div>
-              <div className="sig-label">Qualidade</div>
+              <div className="sig-label">Responsável pela Qualidade</div>
               <div className="sig-name">
                 {ficha.assinaturas.qualidade.nome || "____________________"}
               </div>
