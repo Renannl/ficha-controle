@@ -34,66 +34,82 @@ function injectFullCssSync(clonedDoc, cssText) {
 
 /**
  * 🔑 AJUSTE CRÍTICO
- * - table-layout auto (não "fixed") pra colunas não ficarem esmagadas.
- * - Sem max-width forçado nas tabelas (deixa expandir dentro do PDF_PAGE_WIDTH real).
+ * - thead e tbody usam display:flex nas <tr>, com o MESMO número de
+ *   colunas (rowSpan/colSpan foram removidos do JSX do checklist).
+ * - Classes .col-it/.col-desc/.col-sessions/.col-result definem a
+ *   largura de cada coluna, aplicadas tanto em <th> quanto em <td>.
  * - break-inside: avoid em <tr> pra não cortar linha no meio entre páginas.
- * - font-size mínimo legível.
+ * - font-size legível (15px), não mais 7px.
  */
 function injectPdfOverridesSync(clonedDoc, width) {
   const style = clonedDoc.createElement("style");
   style.setAttribute("data-injected", "exportPdfEngine-overrides");
   style.textContent = `
-    html, body {
-      width: ${width}px !important;
-      background: #fff !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: visible !important;
-      font-size: 18px !important; /* 🔼 base geral aumentada */
-    }
-    * { box-sizing: border-box !important; }
-
-    img { max-width: 100% !important; height: auto !important; }
-
-    table, .print-checklist-table, .taf-pdf-table {
+    /* Unifica thead E tbody no MESMO sistema de layout (flex) */
+    .print-checklist-table,
+    .print-checklist-table thead,
+    .print-checklist-table tbody {
+      display: block !important;
       width: 100% !important;
-      border-collapse: collapse !important;
     }
 
-    table td, table th,
-    .print-checklist-table td, .print-checklist-table th,
-    .taf-pdf-table td, .taf-pdf-table th {
-      white-space: normal !important;
-      word-break: break-word !important;
-      overflow-wrap: break-word !important;
-      font-size: 17px !important;  /* 🔼 antes era 13px */
-      line-height: 1.5 !important;
-      padding: 8px 10px !important;
-    }
-
-    h1, h2, h3, h4 {
-      font-size: 1.4em !important;
-    }
-
-    p, span, label, div {
-      font-size: 16px !important;
-    }
-
-    /* 🔑 Cada linha não pode ser cortada no meio */
-    tr {
+    .print-checklist-table thead tr,
+    .print-checklist-table tbody tr {
+      display: flex !important;
+      width: 100% !important;
       break-inside: avoid !important;
       page-break-inside: avoid !important;
     }
 
-    tbody tr:nth-of-type(1) {
-      break-before: avoid !important;
+    .print-checklist-table thead th,
+    .print-checklist-table tbody td {
+      display: flex !important;
+      align-items: center;
+      border: 1px solid #000 !important;
+      box-sizing: border-box !important;
     }
 
-    thead { display: table-header-group !important; }
+    /* section-title-row: 1 único td -> 100% */
+    .print-checklist-table .section-title-row td {
+      flex: 1 1 100% !important;
+      width: 100% !important;
+    }
 
-    .ficha-header, .print-header {
-      break-after: avoid !important;
-      page-break-after: avoid !important;
+    /* goal-row: 2 tds -> 44% / 56% */
+    .print-checklist-table .goal-row td:first-child {
+      flex: 0 0 44% !important;
+      width: 44% !important;
+    }
+    .print-checklist-table .goal-row td:last-child {
+      flex: 1 1 auto !important;
+      width: 56% !important;
+    }
+
+    /* Larguras — MESMAS classes aplicadas em th E td */
+    .col-it       { flex: 0 0 4%    !important; width: 4%    !important; justify-content: center; }
+    .col-desc     { flex: 0 0 40%   !important; width: 40%   !important; justify-content: flex-start; text-align: left; }
+    .col-sessions { flex: 0 0 2.53% !important; width: 2.53% !important; justify-content: center; }
+    .col-result   { flex: 0 0 4%    !important; width: 4%    !important; justify-content: center; }
+
+    /* Fonte legível dentro do canvas de 2000px */
+    .print-checklist-table td,
+    .print-checklist-table th {
+      font-size: 15px !important;
+      line-height: 1.3 !important;
+      padding: 6px 4px !important;
+    }
+
+    .print-checklist-table .item-desc {
+      font-size: 15px !important;
+      font-weight: 600;
+    }
+
+    /* Rótulo "SESSÕES DE TRABALHO" acima da tabela */
+    .print-checklist-group-label {
+      text-align: center !important;
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      margin-bottom: 4px !important;
     }
   `;
   clonedDoc.head.appendChild(style);
@@ -182,18 +198,29 @@ async function buildPdfBlob({
   const preMeasureStyle = document.createElement("style");
   preMeasureStyle.setAttribute("data-injected", "exportPdfEngine-premeasure");
   preMeasureStyle.textContent = `
-    #${targetId} { font-size: 18px !important; }
-    #${targetId} table td, #${targetId} table th,
-    #${targetId} .print-checklist-table td, #${targetId} .print-checklist-table th,
-    #${targetId} .taf-pdf-table td, #${targetId} .taf-pdf-table th {
-      font-size: 17px !important;
-      line-height: 1.5 !important;
-      padding: 8px 10px !important;
-    }
-    #${targetId} h1, #${targetId} h2, #${targetId} h3, #${targetId} h4 {
-      font-size: 1.4em !important;
-    }
-  `;
+  #${targetId} table td, #${targetId} table th,
+  #${targetId} .taf-pdf-table td, #${targetId} .taf-pdf-table th {
+    font-size: 17px !important;
+    line-height: 1.5 !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Checklist tem tamanho próprio, calibrado pro canvas de 2000px */
+  #${targetId} .print-checklist-table td,
+  #${targetId} .print-checklist-table th {
+    font-size: 15px !important;
+    padding: 6px 4px !important;
+  }
+
+  #${targetId} .print-checklist-group-label {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+  }
+
+  #${targetId} h1, #${targetId} h2, #${targetId} h3, #${targetId} h4 {
+    font-size: 1.4em !important;
+  }
+`;
   document.head.appendChild(preMeasureStyle);
 
   await waitAllImagesReady(clone);
@@ -209,7 +236,7 @@ async function buildPdfBlob({
 
   // 🔼 Margem de segurança maior (fonte grande = mais risco de sub-medição)
   const safeWidth = realWidth + 40;
-  const safeHeight = realHeight + 80; // 🔼 aumentei de 40 pra 80
+  const safeHeight = realHeight + 80;
 
   const viewportMeta = document.querySelector('meta[name="viewport"]');
   const originalMeta = viewportMeta
@@ -254,8 +281,7 @@ async function buildPdfBlob({
           orientation: "landscape",
         },
         pagebreak: {
-          mode: ["css", "legacy"],
-          avoid: [".foto-frame"],
+          mode: ["css"],
         },
       })
       .from(clone)
@@ -272,7 +298,6 @@ async function buildPdfBlob({
     document.documentElement.setAttribute("data-theme", currentTheme);
   }
 }
-
 
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);

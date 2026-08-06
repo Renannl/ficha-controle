@@ -1436,14 +1436,14 @@
   }
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
 }
 
 /* ──────────────────────────────────────────────
    Print View Styles (PDF Generation)
 ────────────────────────────────────────────── */
-
 
 @media print {
   /* Esconde a UI normal */
@@ -1608,16 +1608,28 @@ html, body {
   word-wrap: break-word;
 }
 
-.print-checklist-table thead tr.main-header th {
-  background: #f0f0f0 !important;
+.print-checklist-table thead tr,
+.print-checklist-table tbody tr {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
 }
 
-.print-checklist-table thead tr.session-header th {
-  background: #e0e0e0 !important;
+/* Quando não há colunas de sessão (ex: painel), redistribui a largura total */
+.print-checklist-table.no-sessions .col-it {
+  flex: 0 0 6% !important;
+  width: 6% !important;
 }
 
-/* Larguras calibradas para 780px - 48px de padding = ~732px de conteúdo:
-   IT(4%) + DESC(40%) + 15×sessão(2.53% cada = 38%) + OK(4%) + NA(4%) = ~100%  */
+.print-checklist-table.no-sessions .col-desc {
+  flex: 0 0 82% !important;
+  width: 82% !important;
+}
+
+.print-checklist-table.no-sessions .col-result {
+  flex: 0 0 6% !important;
+  width: 6% !important;
+}
+
 .col-it {
   width: 4%;
   text-align: center;
@@ -1634,8 +1646,8 @@ html, body {
 }
 
 .col-result {
-  width: 8%;
-  text-align: center;
+  flex: 0 0 4% !important;
+  justify-content: center;
 }
 
 .item-desc {
@@ -1646,6 +1658,20 @@ html, body {
 
 .text-center {
   text-align: center;
+}
+
+.print-checklist-table .section-title-row {
+  background: #000 !important;
+}
+
+.print-checklist-table .section-title-row td {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  background: #000 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  justify-content: flex-start !important;
+  padding-left: 8px !important;
 }
 
 .res-cell {
@@ -2642,26 +2668,6 @@ html, body {
 .gap-2 {
   gap: 8px;
 }
-
-.section-title-row td {
-  background: #000 !important;
-  color: #fff !important;
-  font-weight: bold;
-  font-size: 13px;
-  text-align: center;
-  padding: 6px 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: none !important;
-}
-
-.section-title-row {
-  break-inside: avoid !important;
-  page-break-inside: avoid !important;
-  break-after: avoid !important;
-}
-
-
 /* ========================================================= */
 /* RELATORIO FOTOGRAFICO - PDF */
 /* ========================================================= */

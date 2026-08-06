@@ -11,6 +11,10 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
     ? getPainelChecklistItems(ficha.tipoPainel, { incluirVerificacao: false })
     : op?.items || [];
 
+  // Total de colunas reais do corpo (sem contar IT/DESC), usado no colSpan
+  // dos títulos de seção e da linha de objetivo.
+  const totalDataCols = isPainel ? 2 : 17; // 15 sessões + OK + NA (ou só OK/NA no painel)
+
   return (
     <div className={`print-view-root ${isBook ? "book-mode" : "print-only"}`}>
       {/* CABEÇALHO DA FICHA */}
@@ -77,54 +81,52 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
       </table>
 
       {/* CHECKLIST TABLE */}
+      {!isPainel && (
+        <div className="print-checklist-group-label">
+          SESSÕES DE TRABALHO (1ª a 15ª)
+        </div>
+      )}
       <div className="print-checklist-container">
-        <table className="print-checklist-table">
+        <table className={`print-checklist-table ${isPainel ? "no-sessions" : ""}`}>
+          {/*
+            ⚠️ IMPORTANTE: thead agora tem UMA ÚNICA linha, com o MESMO
+            número de colunas do tbody (IT + DESC + 15 sessões + OK + NA,
+            ou IT + DESC + OK + NA no painel). Isso é obrigatório porque
+            o CSS de exportação para PDF usa display:flex nas linhas, e
+            flex não entende rowSpan/colSpan — cada <th>/<td> é 1 bloco.
+          */}
           <thead>
             <tr className="main-header">
-              <th rowSpan="2" className="col-it">
-                IT
-              </th>
-              <th rowSpan="2" className="col-desc">
-                DESCRIÇÃO
-              </th>
-              {!isPainel && (
-                <th colSpan="15" className="col-sessions">
-                  SESSÕES DE TRABALHO
-                </th>
-              )}
-              <th colSpan="2" className="col-result">
-                OK/NA
-              </th>
-            </tr>
-            {!isPainel && (
-              <tr className="session-header">
-                {[...Array(15)].map((_, i) => (
-                  <th key={i} className="mark-cell">
+              <th className="col-it">IT</th>
+              <th className="col-desc">DESCRIÇÃO</th>
+
+              {!isPainel &&
+                [...Array(15)].map((_, i) => (
+                  <th key={i} className="col-sessions mark-cell">
                     {i + 1}º
                   </th>
                 ))}
-                <th className="res-cell">OK</th>
-                <th className="res-cell">NA</th>
-              </tr>
-            )}
+
+              <th className="col-result res-cell">OK</th>
+              <th className="col-result res-cell">NA</th>
+            </tr>
           </thead>
           <tbody>
             {(() => {
               let categoriaAtual = null;
-              const totalCols = isPainel ? 2 : 17; // colSpan da linha de título preto
+              const rows = [];
 
-              return templateItems.map((item) => {
-                const rows = [];
+              templateItems.forEach((item) => {
+                const isFirstOfSection = item.categoria !== categoriaAtual;
 
-                // Se mudou a categoria, injeta a linha de título preto antes do item
-                if (item.categoria !== categoriaAtual) {
+                if (isFirstOfSection) {
                   categoriaAtual = item.categoria;
                   rows.push(
                     <tr
-                      key={`title-${item.categoria}`}
+                      key={`title-${categoriaAtual}`}
                       className="section-title-row"
                     >
-                      <td colSpan={totalCols + 2}>{item.categoria}</td>
+                      <td colSpan={totalDataCols + 2}>{item.categoria}</td>
                     </tr>,
                   );
                 }
@@ -143,33 +145,42 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
                       .map((_, i) => (fichaItem.sessionMarks || [])[i] || "");
 
                 rows.push(
-                  <tr key={item.id}>
-                    <td className="text-center">{item.numero}</td>
-                    <td className="item-desc">{item.descricao}</td>
+                  <tr
+                    key={item.id}
+                    className={isFirstOfSection ? "section-first-item-row" : ""}
+                  >
+                    <td className="text-center col-it">{item.numero}</td>
+
+                    <td className="item-desc col-desc">{item.descricao}</td>
+
                     {!isPainel &&
                       marks.map((mark, i) => (
-                        <td key={i} className="text-center mark-cell">
+                        <td
+                          key={i}
+                          className="text-center mark-cell col-sessions"
+                        >
                           {mark === "feito" ? "✓" : mark === "na" ? "—" : ""}
                         </td>
                       ))}
-                    <td className="text-center res-mark">
+
+                    <td className="text-center res-mark col-result">
                       {fichaItem.resultado === "ok" ? "X" : ""}
                     </td>
-                    <td className="text-center res-mark">
+                    <td className="text-center res-mark col-result">
                       {fichaItem.resultado === "na" ? "X" : ""}
                     </td>
                   </tr>,
                 );
-
-                return <Fragment key={`wrap-${item.id}`}>{rows}</Fragment>;
               });
+
+              return rows;
             })()}
 
             <tr className="goal-row">
               <td colSpan="2">
                 <strong>Objetivo:</strong> {op?.objetivo}
               </td>
-              <td colSpan={isPainel ? "2" : "17"}></td>
+              <td colSpan={totalDataCols}></td>
             </tr>
           </tbody>
         </table>
