@@ -170,6 +170,7 @@ export default function App() {
       dadosIniciais.nomeEquipamento = fichaProducao.nomeEquipamento;
       dadosIniciais.obra = fichaProducao.obra;
       dadosIniciais.tag = fichaProducao.tag;
+      dadosIniciais.cliente = fichaProducao.cliente; // ← ADICIONAR
     }
 
     const id = await criarFicha(
