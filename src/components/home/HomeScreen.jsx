@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // 🆕 faltava
+import { useNavigate, useParams } from "react-router-dom";
 import ConfirmModal from "../buttons/ConfirmModal";
 import { useFichasFilter } from "../../hooks/useFichasFilter";
 import { useLocalStorageState } from "../../hooks/useLocalStorageState";
