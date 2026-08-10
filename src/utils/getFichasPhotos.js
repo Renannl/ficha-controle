@@ -1,11 +1,10 @@
-// utils/getFichaPhotos.js
 export function getFichaPhotos(ficha) {
   return (
     ficha.fotoData?.fotos
-      ?.filter((f) => f.imagem)
+      ?.filter((f) => f.imagem || f.foto)
       .map((f) => ({
         id: f.id,
-        foto: f.imagem,
+        foto: f.imagem || f.foto,
         descricao: f.descricao,
       })) || []
   );
