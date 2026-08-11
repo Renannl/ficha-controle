@@ -19,14 +19,15 @@ function formatarNome(nome) {
 function converterFicha(f) {
   return {
     ...f.dados,
-    items: f.dados?.items ?? [], // 🆕
-    operadores: f.dados?.operadores ?? [], // 🆕
+    codigo: f.codigo,      
+    items: f.dados?.items ?? [], 
+    operadores: f.dados?.operadores ?? [], 
     assinaturas: f.dados?.assinaturas ?? {
       producao: {},
       tecnico: {},
       supervisor: {},
       qualidade: {},
-    }, // 🆕 evita quebrar .assinaturas.producao.dataUrl
+    },
     fotoData: f.dados?.fotoData ?? {
       verificacoes: [],
       responsavelTecnico: "",
@@ -51,7 +52,7 @@ export function useFichas(currentUser) {
   const [isLoaded, setIsLoaded] = useState(false);
   const saveTimeouts = useRef({});
   const fichasRef = useRef(fichas);
-  const pendingIds = useRef(new Set()); // 🆕 controla fichas com escrita em voo
+  const pendingIds = useRef(new Set());
 
   useEffect(() => {
     fichasRef.current = fichas;
@@ -110,14 +111,29 @@ export function useFichas(currentUser) {
       const res = await authFetch(`${API_URL}/fichas`);
       const data = await res.json();
 
-      const filtradas = data.filter(
-        (f) =>
-          String(f.operacao) === String(operacao) &&
-          f.codigo?.startsWith(`${prefixo}-`),
-      );
+      // Códigos do banco
+      const codigosRemotos = data
+        .filter(
+          (f) =>
+            String(f.operacao) === String(operacao) &&
+            f.codigo?.startsWith(`${prefixo}-`),
+        )
+        .map((f) => f.codigo);
 
-      const numeros = filtradas
-        .map((f) => parseInt(f.codigo?.split("-")[1]))
+      // Códigos locais (podem não estar salvos ainda)
+      const codigosLocais = fichasRef.current
+        .filter(
+          (f) =>
+            String(f.operacao) === String(operacao) &&
+            f.codigo?.startsWith(`${prefixo}-`),
+        )
+        .map((f) => f.codigo);
+
+      // Junta tudo e tira duplicatas
+      const todosCodigos = [...new Set([...codigosRemotos, ...codigosLocais])];
+
+      const numeros = todosCodigos
+        .map((c) => parseInt(c?.split("-")[1]))
         .filter(Boolean);
 
       const proximo = numeros.length > 0 ? Math.max(...numeros) + 1 : 1;

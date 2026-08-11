@@ -14,7 +14,10 @@ import HomeContent from "./HomeContent";
 import HomeFab from "./HomeFab";
 import { useHomeFilters } from "../../hooks/useHomeFilters";
 import BookPrintView from "../print/BookPrintView";
-import { generateFichaPdf, generateBookPdf } from "../../services/exportPdfEngine";
+import {
+  generateFichaPdf,
+  generateBookPdf,
+} from "../../services/exportPdfEngine";
 import { FileInputIcon } from "lucide-react";
 import { useColecoes } from "../../hooks/useColecoes";
 
@@ -124,9 +127,13 @@ export default function HomeScreen({
     setViewMode("list");
   };
 
-  const handleCreateFicha = (tipo, fichaProducao = null) => {
+  const handleCreateFicha = (
+    tipo,
+    fichaProducao = null,
+    tipoFotografico = null,
+  ) => {
     if (!selectedColecao?.id) return;
-    onNova(tipo, selectedColecao.id, fichaProducao);
+    onNova(tipo, selectedColecao.id, fichaProducao, tipoFotografico);
     setShowNewMenu(false);
   };
 

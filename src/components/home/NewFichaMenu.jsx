@@ -23,7 +23,10 @@ export default function NewFichaMenu({
   onColecaoImportada,
   fichasDaColecao = [],
 }) {
-  const [etapa, setEtapa] = useState("menu"); // "menu" | "selecionar-producao" | "selecionar-producao-fotos"
+  const [etapa, setEtapa] = useState("menu");
+  // "menu" | "tipo-fotos" | "selecionar-producao" | "selecionar-producao-fotos"
+  const [tipoFotosSelecionado, setTipoFotosSelecionado] = useState(null);
+  // "geral" | "tecnica"
 
   if (!show) return null;
 
@@ -53,17 +56,19 @@ export default function NewFichaMenu({
   });
 
   // ── Fichas disponíveis para Relatório Fotográfico ──
+  // Agora filtra pelo tipo específico: permite uma geral E uma técnica
   const fichasProducaoFotos = fichasDaColecao.filter((f) => {
     if (String(f.operacao) !== "10") return false;
     if (f.statusAprovacao !== "aprovado") return false;
 
-    const jaTemFotos = fichasDaColecao.some(
+    const jaTemEsseTipo = fichasDaColecao.some(
       (t) =>
         String(t.operacao) === String(CODIGO_OPERACAO_FOTOS) &&
-        String(t.ficha_producao_id) === String(f.dbId),
+        String(t.ficha_producao_id) === String(f.dbId) &&
+        String(t.tipoFotografico) === String(tipoFotosSelecionado),
     );
 
-    return !jaTemFotos;
+    return !jaTemEsseTipo;
   });
 
   const handleClickTaf = () => {
@@ -80,26 +85,51 @@ export default function NewFichaMenu({
   };
 
   const handleClickFotos = () => {
-    if (fichasProducaoFotos.length === 0) {
-      alert(
-        "Nenhuma ficha de produção disponível para vincular.\n\n" +
-          "Verifique se:\n" +
-          "• A ficha de produção já foi aprovada\n" +
-          "• Ela ainda não possui um Relatório Fotográfico vinculado",
-      );
-      return;
-    }
+    setEtapa("tipo-fotos");
+  };
+
+  const handleSelecionarTipoFotos = (tipo) => {
+    setTipoFotosSelecionado(tipo);
     setEtapa("selecionar-producao-fotos");
   };
 
   const handleSelecionarProducao = (ficha, tipo) => {
-    onCreateFicha(tipo, ficha);
+    // Se for fotos, passa também o tipo selecionado
+    if (tipo === "fotos") {
+      onCreateFicha(tipo, ficha, tipoFotosSelecionado);
+    } else {
+      onCreateFicha(tipo, ficha);
+    }
     setEtapa("menu");
+    setTipoFotosSelecionado(null);
   };
 
   const handleClose = () => {
     setEtapa("menu");
+    setTipoFotosSelecionado(null);
     onClose();
+  };
+
+  const getTitulo = () => {
+    if (etapa === "tipo-fotos") return "Tipo de Relatório Fotográfico";
+    if (etapa === "selecionar-producao") return "Vincular Ficha TAF";
+    if (etapa === "selecionar-producao-fotos") {
+      return tipoFotosSelecionado === "tecnica"
+        ? "Vincular Ficha Técnica"
+        : "Vincular Relatório Fotográfico";
+    }
+    return mode === "fichas" ? "Nova Ficha" : "Nova Proposta";
+  };
+
+  const getSubtitulo = () => {
+    if (etapa === "tipo-fotos") return "Escolha o tipo de registro fotográfico";
+    if (
+      etapa === "selecionar-producao" ||
+      etapa === "selecionar-producao-fotos"
+    )
+      return "Escolha a ficha de produção";
+    if (mode === "fichas") return "Escolha o tipo de ficha";
+    return "Criar coleção de fichas";
   };
 
   return (
@@ -109,38 +139,67 @@ export default function NewFichaMenu({
         <div className="new-ficha-menu-header">
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {(etapa === "selecionar-producao" ||
-              etapa === "selecionar-producao-fotos") && (
+              etapa === "selecionar-producao-fotos" ||
+              etapa === "tipo-fotos") && (
               <button
                 className="new-ficha-close-btn"
-                onClick={() => setEtapa("menu")}
+                onClick={() => {
+                  if (etapa === "tipo-fotos") setEtapa("menu");
+                  else setEtapa("menu");
+                  setTipoFotosSelecionado(null);
+                }}
               >
                 <ArrowLeft size={18} />
               </button>
             )}
             <div>
-              <h3>
-                {etapa === "selecionar-producao"
-                  ? "Vincular Ficha TAF"
-                  : etapa === "selecionar-producao-fotos"
-                    ? "Vincular Relatório Fotográfico"
-                    : mode === "fichas"
-                      ? "Nova Ficha"
-                      : "Nova Proposta"}
-              </h3>
-              <p>
-                {etapa === "selecionar-producao" ||
-                etapa === "selecionar-producao-fotos"
-                  ? "Escolha a ficha de produção"
-                  : mode === "fichas"
-                    ? "Escolha o tipo de ficha"
-                    : "Criar coleção de fichas"}
-              </p>
+              <h3>{getTitulo()}</h3>
+              <p>{getSubtitulo()}</p>
             </div>
           </div>
           <button className="new-ficha-close-btn" onClick={handleClose}>
             <X size={18} />
           </button>
         </div>
+
+        {/* ── ETAPA: ESCOLHER TIPO DE FOTOS ── */}
+        {etapa === "tipo-fotos" && (
+          <div className="new-ficha-options">
+            <button
+              className="new-ficha-opt-btn"
+              onClick={() => handleSelecionarTipoFotos("geral")}
+            >
+              <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
+                <Camera size={22} />
+              </div>
+              <div className="new-ficha-opt-info">
+                <span className="new-ficha-opt-title">
+                  Relatório Fotográfico Geral
+                </span>
+                <span className="new-ficha-opt-desc">
+                  Fotos amplas e cinematográficas para o cliente
+                </span>
+              </div>
+            </button>
+
+            <button
+              className="new-ficha-opt-btn"
+              onClick={() => handleSelecionarTipoFotos("tecnica")}
+            >
+              <div className="new-ficha-opt-icon new-ficha-opt-icon--taf">
+                <ClipboardList size={22} />
+              </div>
+              <div className="new-ficha-opt-info">
+                <span className="new-ficha-opt-title">
+                  Relatório Fotográfico Técnico
+                </span>
+                <span className="new-ficha-opt-desc">
+                  Fotos detalhadas técnicas para arquivo interno
+                </span>
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* ─ ETAPA: SELECIONAR FICHA DE PRODUÇÃO (TAF) ── */}
         {etapa === "selecionar-producao" && (
@@ -170,25 +229,34 @@ export default function NewFichaMenu({
         {/* ── ETAPA: SELECIONAR FICHA DE PRODUÇÃO (FOTOS) ─ */}
         {etapa === "selecionar-producao-fotos" && (
           <div className="new-ficha-options">
-            {fichasProducaoFotos.map((f) => (
-              <button
-                key={f.dbId}
-                className="new-ficha-opt-btn"
-                onClick={() => handleSelecionarProducao(f, "fotos")}
+            {fichasProducaoFotos.length === 0 ? (
+              <div
+                style={{ padding: "1rem", textAlign: "center", color: "#888" }}
               >
-                <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
-                  <Image size={22} />
-                </div>
-                <div className="new-ficha-opt-info">
-                  <span className="new-ficha-opt-title">
-                    {f.codigo} — IND {f.numeroInd}
-                  </span>
-                  <span className="new-ficha-opt-desc">
-                    {f.nomeEquipamento || f.obra || "Sem descrição"}
-                  </span>
-                </div>
-              </button>
-            ))}
+                Nenhuma ficha de produção disponível para este tipo de
+                relatório.
+              </div>
+            ) : (
+              fichasProducaoFotos.map((f) => (
+                <button
+                  key={f.dbId}
+                  className="new-ficha-opt-btn"
+                  onClick={() => handleSelecionarProducao(f, "fotos")}
+                >
+                  <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
+                    <Image size={22} />
+                  </div>
+                  <div className="new-ficha-opt-info">
+                    <span className="new-ficha-opt-title">
+                      {f.codigo} — IND {f.numeroInd}
+                    </span>
+                    <span className="new-ficha-opt-desc">
+                      {f.nomeEquipamento || f.obra || "Sem descrição"}
+                    </span>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         )}
 
@@ -222,10 +290,7 @@ export default function NewFichaMenu({
               </div>
             </button>
 
-            <button
-              className="new-ficha-opt-btn"
-              onClick={handleClickFotos}
-            >
+            <button className="new-ficha-opt-btn" onClick={handleClickFotos}>
               <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
                 <Image size={22} />
               </div>

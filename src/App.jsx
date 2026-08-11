@@ -161,7 +161,12 @@ export default function App() {
     }
   }
 
-  async function handleNova(tipo, colecaoId = null, fichaProducao = null) {
+  async function handleNova(
+    tipo,
+    colecaoId = null,
+    fichaProducao = null,
+    tipoFotografico = null,
+  ) {
     const operacaoCodigo = TIPO_PARA_OPERACAO[tipo] ?? tipo;
 
     const dadosIniciais = {};
@@ -170,7 +175,10 @@ export default function App() {
       dadosIniciais.nomeEquipamento = fichaProducao.nomeEquipamento;
       dadosIniciais.obra = fichaProducao.obra;
       dadosIniciais.tag = fichaProducao.tag;
-      dadosIniciais.cliente = fichaProducao.cliente; // ← ADICIONAR
+      dadosIniciais.cliente = fichaProducao.cliente;
+    }
+    if (tipoFotografico) {
+      dadosIniciais.tipoFotografico = tipoFotografico;
     }
 
     const id = await criarFicha(

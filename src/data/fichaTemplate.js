@@ -212,6 +212,7 @@ export function createEmptyFicha(
         }
       : null,
     fotoData: codigo === "80" ? { fotos: [] } : null,
+    tipoFotografico: codigo === "80" ? "geral" : undefined,
 
     sessions: Array.from({ length: 15 }, (_, i) => ({
       numero: i + 1,
