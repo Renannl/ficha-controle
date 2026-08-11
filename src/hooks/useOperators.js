@@ -38,7 +38,7 @@ export function useOperators({ user, onAtualizarOperadores, podeGerenciar }) {
         ];
       }
 
-      onAtualizarOperadores?.(ficha.id, novosOperadores);
+      onAtualizarOperadores?.(ficha.dbId, novosOperadores);
     },
     [onAtualizarOperadores, podeGerenciar],
   );
