@@ -189,7 +189,6 @@ export default function FichaView({
     const item = ficha.items?.[itemIndex];
     if (!item) return;
 
-    // 🆕 Calcula os novos items localmente
     const novosItems = [...(ficha.items ?? [])];
     novosItems[itemIndex] = { ...novosItems[itemIndex], [key]: value };
 
@@ -209,7 +208,6 @@ export default function FichaView({
         usuario: user?.nome || user?.username,
       });
 
-      // 🆕 Verifica se a etapa foi concluída
       if (template?.etapa) {
         verificarFimEtapa(template.etapa, novosItems);
       }
@@ -242,7 +240,6 @@ export default function FichaView({
     const item = ficha.items?.[itemIndex];
     if (!item) return;
 
-    // 🆕 Calcula os novos items localmente (antes do setState)
     const novosItems = [...(ficha.items ?? [])];
     novosItems[itemIndex] = { ...novosItems[itemIndex], resultado, observacao };
 
@@ -263,7 +260,6 @@ export default function FichaView({
         usuario: user?.nome || user?.username,
       });
 
-      // 🆕 Se marcou resultado, verifica se a etapa foi concluída
       if (template?.etapa) {
         verificarFimEtapa(template.etapa, novosItems);
       }
@@ -341,12 +337,41 @@ export default function FichaView({
     atualizarFicha(fichaId, (prev) => ({ ...prev, operacao: novoCodigo }));
   }
 
+  // 🆕 Monta os testadores: todo mundo com tempo contando na ficha (> 0)
+  function montarTestadores() {
+    const nomes = [];
+
+    (sessoes || []).forEach((s) => {
+      let tempoSegundos = 0;
+
+      if (s.fim) {
+        // Sessão encerrada: usa a duração salva
+        tempoSegundos = Number(s.duracao_segundos || 0);
+      } else {
+        // Sessão aberta: tempo decorrido desde o início
+        const inicioMs = s.inicio ? new Date(s.inicio).getTime() : 0;
+        if (inicioMs) {
+          tempoSegundos = Math.max(0, (Date.now() - inicioMs) / 1000);
+        }
+      }
+
+      // 🆕 Só quem tem tempo > 0 entra como testador
+      if (tempoSegundos <= 0) return;
+
+      const nome = s.nome || s.usuario;
+      if (nome && String(nome).trim()) nomes.push(String(nome).trim());
+    });
+
+    return [...new Set(nomes.filter(Boolean))].join(", ");
+  }
+
   // ─── Validação de completude ───
-  function getCamposFaltantes() {
-    if (!ficha) return [];
+  function getCamposFaltantes(fichaArg = null) {
+    const f = fichaArg || ficha;
+    if (!f) return [];
     const faltando = [];
 
-    const opStr = String(ficha.operacao ?? "");
+    const opStr = String(f.operacao ?? "");
     const taf = opStr === "50";
     const foto = opStr === "80";
 
@@ -357,18 +382,23 @@ export default function FichaView({
         obra: "Obra",
         cliente: "Cliente",
         tag: "TAG",
-        dataInicio: "Data de Início",
-        dataTermino: "Data de Término",
       };
+
+      // 🆕 TAF não tem data de início/término manuais (são automáticas)
+      if (!taf) {
+        camposBasicos.dataInicio = "Data de Início";
+        camposBasicos.dataTermino = "Data de Término";
+      }
+
       Object.entries(camposBasicos).forEach(([campo, label]) => {
-        if (!ficha[campo] || String(ficha[campo]).trim() === "") {
+        if (!f[campo] || String(f[campo]).trim() === "") {
           faltando.push(label);
         }
       });
     }
 
-    if (!foto && ficha.items?.length > 0) {
-      const itensSemResultado = ficha.items.filter(
+    if (!foto && f.items?.length > 0) {
+      const itensSemResultado = f.items.filter(
         (item) => !item?.resultado || String(item.resultado).trim() === "",
       );
       if (itensSemResultado.length > 0) {
@@ -378,15 +408,8 @@ export default function FichaView({
       }
     }
 
-    if (taf) {
-      const tafData = ficha.tafData || {};
-      if (!tafData.dataTeste) faltando.push("Data do Teste (TAF)");
-      if (!tafData.testadores || !tafData.testadores.trim())
-        faltando.push("Testadores (TAF)");
-    }
-
     if (foto) {
-      const fotos = ficha.fotoData?.fotos || [];
+      const fotos = f.fotoData?.fotos || [];
       if (fotos.length === 0) {
         faltando.push("Nenhuma foto enviada");
       }
@@ -394,7 +417,7 @@ export default function FichaView({
 
     const rolesObrigatorios = foto ? [] : ["supervisor", "qualidade"];
     rolesObrigatorios.forEach((role) => {
-      const assinatura = ficha.assinaturas?.[role];
+      const assinatura = f.assinaturas?.[role];
       if (!assinatura?.dataUrl || !assinatura?.nome?.trim()) {
         const labels = {
           supervisor: "Assinatura do Supervisor",
@@ -403,10 +426,10 @@ export default function FichaView({
         faltando.push(labels[role] || `Assinatura (${role})`);
       }
     });
+
     if (
-      (ficha.statusAprovacao === "revisao" ||
-        ficha.statusAprovacao === "reprovado") &&
-      !ficha.alteracoesFeitas?.trim()
+      (f.statusAprovacao === "revisao" || f.statusAprovacao === "reprovado") &&
+      !f.alteracoesFeitas?.trim()
     ) {
       faltando.push("Campo 'Alterações Feitas' (obrigatório em revisão)");
     }
@@ -417,7 +440,30 @@ export default function FichaView({
   async function handleFinalizar() {
     if (!ficha) return;
 
-    const faltando = getCamposFaltantes();
+    // 🆕 Define localmente (não depende de variável declarada mais abaixo)
+    const isTafOp = String(ficha.operacao ?? "") === "50";
+
+    // Monta a ficha "efetiva" já com os campos automáticos do TAF
+    const fichaEfetiva = { ...ficha };
+
+    if (isTafOp) {
+      if (!fichaEfetiva.dataInicio) {
+        fichaEfetiva.dataInicio = fichaEfetiva.createdAt
+          ? new Date(fichaEfetiva.createdAt).toLocaleDateString("pt-BR")
+          : new Date().toLocaleDateString("pt-BR");
+      }
+      fichaEfetiva.dataTermino = new Date().toLocaleDateString("pt-BR");
+      fichaEfetiva.tafData = {
+        ...fichaEfetiva.tafData,
+        dataTeste:
+          fichaEfetiva.tafData?.dataTeste ||
+          new Date().toLocaleDateString("pt-BR"),
+        testadores: montarTestadores(),
+      };
+    }
+
+    // Valida usando a ficha efetiva
+    const faltando = getCamposFaltantes(fichaEfetiva);
     if (faltando.length > 0) {
       setSuccessModal({
         isOpen: true,
@@ -430,7 +476,15 @@ export default function FichaView({
       return;
     }
 
+    // Grava os campos automáticos + finaliza
     atualizarFicha(fichaId, {
+      ...(isTafOp
+        ? {
+            dataInicio: fichaEfetiva.dataInicio,
+            dataTermino: fichaEfetiva.dataTermino,
+            tafData: fichaEfetiva.tafData,
+          }
+        : {}),
       status: "finalizada",
       statusAprovacao: "aguardando",
       finalizadaAt: new Date().toISOString(),
@@ -546,6 +600,7 @@ export default function FichaView({
     ? [
         { id: "taf", icon: "⚡", label: "Testes" },
         { id: "checklist", icon: "✅", label: "Funcionais e Visuais" },
+        { id: "sessions", icon: "🕐", label: "Sessões" }, // 🆕
         { id: "signatures", icon: "✍️", label: "Assinaturas" },
       ]
     : isFoto
