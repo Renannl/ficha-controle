@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
                 networkTimeoutSeconds: 3,
                 expiration: {
                   maxEntries: 5,
-                  maxAgeSeconds: 60, // expira em 1 minuto
+                  maxAgeSeconds: 60,
                 },
               },
             },

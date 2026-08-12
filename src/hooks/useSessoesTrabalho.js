@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { authFetch } from "../services/apiClient";
 import { calcularTempoDecorridoReal } from "../utils/tempoUtils";
 
-const POLL_INTERVAL_MS = 15000; // busca dados reais do backend a cada 15s
+const POLL_INTERVAL_MS = 15000;
 
 export function useSessoesTrabalho(fichaId) {
   const [sessoes, setSessoes] = useState([]);
@@ -35,19 +35,14 @@ export function useSessoesTrabalho(fichaId) {
     loadSessoes();
   }, [loadSessoes]);
 
-  const haSessaoAberta = useMemo(
-    () => sessoes.some((s) => !s.fim),
-    [sessoes],
-  );
+  const haSessaoAberta = useMemo(() => sessoes.some((s) => !s.fim), [sessoes]);
 
-  // ⏱️ tick visual: atualiza o cronômetro a cada segundo (client-side)
   useEffect(() => {
     if (!haSessaoAberta) return;
     const interval = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(interval);
   }, [haSessaoAberta]);
 
-  // 🔄 poll real: busca do backend se a sessão ainda está de fato aberta
   useEffect(() => {
     if (!haSessaoAberta) return;
     const poll = setInterval(() => {
@@ -58,7 +53,7 @@ export function useSessoesTrabalho(fichaId) {
 
   const tempoDecorridoSegundos = useMemo(
     () => calcularTempoDecorridoReal(sessoes),
-    [sessoes, tick], // eslint-disable-line react-hooks/exhaustive-deps
+    [sessoes, tick],
   );
 
   const totalSegundosAoVivo = useMemo(() => {
@@ -68,7 +63,7 @@ export function useSessoesTrabalho(fichaId) {
       const inicioMs = new Date(s.inicio).getTime();
       return acc + (agora - inicioMs) / 1000;
     }, 0);
-  }, [sessoes, tick]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sessoes, tick]);
 
   const updateSessao = useCallback(
     async (sessaoId, payload) => {
@@ -103,6 +98,30 @@ export function useSessoesTrabalho(fichaId) {
     [fichaId, loadSessoes],
   );
 
+  const pararTodasSessoes = useCallback(async () => {
+    const abertas = sessoes.filter((s) => !s.fim);
+    if (abertas.length === 0) return;
+
+    console.log(
+      `[useSessoesTrabalho] ⏹️ Parando ${abertas.length} sessão(ões) ativa(s)`,
+    );
+
+    const response = await authFetch(`/fichas/${fichaId}/sessoes/parar-todas`, {
+      method: "POST",
+    });
+
+    if (!response || !response.ok) {
+      const text = response ? await response.text() : "Sem resposta";
+      console.error("[useSessoesTrabalho] Erro ao parar sessões:", text);
+      return;
+    }
+
+    const data = await response.json();
+    console.log(`[useSessoesTrabalho] ✅ ${data.paradas} sessão(ões) paradas`);
+
+    await loadSessoes();
+  }, [fichaId, sessoes, loadSessoes]);
+
   return {
     sessoes,
     totalSegundos: totalSegundosAoVivo,
@@ -111,5 +130,6 @@ export function useSessoesTrabalho(fichaId) {
     loadSessoes,
     updateSessao,
     deleteSessao,
+    pararTodasSessoes,
   };
 }

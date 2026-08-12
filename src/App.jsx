@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { useFichas } from "./hooks/useFichas";
 import LoginScreen from "./components/LoginScreen";
@@ -38,26 +38,53 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // ─── Carregar usuários (unificado em um único useEffect) ───
+  // ─── Carregar usuários (reage ao login) ───
+  const carregouUsuarios = useRef(false);
+
   useEffect(() => {
+    // Só carrega quando autenticado e ainda não carregou
+    if (!isAuthenticated) {
+      carregouUsuarios.current = false;
+      return;
+    }
+
     async function carregarUsuarios() {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
         const response = await fetch(`${API_URL}/users`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
+        if (!response.ok) {
+          console.error("[App] Erro ao carregar usuários:", response.status);
+          // 🔄 Se for 401, o token pode estar expirado — tenta de novo em 1s
+          if (response.status === 401) {
+            setTimeout(() => carregarUsuarios(), 1000);
+          }
+          return;
+        }
+
         const data = await response.json();
-        console.log("usuarios:", data, Array.isArray(data));
-        setUsuarios(data || []);
+
+        // ✅ Garante que é array antes de setar
+        if (Array.isArray(data)) {
+          console.log("[App] ✅ Usuários carregados:", data.length);
+          setUsuarios(data);
+        } else {
+          console.warn("[App] ⚠️ Resposta não é array:", data);
+          setUsuarios([]);
+        }
       } catch (error) {
-        console.error("Erro ao carregar usuários:", error);
+        console.error("[App] Erro ao carregar usuários:", error);
       }
     }
 
     carregarUsuarios();
-  }, []);
+  }, [isAuthenticated]); // 👈 Reage quando o login acontece
 
   // ─── Tela de boas-vindas ───
   useEffect(() => {

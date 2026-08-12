@@ -186,6 +186,10 @@ export default function FichaView({
     const item = ficha.items?.[itemIndex];
     if (!item) return;
 
+    // 🆕 Calcula os novos items localmente
+    const novosItems = [...(ficha.items ?? [])];
+    novosItems[itemIndex] = { ...novosItems[itemIndex], [key]: value };
+
     atualizarFicha(fichaId, (prev) => {
       const items = [...(prev?.items ?? [])];
       items[itemIndex] = { ...items[itemIndex], [key]: value };
@@ -201,6 +205,31 @@ export default function FichaView({
         valor: value,
         usuario: user?.nome || user?.username,
       });
+
+      // 🆕 Verifica se a etapa foi concluída
+      if (template?.etapa) {
+        verificarFimEtapa(template.etapa, novosItems);
+      }
+    }
+  }
+
+  // 🆕 Verifica se todos os itens de uma etapa foram preenchidos
+  function verificarFimEtapa(etapa, itemsAtuais) {
+    const itensDaEtapa = activeChecklistItems.filter(
+      (ci) => ci.etapa === etapa,
+    );
+    if (itensDaEtapa.length === 0) return;
+
+    const todosPreenchidos = itensDaEtapa.every((ci) => {
+      const itemData = itemsAtuais.find((i) => i.id === ci.id);
+      return itemData?.resultado === "ok" || itemData?.resultado === "na";
+    });
+
+    if (todosPreenchidos) {
+      console.log(
+        `[FichaView] ✅ Etapa "${etapa}" concluída! Parando todos os cronômetros...`,
+      );
+      sessoesTrabalho.pararTodasSessoes();
     }
   }
 
@@ -209,6 +238,10 @@ export default function FichaView({
     marcarReedicaoSeAprovada();
     const item = ficha.items?.[itemIndex];
     if (!item) return;
+
+    // 🆕 Calcula os novos items localmente (antes do setState)
+    const novosItems = [...(ficha.items ?? [])];
+    novosItems[itemIndex] = { ...novosItems[itemIndex], resultado, observacao };
 
     atualizarFicha(fichaId, (prev) => {
       const items = [...(prev?.items ?? [])];
@@ -226,6 +259,11 @@ export default function FichaView({
         observacao,
         usuario: user?.nome || user?.username,
       });
+
+      // 🆕 Se marcou resultado, verifica se a etapa foi concluída
+      if (template?.etapa) {
+        verificarFimEtapa(template.etapa, novosItems);
+      }
     }
   }
 
