@@ -61,6 +61,17 @@ export default function NewFichaMenu({
     if (String(f.operacao) !== "10") return false;
     if (f.statusAprovacao !== "aprovado") return false;
 
+    // 🆕 A TAF vinculada à produção precisa estar aprovada
+    const tafDaProducao = fichasDaColecao.find(
+      (t) =>
+        String(t.operacao) === "50" &&
+        String(t.ficha_producao_id) === String(f.dbId),
+    );
+
+    if (!tafDaProducao || tafDaProducao.statusAprovacao !== "aprovado") {
+      return false;
+    }
+
     const jaTemEsseTipo = fichasDaColecao.some(
       (t) =>
         String(t.operacao) === String(CODIGO_OPERACAO_FOTOS) &&
@@ -233,8 +244,10 @@ export default function NewFichaMenu({
               <div
                 style={{ padding: "1rem", textAlign: "center", color: "#888" }}
               >
-                Nenhuma ficha de produção disponível para este tipo de
-                relatório.
+                Nenhuma ficha de produção disponível.<br/>
+                <br />
+                Verifique se a ficha de produção já possui uma{" "}
+                <b>TAF aprovada</b>.
               </div>
             ) : (
               fichasProducaoFotos.map((f) => (
