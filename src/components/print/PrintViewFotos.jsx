@@ -159,12 +159,6 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
 
       {/* ═══════════ PÁGINAS DE FOTOS ═══════════ */}
       {pages.map((page, pageIdx) => {
-        // ❌ REMOVE ISSO:
-        // const completas = [...page.items];
-        // while (completas.length < FOTOS_POR_PAGINA) {
-        //   completas.push(null);
-        // }
-
         return (
           <div
             key={pageIdx}

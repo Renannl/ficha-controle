@@ -54,6 +54,19 @@ export default function FichaCard({
     }
   }
 
+  function getOperacaoNome(ficha) {
+    const op = String(ficha.operacao);
+
+    if (op === "80") {
+      const tipo = ficha.tipoFotografico || ficha.dados?.tipoFotografico;
+      return tipo === "tecnica"
+        ? "Ficha Fotográfica Técnica"
+        : "Ficha Fotográfica";
+    }
+
+    return OPERACOES[op]?.nome || "—";
+  }
+
   return (
     <div
       key={ficha.dbId}
@@ -85,8 +98,8 @@ export default function FichaCard({
           </div>
 
           <div className="ficha-card-sub">
-            <strong>{ficha.numeroInd || "—"}</strong> ·{" "}
-            {OPERACOES[ficha.operacao]?.nome || "—"} · {ficha.cliente || "—"}
+            <strong>{ficha.numeroInd || "—"}</strong> · {getOperacaoNome(ficha)}{" "}
+            · {ficha.cliente || "—"}
           </div>
 
           <div className="ficha-card-meta">

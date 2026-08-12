@@ -18,7 +18,7 @@ export function buildPainelItems(tipoPainel) {
 export const OPERACOES = {
   10: {
     codigo: "10",
-    nome: "Ficha de Controle (Estrutura)",
+    nome: "Ficha de Controle",
     label: "FICHA DE CONTROLE – ESTRUTURA",
     equipe: "MONTAGEM MECÂNICA",
     objetivo: "Validação da estrutura física e componentes.",
