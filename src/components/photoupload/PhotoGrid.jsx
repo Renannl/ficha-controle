@@ -30,6 +30,7 @@ export default function PhotoGrid({
       <button type="button" className="add-photo-tile" onClick={onAdd}>
         <span className="add-photo-tile-icon">＋</span>
         <span className="add-photo-tile-text">Adicionar Foto</span>
+        <span className="add-photo-tile-sub">Câmera ou Galeria</span>
       </button>
     </div>
   );

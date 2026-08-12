@@ -268,43 +268,305 @@
   background: rgba(79, 209, 217, 0.08);
 }
 
+/* ══════════════════════════════════════════════
+   Photo Grid Items
+══════════════════════════════════════════════ */
 .photo-grid-item {
-  flex: 1 1 220px;
-  max-width: 260px;
+  flex: 1 1 320px;
+  max-width: 400px;
+  min-width: 280px;
 }
 
+/* ══════════════════════════════════════════════
+   Add Photo Tile (COMPLETO)
+══════════════════════════════════════════════ */
 .add-photo-tile {
-  flex: 1 1 220px;
-  max-width: 260px;
-  min-height: 180px; /* mesma altura do PhotoUploadCard */
+  flex: 1 1 320px;
+  max-width: 400px;
+  min-width: 280px;
+  min-height: 220px;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: var(--bg-elevated);
+  gap: 14px;
+  padding: 24px 16px;
+  background: linear-gradient(145deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
   border: 2px dashed var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   color: var(--blue-accent);
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.25s ease;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+
+.add-photo-tile::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -60%);
+  background: radial-gradient(circle, rgba(79, 209, 217, 0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: all 0.3s ease;
 }
 
 .add-photo-tile:hover {
   border-color: var(--blue-accent);
-  background: var(--blue-glow);
-  transform: translateY(-1px);
+  border-style: solid;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--blue-glow) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(79, 209, 217, 0.15);
+}
+
+.add-photo-tile:hover::before {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(79, 209, 217, 0.2) 0%, transparent 70%);
 }
 
 .add-photo-tile:active {
-  transform: scale(0.96);
+  transform: translateY(0) scale(0.98);
+  box-shadow: none;
 }
 
 .add-photo-tile-icon {
-  font-size: 24px;
+  position: relative;
+  z-index: 1;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--blue-glow);
+  border: 2px solid var(--blue-accent);
+  color: var(--blue-primary);
+  font-size: 26px;
   font-weight: 800;
   line-height: 1;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(79, 209, 217, 0.2);
 }
+
+.add-photo-tile:hover .add-photo-tile-icon {
+  transform: scale(1.08) rotate(-4deg);
+  background: var(--blue-accent);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(79, 209, 217, 0.35);
+}
+
+.add-photo-tile-text {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-accent);
+  letter-spacing: 0.2px;
+}
+
+/* Dark mode */
+[data-theme="dark"] .add-photo-tile {
+  background: linear-gradient(145deg, var(--bg-card) 0%, rgba(79, 209, 217, 0.04) 100%);
+  border-color: rgba(79, 209, 217, 0.25);
+}
+
+[data-theme="dark"] .add-photo-tile:hover {
+  background: linear-gradient(145deg, rgba(79, 209, 217, 0.06) 0%, rgba(79, 209, 217, 0.12) 100%);
+  border-color: var(--blue-accent);
+  box-shadow: 0 8px 24px rgba(79, 209, 217, 0.1);
+}
+
+[data-theme="dark"] .add-photo-tile-icon {
+  background: rgba(79, 209, 217, 0.1);
+  border-color: rgba(79, 209, 217, 0.4);
+  color: var(--blue-accent);
+}
+
+[data-theme="dark"] .add-photo-tile:hover .add-photo-tile-icon {
+  background: var(--blue-accent);
+  color: #0a1419;
+}
+
+/* ══════════════════════════════════════════════
+   Photo Card
+══════════════════════════════════════════════ */
+.photo-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.photo-card:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Input de descrição ── */
+.photo-card-desc {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.photo-card-desc::placeholder {
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: none;
+}
+
+.photo-card-desc:focus {
+  border-color: var(--blue-accent);
+  box-shadow: 0 0 0 3px rgba(79, 209, 217, 0.12);
+}
+
+/* ── Preview da foto ── */
+.photo-card-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.photo-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+
+/* ── Botão remover ── */
+.photo-card-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.photo-card-remove:hover {
+  background: rgba(239, 68, 68, 1);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.photo-card-remove:active {
+  transform: scale(0.95);
+}
+
+/* ── Estado vazio ── */
+.photo-card-empty {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--bg-card);
+  transition: all 0.25s ease;
+}
+
+.photo-card-empty:hover {
+  border-color: var(--blue-accent);
+  background: var(--blue-glow);
+}
+
+.photo-card-empty-icon {
+  font-size: 36px;
+  opacity: 0.45;
+  transition: transform 0.25s ease;
+  line-height: 1;
+}
+
+.photo-card-empty:hover .photo-card-empty-icon {
+  transform: scale(1.1);
+  opacity: 0.7;
+}
+
+/* ── Label de upload ── */
+.photo-card-upload-label {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.photo-card-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blue);
+  color: var(--blue-light);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(79, 209, 217, 0.25);
+}
+
+.photo-card-upload-label:hover .photo-card-upload-btn {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(79, 209, 217, 0.4);
+}
+
+.photo-card-upload-label:active .photo-card-upload-btn {
+  transform: translateY(0) scale(0.97);
+}
+
+.photo-card-upload-hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.photo-card-upload-input {
+  display: none;
+}
+
 
 .add-photo-tile-text {
   font-size: 13px;
@@ -1493,7 +1755,6 @@ body {
     z-index: 9999;
   }
 }
-
 
 /* ──────────────────────────────────────────────
    PDF Layout Rules (Global for html2canvas)

@@ -5,144 +5,53 @@ export default function PhotoUploadCard({
   onUpload,
 }) {
   return (
-    <div
-      className="photo-card"
-      style={{
-        background: "var(--bg-elevated)",
-        border: "1px solid var(--border)",
-        borderRadius: "8px",
-        padding: "12px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          alignItems: "center",
-        }}
-      >
-        <input
-          type="text"
-          value={foto.descricao || ""}
-          onChange={(e) => onDescricaoChange(foto.id, e.target.value)}
-          placeholder="Descrição da foto"
-          style={{
-            flex: 1,
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            color: "var(--text-primary)",
-            padding: "6px 8px",
-            borderRadius: "4px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            textTransform: "uppercase",
-          }}
-        />
-      </div>
+    <div className="photo-card">
+      {/* ── Input de descrição ── */}
+      <input
+        type="text"
+        className="photo-card-desc"
+        value={foto.descricao || ""}
+        onChange={(e) => onDescricaoChange(foto.id, e.target.value)}
+        placeholder="Descrição da foto"
+      />
 
+      {/* ── Foto carregada ── */}
       {foto.imagem ? (
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            aspectRatio: "1/1",
-            borderRadius: "6px",
-            overflow: "hidden",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <img
-            src={foto.imagem}
-            alt="Evidência"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              background: "#000",
-            }}
-          />
+        <div className="photo-card-preview">
+          <img src={foto.imagem} alt="Evidência" className="photo-card-img" />
 
           <button
+            type="button"
+            className="photo-card-remove"
             onClick={() => onRemove(foto.id)}
-            style={{
-              position: "absolute",
-              top: 8,
-              right: 8,
-              background: "rgba(255,0,0,0.85)",
-              color: "#fff",
-              border: "1px solid #ff4444",
-              borderRadius: "4px",
-              padding: "6px 12px",
-              cursor: "pointer",
-              fontSize: "12px",
-              fontWeight: "bold",
-            }}
           >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
             Remover
           </button>
         </div>
       ) : (
-        <div
-          style={{
-            width: "100%",
-            aspectRatio: "1/1",
-            border: "2px dashed var(--border)",
-            borderRadius: "6px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-            background: "var(--bg-card)",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "32px",
-              opacity: 0.5,
-            }}
-          >
-            📸
-          </div>
+        /* ── Estado vazio ── */
+        <div className="photo-card-empty">
+          <div className="photo-card-empty-icon">📸</div>
 
-          <label
-            style={{
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "4px",
-            }}
-          >
-            <div
-              style={{
-                background: "var(--blue)",
-                color: "#fff",
-                padding: "10px 24px",
-                borderRadius: "8px",
-                fontSize: "13px",
-                fontWeight: "700",
-              }}
-            >
-              Tirar / Carregar Foto
-            </div>
-
-            <span
-              style={{
-                fontSize: "10px",
-                color: "var(--text-secondary)",
-              }}
-            >
-              Câmera ou Galeria
-            </span>
+          <label className="photo-card-upload-label">
+            <span className="photo-card-upload-btn">Tirar / Carregar Foto</span>
+            <span className="photo-card-upload-hint">Câmera ou Galeria</span>
 
             <input
               type="file"
               accept="image/*"
-              style={{ display: "none" }}
+              className="photo-card-upload-input"
               onChange={(e) => onUpload(foto.id, e.target.files?.[0])}
             />
           </label>
