@@ -649,7 +649,7 @@ export default function FichaView({
           {activeTab === "checklist" && (
             <ChecklistTable
               ficha={ficha}
-              checklistItems={checklistItems}
+              checklistItems={activeChecklistItems}
               onToggleMark={updateItemSessionMark}
               onSetResultado={(idx, val, observacao) =>
                 updateItemResultado(idx, val, observacao)

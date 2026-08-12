@@ -56,9 +56,7 @@ export default function ChecklistItem({
         className="checklist-item-header"
         onClick={() => onToggleExpand(item.id)}
       >
-        <div className="checklist-item-number">
-          {template?.numero ?? item.id}
-        </div>
+        <div className="checklist-item-number">{index + 1}</div>
         <div className="checklist-item-desc">{template?.descricao}</div>
         <div className="checklist-item-status">
           <div className="resultado-btns">
