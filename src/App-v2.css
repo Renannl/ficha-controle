@@ -6769,3 +6769,72 @@ svg {
   font-size: 12px;
   color: var(--text-secondary);
 }
+
+.importar-colecao-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+.importar-colecao-modal {
+  background: var(--bg-card, #fff);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+.importar-colecao-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border, #eee);
+}
+.importar-colecao-header h3 { margin: 0; font-size: 1.15rem; }
+.importar-colecao-header p { margin: 4px 0 0; color: #888; font-size: 0.9rem; }
+
+.importar-colecao-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.importar-campo-label { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem; }
+.importar-obrigatorio { color: var(--red, #e74c3c); margin-left: 2px; }
+
+.importar-campo-selecionar {
+  display: flex; align-items: center; gap: 0.5rem;
+  width: 100%; padding: 0.7rem 0.9rem;
+  border: 1.5px dashed var(--border, #ccc);
+  border-radius: 8px; background: transparent;
+  cursor: pointer; color: #555; font-size: 0.9rem; transition: 0.15s;
+}
+.importar-campo-selecionar:hover {
+  border-color: var(--green, #27ae60);
+  color: var(--green, #27ae60);
+}
+.importar-campo-arquivo {
+  display: flex; align-items: center; gap: 0.5rem;
+  width: 100%; padding: 0.6rem 0.8rem;
+  border: 1px solid var(--green, #27ae60);
+  background: rgba(39, 174, 96, 0.06);
+  border-radius: 8px; font-size: 0.9rem;
+}
+.importar-campo-nome {
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.importar-campo-remover {
+  background: transparent; border: none; cursor: pointer;
+  color: var(--red, #e74c3c); padding: 2px;
+}
+.importar-divider { border-top: 1px dashed var(--border, #ddd); margin: 0.25rem 0; }
+.importar-colecao-footer {
+  display: flex; justify-content: flex-end; gap: 0.75rem;
+  padding: 1rem 1.5rem; border-top: 1px solid var(--border, #eee);
+}

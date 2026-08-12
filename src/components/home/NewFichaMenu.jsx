@@ -9,7 +9,7 @@ import {
   Upload,
   ArrowLeft,
 } from "lucide-react";
-import { ImportarColecaoExcel } from "../excel/ImportarColecaoExcel";
+import ImportarColecaoModal from "../excel/ImportarColecaoModal";
 
 const CODIGO_OPERACAO_FOTOS = "80";
 
@@ -27,6 +27,8 @@ export default function NewFichaMenu({
   // "menu" | "tipo-fotos" | "selecionar-producao" | "selecionar-producao-fotos"
   const [tipoFotosSelecionado, setTipoFotosSelecionado] = useState(null);
   // "geral" | "tecnica"
+
+  const [mostrarImportar, setMostrarImportar] = useState(false);
 
   if (!show) return null;
 
@@ -144,120 +146,86 @@ export default function NewFichaMenu({
   };
 
   return (
-    <div className="new-ficha-overlay" onClick={handleClose}>
-      <div className="new-ficha-menu" onClick={(e) => e.stopPropagation()}>
-        {/* ── HEADER ── */}
-        <div className="new-ficha-menu-header">
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {(etapa === "selecionar-producao" ||
-              etapa === "selecionar-producao-fotos" ||
-              etapa === "tipo-fotos") && (
-              <button
-                className="new-ficha-close-btn"
-                onClick={() => {
-                  if (etapa === "tipo-fotos") setEtapa("menu");
-                  else setEtapa("menu");
-                  setTipoFotosSelecionado(null);
-                }}
-              >
-                <ArrowLeft size={18} />
-              </button>
-            )}
-            <div>
-              <h3>{getTitulo()}</h3>
-              <p>{getSubtitulo()}</p>
+    <>
+      <div className="new-ficha-overlay" onClick={handleClose}>
+        <div className="new-ficha-menu" onClick={(e) => e.stopPropagation()}>
+          {/* ── HEADER ── */}
+          <div className="new-ficha-menu-header">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {(etapa === "selecionar-producao" ||
+                etapa === "selecionar-producao-fotos" ||
+                etapa === "tipo-fotos") && (
+                <button
+                  className="new-ficha-close-btn"
+                  onClick={() => {
+                    if (etapa === "tipo-fotos") setEtapa("menu");
+                    else setEtapa("menu");
+                    setTipoFotosSelecionado(null);
+                  }}
+                >
+                  <ArrowLeft size={18} />
+                </button>
+              )}
+              <div>
+                <h3>{getTitulo()}</h3>
+                <p>{getSubtitulo()}</p>
+              </div>
             </div>
-          </div>
-          <button className="new-ficha-close-btn" onClick={handleClose}>
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* ── ETAPA: ESCOLHER TIPO DE FOTOS ── */}
-        {etapa === "tipo-fotos" && (
-          <div className="new-ficha-options">
-            <button
-              className="new-ficha-opt-btn"
-              onClick={() => handleSelecionarTipoFotos("geral")}
-            >
-              <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
-                <Camera size={22} />
-              </div>
-              <div className="new-ficha-opt-info">
-                <span className="new-ficha-opt-title">
-                  Relatório Fotográfico Geral
-                </span>
-                <span className="new-ficha-opt-desc">
-                  Fotos amplas e cinematográficas para o cliente
-                </span>
-              </div>
-            </button>
-
-            <button
-              className="new-ficha-opt-btn"
-              onClick={() => handleSelecionarTipoFotos("tecnica")}
-            >
-              <div className="new-ficha-opt-icon new-ficha-opt-icon--taf">
-                <ClipboardList size={22} />
-              </div>
-              <div className="new-ficha-opt-info">
-                <span className="new-ficha-opt-title">
-                  Relatório Fotográfico Técnico
-                </span>
-                <span className="new-ficha-opt-desc">
-                  Fotos detalhadas técnicas para arquivo interno
-                </span>
-              </div>
+            <button className="new-ficha-close-btn" onClick={handleClose}>
+              <X size={18} />
             </button>
           </div>
-        )}
 
-        {/* ─ ETAPA: SELECIONAR FICHA DE PRODUÇÃO (TAF) ── */}
-        {etapa === "selecionar-producao" && (
-          <div className="new-ficha-options">
-            {fichasProducao.map((f) => (
+          {/* ── ETAPA: ESCOLHER TIPO DE FOTOS ── */}
+          {etapa === "tipo-fotos" && (
+            <div className="new-ficha-options">
               <button
-                key={f.dbId}
                 className="new-ficha-opt-btn"
-                onClick={() => handleSelecionarProducao(f, "taf")}
+                onClick={() => handleSelecionarTipoFotos("geral")}
               >
-                <div className="new-ficha-opt-icon new-ficha-opt-icon--prod">
+                <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
+                  <Camera size={22} />
+                </div>
+                <div className="new-ficha-opt-info">
+                  <span className="new-ficha-opt-title">
+                    Relatório Fotográfico Geral
+                  </span>
+                  <span className="new-ficha-opt-desc">
+                    Fotos amplas e cinematográficas para o cliente
+                  </span>
+                </div>
+              </button>
+
+              <button
+                className="new-ficha-opt-btn"
+                onClick={() => handleSelecionarTipoFotos("tecnica")}
+              >
+                <div className="new-ficha-opt-icon new-ficha-opt-icon--taf">
                   <ClipboardList size={22} />
                 </div>
                 <div className="new-ficha-opt-info">
                   <span className="new-ficha-opt-title">
-                    {f.codigo} — IND {f.numeroInd}
+                    Relatório Fotográfico Técnico
                   </span>
                   <span className="new-ficha-opt-desc">
-                    {f.nomeEquipamento || f.obra || "Sem descrição"}
+                    Fotos detalhadas técnicas para arquivo interno
                   </span>
                 </div>
               </button>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* ── ETAPA: SELECIONAR FICHA DE PRODUÇÃO (FOTOS) ─ */}
-        {etapa === "selecionar-producao-fotos" && (
-          <div className="new-ficha-options">
-            {fichasProducaoFotos.length === 0 ? (
-              <div
-                style={{ padding: "1rem", textAlign: "center", color: "#888" }}
-              >
-                Nenhuma ficha de produção disponível.<br/>
-                <br />
-                Verifique se a ficha de produção já possui uma{" "}
-                <b>TAF aprovada</b>.
-              </div>
-            ) : (
-              fichasProducaoFotos.map((f) => (
+          {/* ─ ETAPA: SELECIONAR FICHA DE PRODUÇÃO (TAF) ── */}
+          {etapa === "selecionar-producao" && (
+            <div className="new-ficha-options">
+              {fichasProducao.map((f) => (
                 <button
                   key={f.dbId}
                   className="new-ficha-opt-btn"
-                  onClick={() => handleSelecionarProducao(f, "fotos")}
+                  onClick={() => handleSelecionarProducao(f, "taf")}
                 >
-                  <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
-                    <Image size={22} />
+                  <div className="new-ficha-opt-icon new-ficha-opt-icon--prod">
+                    <ClipboardList size={22} />
                   </div>
                   <div className="new-ficha-opt-info">
                     <span className="new-ficha-opt-title">
@@ -268,105 +236,147 @@ export default function NewFichaMenu({
                     </span>
                   </div>
                 </button>
-              ))
-            )}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
 
-        {/* ── OPÇÕES DENTRO DE COLEÇÃO ── */}
-        {etapa === "menu" && mode === "fichas" && (
-          <div className="new-ficha-options">
-            <button className="new-ficha-opt-btn" onClick={handleClickTaf}>
-              <div className="new-ficha-opt-icon new-ficha-opt-icon--taf">
-                <Zap size={22} />
-              </div>
-              <div className="new-ficha-opt-info">
-                <span className="new-ficha-opt-title">Ficha TAF</span>
-                <span className="new-ficha-opt-desc">
-                  Energização e testes elétricos
-                </span>
-              </div>
-            </button>
-
-            <button
-              className="new-ficha-opt-btn"
-              onClick={() => onCreateFicha("producao")}
-            >
-              <div className="new-ficha-opt-icon new-ficha-opt-icon--prod">
-                <ClipboardList size={22} />
-              </div>
-              <div className="new-ficha-opt-info">
-                <span className="new-ficha-opt-title">Ficha de Produção</span>
-                <span className="new-ficha-opt-desc">
-                  Planejamento e execução
-                </span>
-              </div>
-            </button>
-
-            <button className="new-ficha-opt-btn" onClick={handleClickFotos}>
-              <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
-                <Image size={22} />
-              </div>
-              <div className="new-ficha-opt-info">
-                <span className="new-ficha-opt-title">
-                  Relatório Fotográfico
-                </span>
-                <span className="new-ficha-opt-desc">
-                  Registro de evidências em fotos
-                </span>
-              </div>
-            </button>
-          </div>
-        )}
-
-        {/* ── OPÇÃO FORA DE COLEÇÃO ─ */}
-        {etapa === "menu" && mode !== "fichas" && (
-          <div className="new-ficha-options">
-            <button className="new-ficha-opt-btn" onClick={handleCriarColecao}>
-              <div className="new-ficha-opt-icon new-ficha-opt-icon--colecao">
-                <Camera size={22} />
-              </div>
-              <div className="new-ficha-opt-info">
-                <span className="new-ficha-opt-title">Criar Proposta</span>
-                <span className="new-ficha-opt-desc">
-                  Nova coleção de fichas
-                </span>
-              </div>
-            </button>
-
-            <ImportarColecaoExcel
-              onImportado={(resultado) => {
-                onColecaoImportada?.(resultado);
-                handleClose();
-              }}
-            >
-              {({ onClick, carregando }) => (
-                <button
-                  className="new-ficha-opt-btn"
-                  onClick={onClick}
-                  disabled={carregando}
+          {/* ── ETAPA: SELECIONAR FICHA DE PRODUÇÃO (FOTOS) ─ */}
+          {etapa === "selecionar-producao-fotos" && (
+            <div className="new-ficha-options">
+              {fichasProducaoFotos.length === 0 ? (
+                <div
+                  style={{
+                    padding: "1rem",
+                    textAlign: "center",
+                    color: "#888",
+                  }}
                 >
-                  <div className="new-ficha-opt-icon new-ficha-opt-icon--importar">
-                    <Upload size={22} />
-                  </div>
-                  <div className="new-ficha-opt-info">
-                    <span className="new-ficha-opt-title">
-                      {carregando ? "Importando..." : "Importar Coleção"}
-                    </span>
-                    <span className="new-ficha-opt-desc">
-                      Criar a partir de planilha Excel
-                    </span>
-                  </div>
-                </button>
+                  Nenhuma ficha de produção disponível.
+                  <br />
+                  <br />
+                  Verifique se a ficha de produção já possui uma{" "}
+                  <b>TAF aprovada</b>.
+                </div>
+              ) : (
+                fichasProducaoFotos.map((f) => (
+                  <button
+                    key={f.dbId}
+                    className="new-ficha-opt-btn"
+                    onClick={() => handleSelecionarProducao(f, "fotos")}
+                  >
+                    <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
+                      <Image size={22} />
+                    </div>
+                    <div className="new-ficha-opt-info">
+                      <span className="new-ficha-opt-title">
+                        {f.codigo} — IND {f.numeroInd}
+                      </span>
+                      <span className="new-ficha-opt-desc">
+                        {f.nomeEquipamento || f.obra || "Sem descrição"}
+                      </span>
+                    </div>
+                  </button>
+                ))
               )}
-            </ImportarColecaoExcel>
-          </div>
-        )}
+            </div>
+          )}
 
-        <button className="btn btn-ghost w-full mt-3" onClick={handleClose}>
-          Cancelar
-        </button>
+          {/* ── OPÇÕES DENTRO DE COLEÇÃO ── */}
+          {etapa === "menu" && mode === "fichas" && (
+            <div className="new-ficha-options">
+              <button className="new-ficha-opt-btn" onClick={handleClickTaf}>
+                <div className="new-ficha-opt-icon new-ficha-opt-icon--taf">
+                  <Zap size={22} />
+                </div>
+                <div className="new-ficha-opt-info">
+                  <span className="new-ficha-opt-title">Ficha TAF</span>
+                  <span className="new-ficha-opt-desc">
+                    Energização e testes elétricos
+                  </span>
+                </div>
+              </button>
+
+              <button
+                className="new-ficha-opt-btn"
+                onClick={() => onCreateFicha("producao")}
+              >
+                <div className="new-ficha-opt-icon new-ficha-opt-icon--prod">
+                  <ClipboardList size={22} />
+                </div>
+                <div className="new-ficha-opt-info">
+                  <span className="new-ficha-opt-title">Ficha de Produção</span>
+                  <span className="new-ficha-opt-desc">
+                    Planejamento e execução
+                  </span>
+                </div>
+              </button>
+
+              <button className="new-ficha-opt-btn" onClick={handleClickFotos}>
+                <div className="new-ficha-opt-icon new-ficha-opt-icon--fotos">
+                  <Image size={22} />
+                </div>
+                <div className="new-ficha-opt-info">
+                  <span className="new-ficha-opt-title">
+                    Relatório Fotográfico
+                  </span>
+                  <span className="new-ficha-opt-desc">
+                    Registro de evidências em fotos
+                  </span>
+                </div>
+              </button>
+            </div>
+          )}
+
+          {/* ── OPÇÃO FORA DE COLEÇÃO ─ */}
+          {/* ── OPÇÃO FORA DE COLEÇÃO ─ */}
+          {etapa === "menu" && mode !== "fichas" && (
+            <div className="new-ficha-options">
+              <button
+                className="new-ficha-opt-btn"
+                onClick={handleCriarColecao}
+              >
+                <div className="new-ficha-opt-icon new-ficha-opt-icon--colecao">
+                  <Camera size={22} />
+                </div>
+                <div className="new-ficha-opt-info">
+                  <span className="new-ficha-opt-title">Criar Proposta</span>
+                  <span className="new-ficha-opt-desc">
+                    Nova coleção de fichas
+                  </span>
+                </div>
+              </button>
+
+              <button
+                className="new-ficha-opt-btn"
+                onClick={() => setMostrarImportar(true)}
+              >
+                <div className="new-ficha-opt-icon new-ficha-opt-icon--importar">
+                  <Upload size={22} />
+                </div>
+                <div className="new-ficha-opt-info">
+                  <span className="new-ficha-opt-title">Importar Coleção</span>
+                  <span className="new-ficha-opt-desc">
+                    Criar a partir de planilha Excel + documentos
+                  </span>
+                </div>
+              </button>
+            </div>
+          )}
+
+          <button className="btn btn-ghost w-full mt-3" onClick={handleClose}>
+            Cancelar
+          </button>
+        </div>
       </div>
-    </div>
+      <ImportarColecaoModal
+        show={mostrarImportar}
+        onClose={() => setMostrarImportar(false)}
+        onImportado={(resultado) => {
+          setMostrarImportar(false);
+          onColecaoImportada?.(resultado);
+          handleClose();
+        }}
+      />
+    </>
   );
 }
