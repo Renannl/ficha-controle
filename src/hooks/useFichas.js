@@ -19,9 +19,9 @@ function formatarNome(nome) {
 function converterFicha(f) {
   return {
     ...f.dados,
-    codigo: f.codigo,      
-    items: f.dados?.items ?? [], 
-    operadores: f.dados?.operadores ?? [], 
+    codigo: f.codigo,
+    items: f.dados?.items ?? [],
+    operadores: f.dados?.operadores ?? [],
     assinaturas: f.dados?.assinaturas ?? {
       producao: {},
       tecnico: {},
@@ -148,7 +148,6 @@ export function useFichas(currentUser) {
       const res = await authFetch(`${API_URL}/fichas`);
       const data = await res.json();
 
-      // Fichas que já pertencem a essa coleção
       const fichasDaColecao = data.filter(
         (f) => String(f.colecao_id) === String(colecaoId),
       );
@@ -156,21 +155,24 @@ export function useFichas(currentUser) {
       let base;
 
       if (fichasDaColecao.length > 0) {
-        // Coleção já tem fichas → reaproveita a base já usada
+        // Coleção já tem fichas → mantém a base
         base = String(fichasDaColecao[0].dados?.numeroInd || "").split("-")[0];
       } else {
-        // Coleção nova → gera a próxima base global (10066, 10067, 10068...)
-        const bases = data
-          .map((f) =>
-            parseInt(String(f.dados?.numeroInd || "").split("-")[0], 10),
-          )
-          .filter((n) => !isNaN(n));
+        // Coleção nova → reusa a primeira base livre (preenche lacunas)
+        const basesEmUso = new Set(
+          data
+            .map((f) =>
+              parseInt(String(f.dados?.numeroInd || "").split("-")[0], 10),
+            )
+            .filter((n) => !isNaN(n)),
+        );
 
-        const maiorBase = bases.length > 0 ? Math.max(...bases) : 10065; // próxima = 10066
-        base = String(maiorBase + 1);
+        let proximoBase = 10066;
+        while (basesEmUso.has(proximoBase)) proximoBase++;
+        base = String(proximoBase);
       }
 
-      // Sequencial dentro da própria coleção
+      // Sequencial dentro da própria coleção (10158-01, 10158-02...)
       const numeros = fichasDaColecao
         .map((f) =>
           parseInt(String(f.dados?.numeroInd || "").split("-")[1], 10),
