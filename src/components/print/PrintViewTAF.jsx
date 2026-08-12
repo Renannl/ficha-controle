@@ -105,7 +105,7 @@ export default function PrintViewTAF({ ficha, op, isBook = false }) {
           <tr>
             <td className="w-33">
               <strong>Prazo de entrega:</strong>{" "}
-              {tafData.prazoEntrega || "__/__/____"}
+              {tafData.dataTeste || "__/__/____"}
             </td>
             <td className="w-33">
               <strong>Quem fez a proposta:</strong>{" "}
@@ -113,7 +113,7 @@ export default function PrintViewTAF({ ficha, op, isBook = false }) {
             </td>
             <td className="w-33">
               <strong>Data de fechamento:</strong>{" "}
-              {tafData.dataFechamentoProposta || "__/__/____"}
+              {tafData.dataTermino || "__/__/____"}
             </td>
           </tr>
         </tbody>

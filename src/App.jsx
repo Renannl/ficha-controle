@@ -203,6 +203,7 @@ export default function App() {
       dadosIniciais.obra = fichaProducao.obra;
       dadosIniciais.tag = fichaProducao.tag;
       dadosIniciais.cliente = fichaProducao.cliente;
+      dadosIniciais.tipoPainel = fichaProducao.tipoPainel;
     }
     if (tipoFotografico) {
       dadosIniciais.tipoFotografico = tipoFotografico;

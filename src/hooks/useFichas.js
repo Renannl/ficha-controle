@@ -203,7 +203,7 @@ export function useFichas(currentUser) {
         : await gerarNumeroInd(colecaoId);
 
       const nova = {
-        ...createEmptyFicha(operacaoCodigo),
+        ...createEmptyFicha(operacaoCodigo, dadosIniciais.tipoPainel),
         ...dadosIniciais,
         codigo: codigoGerado,
         numeroInd: numeroIndGerado,

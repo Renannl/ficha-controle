@@ -1,7 +1,10 @@
 // ────────────────────────────────────────────────
 // Definição de todas as Operações e seus Checklists
 // ────────────────────────────────────────────────
-import { getPainelChecklistItems } from "./painelTemplates";
+import {
+  getPainelChecklistItems,
+  getPainelVerificacaoItems,
+} from "./painelTemplates";
 
 export function buildPainelItems(tipoPainel) {
   return getPainelChecklistItems(tipoPainel, { incluirVerificacao: false }).map(
@@ -13,6 +16,16 @@ export function buildPainelItems(tipoPainel) {
       resultado: "",
     }),
   );
+}
+
+export function buildTafVerificacaoItems(tipoPainel) {
+  return getPainelVerificacaoItems(tipoPainel).map((item) => ({
+    id: item.id,
+    descricao: item.descricao,
+    categoria: item.categoria,
+    sessionMarks: Array(15).fill(""),
+    resultado: "",
+  }));
 }
 
 export const OPERACOES = {
@@ -150,6 +163,7 @@ export function createEmptyFicha(
   const codigo = String(operacaoCodigo);
   const op = OPERACOES[codigo];
   const isEstrutura = codigo === "10";
+  const isTaf = codigo === "50";
 
   return {
     id: generateId(),
@@ -177,9 +191,8 @@ export function createEmptyFicha(
           tensao: "",
           cubiculo: "",
           testadores: "",
-          dataTeste: "",
-          prazoEntrega: "",
-          dataFechamentoProposta: "",
+          dataTeste: new Date().toISOString().slice(0, 10),
+          dataTermino: "",
           instrumentosSelecionados: [
             "alicate",
             "megger",
@@ -226,14 +239,16 @@ export function createEmptyFicha(
         ? []
         : isEstrutura && tipoPainel
           ? buildPainelItems(tipoPainel)
-          : op.items.map((item) => ({
-              id: item.id,
-              descricao: item.descricao,
-              sessao: item.sessao || "",
-              sessionMarks: Array(15).fill(""),
-              resultado: "",
-              foto: "",
-            })),
+          : isTaf && tipoPainel // ← só entra aqui SE tipoPainel existir
+            ? buildTafVerificacaoItems(tipoPainel)
+            : op.items.map((item) => ({
+                id: item.id,
+                descricao: item.descricao,
+                sessao: item.sessao || "",
+                sessionMarks: Array(15).fill(""),
+                resultado: "",
+                foto: "",
+              })),
 
     observacoes: "",
     assinaturas: {

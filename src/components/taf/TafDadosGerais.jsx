@@ -1,9 +1,16 @@
-export default function TafDadosGerais({
-  ficha,
-  tafData,
-  onUpdate,
-  handleChange,
-}) {
+export default function TafDadosGerais({ ficha, tafData, handleChange }) {
+  // 🔒 Data do Teste = dia em que a ficha TAF foi criada
+  const dataTesteAuto = (() => {
+    const raw = ficha?.created_at || ficha?.createdAt || "";
+    if (!raw) return "";
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return "";
+    const ano = d.getFullYear();
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const dia = String(d.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+  })();
+
   return (
     <>
       <div className="card-header-simple">
@@ -36,44 +43,21 @@ export default function TafDadosGerais({
           </label>
         </div>
 
-          <div className="taf-input-group">
-            <label>Nome do Quadro/Painel</label>
-            <input
-              type="text"
-              value={ficha.nomeEquipamento || ""}
-              onChange={(e) =>
-                onUpdate({
-                  nomeEquipamento: e.target.value,
-                })
-              }
-            />
-          </div>
+        {/* 🔒 Linkado da produção */}
+        <div className="taf-input-group">
+          <label>Nome do Quadro/Painel</label>
+          <input type="text" value={ficha.nomeEquipamento || ""} readOnly />
+        </div>
 
         <div className="taf-form-row">
           <div className="taf-input-group">
             <label>IND</label>
-            <input
-              type="text"
-              value={ficha.numeroInd || ""}
-              onChange={(e) =>
-                onUpdate({
-                  numeroInd: e.target.value,
-                })
-              }
-            />
+            <input type="text" value={ficha.numeroInd || ""} readOnly />
           </div>
 
           <div className="taf-input-group">
             <label>Tag do Produto</label>
-            <input
-              type="text"
-              value={ficha.tag || ""}
-              onChange={(e) =>
-                onUpdate({
-                  tag: e.target.value,
-                })
-              }
-            />
+            <input type="text" value={ficha.tag || ""} readOnly />
           </div>
         </div>
 
@@ -88,21 +72,6 @@ export default function TafDadosGerais({
           </div>
 
           <div className="taf-input-group">
-            <label>Obra</label>
-            <input
-              type="text"
-              value={ficha.obra || ""}
-              onChange={(e) =>
-                onUpdate({
-                  obra: e.target.value,
-                })
-              }
-            />
-          </div>
-        </div>
-
-        <div className="taf-form-row">
-          <div className="taf-input-group">
             <label>Cubículo</label>
             <input
               type="text"
@@ -110,22 +79,14 @@ export default function TafDadosGerais({
               onChange={(e) => handleChange("cubiculo", e.target.value)}
             />
           </div>
-
-          <div className="taf-input-group">
-            <label>Cliente</label>
-            <input
-              type="text"
-              value={ficha.cliente || ""}
-              onChange={(e) =>
-                onUpdate({
-                  cliente: e.target.value,
-                })
-              }
-            />
-          </div>
         </div>
 
         <div className="taf-form-row">
+          <div className="taf-input-group">
+            <label>Cliente</label>
+            <input type="text" value={ficha.cliente || ""} readOnly />
+          </div>
+
           <div className="taf-input-group">
             <label>Testadores</label>
             <input
@@ -134,35 +95,21 @@ export default function TafDadosGerais({
               onChange={(e) => handleChange("testadores", e.target.value)}
             />
           </div>
-
-          <div className="taf-input-group">
-            <label>Data do Teste</label>
-            <input
-              type="date"
-              value={tafData.dataTeste || ""}
-              onChange={(e) => handleChange("dataTeste", e.target.value)}
-            />
-          </div>
         </div>
 
         <div className="taf-form-row">
           <div className="taf-input-group">
-            <label>Prazo de Entrega</label>
-            <input
-              type="date"
-              value={tafData.prazoEntrega || ""}
-              onChange={(e) => handleChange("prazoEntrega", e.target.value)}
-            />
+            <label>Data do Teste</label>
+            <input type="date" value={dataTesteAuto} readOnly />
           </div>
 
           <div className="taf-input-group">
-            <label>Data de Fechamento da Proposta</label>
+            <label>Data de Término</label>
             <input
               type="date"
-              value={tafData.dataFechamentoProposta || ""}
-              onChange={(e) =>
-                handleChange("dataFechamentoProposta", e.target.value)
-              }
+              value={tafData.dataTermino || ""}
+              readOnly
+              placeholder="Preenchida ao concluir o checklist"
             />
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import TafHeader from "./TafHeader";
 import ChecklistSummary from "./ChecklistSummary";
@@ -18,12 +18,28 @@ export default function ChecklistTable({
   const [expandedId, setExpandedId] = useState(null);
 
   const totalItems = ficha.items.length;
-
   const doneItems = ficha.items.filter(
     (i) => i.resultado === "ok" || i.resultado === "na",
   ).length;
+  const pct = totalItems ? Math.round((doneItems / totalItems) * 100) : 0;
 
-  const pct = Math.round((doneItems / totalItems) * 100);
+  // 🔹 Data de Término automática (só TAF, quando todo o checklist concluir)
+  useEffect(() => {
+    if (!isTaf) return;
+    if (tafData?.dataTermino) return;
+
+    const todosConcluidos =
+      Array.isArray(ficha.items) &&
+      ficha.items.length > 0 &&
+      ficha.items.every(
+        (it) => it.resultado === "ok" || it.resultado === "na",
+      );
+
+    if (todosConcluidos) {
+      const hoje = new Date().toISOString().slice(0, 10);
+      onUpdateTaf?.({ dataTermino: hoje });
+    }
+  }, [ficha.items, isTaf, tafData?.dataTermino, onUpdateTaf]);
 
   function toggleExpand(id) {
     if (isTaf || isPainel) return;

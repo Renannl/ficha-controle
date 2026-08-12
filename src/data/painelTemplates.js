@@ -1,3 +1,7 @@
+// ────────────────────────────────────────────────
+// Templates de Painéis — Estrutura e Verificações
+// ────────────────────────────────────────────────
+
 export const TIPOS_PAINEL = {
   SOBREPOR_EMBUTIR: "sobrepor_embutir",
   AUTOPORTANTE: "autoportante",
@@ -13,6 +17,9 @@ export const PAINEL_LABELS = {
 export const PAINEL_KEYS = Object.values(TIPOS_PAINEL);
 
 export const painelTemplates = {
+  // ═══════════════════════════════════════════════
+  // SOBREPOR / EMBUTIR
+  // ═══════════════════════════════════════════════
   [TIPOS_PAINEL.SOBREPOR_EMBUTIR]: {
     montagemMecanica: {
       titulo: "Quadro de sobrepor/embutir",
@@ -27,22 +34,22 @@ export const painelTemplates = {
         "Colar os adesivos. (Atenção na porta com a tensão nominal do painel, plaqueta com a tag do painel, plaqueta de dados, adesivo de reaperto)",
         "Validar todas as etapas anteriores.",
       ],
+      verificacaoMontagem: [
+        "Conferência do projeto mecânico e layout aprovado",
+        "Integridade física do invólucro (sem amassados, trincas ou pintura danificada)",
+        "Existência de ponto de aterramento do invólucro",
+        "Instalação correta de: Trilhos DIN",
+        "Instalação correta de: Placas de montagem",
+        "Instalação correta de: Canaletas",
+        "Componentes conforme projeto",
+        "Espaçamento adequado entre componentes para dissipação térmica",
+        "Furações para: Sinaleiros",
+        "Furações para: Multimedidores",
+        "Furações para: Ventiladores / filtros",
+        "Sem rebarbas e com acabamento adequado",
+        "Vedação mantida após furações (Grau de proteção preservado)",
+      ],
     },
-    verificacaoMontagem: [
-      "Conferência do projeto mecânico e layout aprovado",
-      "Integridade física do invólucro (sem amassados, trincas ou pintura danificada)",
-      "Existência de ponto de aterramento do invólucro",
-      "Instalação correta de: Trilhos DIN",
-      "Instalação correta de: Placas de montagem",
-      "Instalação correta de: Canaletas",
-      "Componentes conforme projeto",
-      "Espaçamento adequado entre componentes para dissipação térmica",
-      "Furações para: Sinaleiros",
-      "Furações para: Multimedidores",
-      "Furações para: Ventiladores / filtros",
-      "Sem rebarbas e com acabamento adequado",
-      "Vedação mantida após furações (Grau de proteção preservado)",
-    ],
     barramento: {
       titulo: "Quadro de sobrepor/embutir",
       sequenciaMontagem: [
@@ -89,6 +96,9 @@ export const painelTemplates = {
     },
   },
 
+  // ═══════════════════════════════════════════════
+  // AUTOPORTANTE
+  // ═══════════════════════════════════════════════
   [TIPOS_PAINEL.AUTOPORTANTE]: {
     montagemMecanica: {
       titulo: "Quadro autoportante",
@@ -113,25 +123,25 @@ export const painelTemplates = {
         "Colar os adesivos. (Atenção na porta com a tensão nominal do painel, plaqueta com a tag do painel, plaqueta de dados, adesivo de reaperto)",
         "Validar todas as etapas anteriores.",
       ],
+      verificacaoMontagem: [
+        "Conferência do projeto mecânico e layout aprovado",
+        "Verificação do grau de proteção (IP). (Verificar se os acessórios necessários para manter o grau de proteção estão instalados)",
+        "Integridade física do invólucro (sem amassados, trincas ou pintura danificada)",
+        "Parafusos, porcas e arruelas com torque adequado e selados (Recomendações do fabricante)",
+        "Existência de ponto de aterramento do invólucro",
+        "Montagem do chassi conforme instrução da ABB",
+        "Estrutura nivelada e esquadrejada",
+        "Portas alinhadas, abertura e fechamento suave",
+        "Instalação correta de: Trilhos DIN",
+        "Instalação correta de: Placas de montagem",
+        "Instalação correta de: Canaletas",
+        "Furações para: Sinaleiros",
+        "Furações para: Multimedidores",
+        "Furações para: Ventiladores / filtros",
+        "Acessórios para barras de terra e neutro corretamente fixadas na estrutura.",
+        "Componentes conforme projeto;",
+      ],
     },
-    verificacaoMontagem: [
-      "Conferência do projeto mecânico e layout aprovado",
-      "Verificação do grau de proteção (IP). (Verificar se os acessórios necessários para manter o grau de proteção estão instalados)",
-      "Integridade física do invólucro (sem amassados, trincas ou pintura danificada)",
-      "Parafusos, porcas e arruelas com torque adequado e selados (Recomendações do fabricante)",
-      "Existência de ponto de aterramento do invólucro",
-      "Montagem do chassi conforme instrução da ABB",
-      "Estrutura nivelada e esquadrejada",
-      "Portas alinhadas, abertura e fechamento suave",
-      "Instalação correta de: Trilhos DIN",
-      "Instalação correta de: Placas de montagem",
-      "Instalação correta de: Canaletas",
-      "Furações para: Sinaleiros",
-      "Furações para: Multimedidores",
-      "Furações para: Ventiladores / filtros",
-      "Acessórios para barras de terra e neutro corretamente fixadas na estrutura.",
-      "Componentes conforme projeto;",
-    ],
     barramento: {
       titulo: "Quadro autoportante",
       sequenciaMontagem: [
@@ -182,6 +192,9 @@ export const painelTemplates = {
     },
   },
 
+  // ═══════════════════════════════════════════════
+  // PMT
+  // ═══════════════════════════════════════════════
   [TIPOS_PAINEL.PMT]: {
     montagemMecanica: {
       titulo: "PMT",
@@ -200,24 +213,24 @@ export const painelTemplates = {
         "Colar os adesivos. (Atenção na porta com a tensão nominal do painel, plaqueta com a tag do painel, plaqueta de dados, adesivo de reaperto)",
         "Validar todas as etapas anteriores.",
       ],
+      verificacaoMontagem: [
+        "Conferência do projeto mecânico e layout aprovado",
+        "Verificação do grau de proteção (IP). (Verificar se os acessórios necessários para manter o grau de proteção estão instalados)",
+        "Integridade física do invólucro (sem amassados, trincas ou pintura danificada)",
+        "Parafusos, porcas e arruelas com torque adequado e selados (Recomendações do fabricante)",
+        "Existência de ponto de aterramento do invólucro",
+        "Estrutura nivelada e esquadrejada",
+        "Portas alinhadas, abertura e fechamento suave",
+        "Instalação correta de: Trilhos DIN",
+        "Instalação correta de: Placas de montagem",
+        "Instalação correta de: Canaletas",
+        "Furações para: Sinaleiros",
+        "Furações para: VPIS",
+        "Furações para: Relé de proteção",
+        "Acessórios para barras de terra e neutro corretamente fixadas na estrutura.",
+        "Componentes conforme projeto;",
+      ],
     },
-    verificacaoMontagem: [
-      "Conferência do projeto mecânico e layout aprovado",
-      "Verificação do grau de proteção (IP). (Verificar se os acessórios necessários para manter o grau de proteção estão instalados)",
-      "Integridade física do invólucro (sem amassados, trincas ou pintura danificada)",
-      "Parafusos, porcas e arruelas com torque adequado e selados (Recomendações do fabricante)",
-      "Existência de ponto de aterramento do invólucro",
-      "Estrutura nivelada e esquadrejada",
-      "Portas alinhadas, abertura e fechamento suave",
-      "Instalação correta de: Trilhos DIN",
-      "Instalação correta de: Placas de montagem",
-      "Instalação correta de: Canaletas",
-      "Furações para: Sinaleiros",
-      "Furações para: VPIS",
-      "Furações para: Relé de proteção",
-      "Acessórios para barras de terra e neutro corretamente fixadas na estrutura.",
-      "Componentes conforme projeto;",
-    ],
     barramento: {
       titulo: "PMT",
       sequenciaMontagem: [
@@ -270,13 +283,19 @@ export const painelTemplates = {
   },
 };
 
-// Achata o template em uma lista única de itens de checklist,
-// numerados sequencialmente, com categoria pra exibição em grupos.
-//
-// options.incluirVerificacao (default: true)
-//   -> false para excluir os itens de "Verificação da Montagem" e
-//      "Verificação do Barramento" (usado no checklist de Sequência
-//      de Montagem; a verificação fica restrita apenas ao TAF)
+// ────────────────────────────────────────────────
+// Helpers
+// ────────────────────────────────────────────────
+
+/**
+ * Achata o template em uma lista única de itens de checklist,
+ * numerados sequencialmente, com categoria pra exibição em grupos.
+ *
+ * options.incluirVerificacao (default: true)
+ *   -> false para excluir os itens de "Verificação da Montagem" e
+ *      "Verificação do Barramento" (usado no checklist de Sequência
+ *      de Montagem; a verificação fica restrita apenas ao TAF)
+ */
 export function getPainelChecklistItems(tipoPainel, options = {}) {
   const { incluirVerificacao = true } = options;
   const tpl = painelTemplates[tipoPainel];
@@ -285,10 +304,11 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
   const items = [];
   let contador = 1;
 
+  // ── Montagem Mecânica ──
   tpl.montagemMecanica.sequenciaMontagem.forEach((descricao, i) => {
     items.push({
-      id: `mm-seq-${i}`, // ✅ estável (índice original)
-      numero: contador++, // ✅ exibição sequencial
+      id: `mm-seq-${i}`,
+      numero: contador++,
       descricao,
       etapa: "montagem_mecanica",
       categoria: `Sequência de Montagem — ${tpl.montagemMecanica.titulo}`,
@@ -296,7 +316,7 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
   });
 
   if (incluirVerificacao) {
-    tpl.verificacaoMontagem.forEach((descricao, i) => {
+    tpl.montagemMecanica.verificacaoMontagem.forEach((descricao, i) => {
       items.push({
         id: `mm-ver-${i}`,
         numero: contador++,
@@ -307,6 +327,7 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
     });
   }
 
+  // ── Barramento ──
   if (tpl.barramento) {
     tpl.barramento.sequenciaMontagem.forEach((descricao, i) => {
       items.push({
@@ -330,6 +351,7 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
     }
   }
 
+  // ── Cabeamento ──
   if (tpl.cabeamento) {
     tpl.cabeamento.sequenciaMontagem.forEach((descricao, i) => {
       items.push({
@@ -356,9 +378,12 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
   return items;
 }
 
-// Helper específico só pra pegar os itens de verificação (uso no TAF)
-// Inclui tanto "Verificação da Montagem" quanto "Verificação do Barramento",
-// mantendo os IDs consistentes com getPainelChecklistItems(tipoPainel)
+/**
+ * Helper específico só pra pegar os itens de verificação (uso no TAF).
+ * Inclui tanto "Verificação da Montagem" quanto "Verificação do Barramento"
+ * e "Verificação do Cabeamento", mantendo os IDs consistentes com
+ * getPainelChecklistItems(tipoPainel).
+ */
 export function getPainelVerificacaoItems(tipoPainel) {
   return getPainelChecklistItems(tipoPainel, {
     incluirVerificacao: true,

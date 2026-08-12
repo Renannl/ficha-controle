@@ -67,7 +67,7 @@ export default function ChecklistItem({
               disabled={readOnly}
               onClick={handleOkClick}
             >
-              {isTaf ? "C" : "OK"}
+              OK
             </button>
             <button
               className={`resultado-btn ${item.resultado === "na" ? "na-active" : ""}`}
@@ -78,7 +78,7 @@ export default function ChecklistItem({
                 abrirModalResultado("na");
               }}
             >
-              {isTaf ? "NC" : "NA"}
+              NA
             </button>
             {/* 🔹 Novo botão X — indica erro, sempre abre modal */}
             <button
@@ -110,8 +110,8 @@ export default function ChecklistItem({
               item.resultado === "ok"
                 ? "var(--green)"
                 : item.resultado === "erro"
-                ? "var(--red)"
-                : "var(--yellow, orange)",
+                  ? "var(--red)"
+                  : "var(--yellow, orange)",
           }}
         >
           <span className="checklist-item-obs-icon">

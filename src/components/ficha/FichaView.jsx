@@ -15,7 +15,10 @@ import ChecklistLogList from "../sessions/CheckListLogList";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import { useChecklistLog } from "../../hooks/useChecklistLog";
 import { getChecklistItems, buildPainelItems } from "../../data/fichaTemplate";
-import { getPainelChecklistItems } from "../../data/painelTemplates";
+import {
+  getPainelChecklistItems,
+  getPainelVerificacaoItems,
+} from "../../data/painelTemplates";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 
@@ -530,7 +533,11 @@ export default function FichaView({
   const isTaf = operacaoStr === "50";
   const isFoto = operacaoStr === "80";
   const isPainel = operacaoStr === "10" && !!ficha?.tipoPainel;
-  const checklistItems = getChecklistItems(ficha?.operacao);
+  const checklistItems =
+    isTaf && ficha?.tipoPainel
+      ? getPainelVerificacaoItems(ficha?.tipoPainel)
+      : getChecklistItems(ficha?.operacao);
+
   const activeChecklistItems = isPainel
     ? getPainelChecklistItems(ficha?.tipoPainel, { incluirVerificacao: false })
     : checklistItems;
@@ -587,13 +594,7 @@ export default function FichaView({
           {activeTab === "checklist" && (
             <ChecklistTable
               ficha={ficha}
-              checklistItems={
-                isPainel
-                  ? getPainelChecklistItems(ficha?.tipoPainel, {
-                      incluirVerificacao: false,
-                    })
-                  : checklistItems
-              }
+              checklistItems={checklistItems}
               onToggleMark={updateItemSessionMark}
               onSetResultado={(idx, val, observacao) =>
                 updateItemResultado(idx, val, observacao)
