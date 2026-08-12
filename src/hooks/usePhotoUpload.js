@@ -2,7 +2,6 @@ import { useCallback, useRef } from "react";
 import { uploadFoto } from "../services/uploadService";
 
 export function usePhotoUpload(ficha) {
-  // Ref sempre aponta para a ficha mais recente sem re-criar a função
   const fichaRef = useRef(ficha);
   fichaRef.current = ficha;
 
@@ -19,7 +18,9 @@ export function usePhotoUpload(ficha) {
           img.onload = async () => {
             const canvas = document.createElement("canvas");
             let { width, height } = img;
-            const maxSize = 600;
+
+            // ── Só redimensiona se for ENORME (> 2048px) ──
+            const maxSize = 2048;
 
             if (width > height && width > maxSize) {
               height = Math.round((height * maxSize) / width);
@@ -31,7 +32,12 @@ export function usePhotoUpload(ficha) {
 
             canvas.width = width;
             canvas.height = height;
+
             const ctx = canvas.getContext("2d");
+
+            // ── Anti-aliasing de alta qualidade ──
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
             ctx.drawImage(img, 0, 0, width, height);
 
             canvas.toBlob(
@@ -40,7 +46,6 @@ export function usePhotoUpload(ficha) {
                   const compressedFile = new File([blob], file.name, {
                     type: "image/jpeg",
                   });
-                  // ← usa fichaRef para sempre ter a ficha atual
                   const url = await uploadFoto(compressedFile, fichaRef.current);
                   resolve(url);
                 } catch (err) {
@@ -48,7 +53,7 @@ export function usePhotoUpload(ficha) {
                 }
               },
               "image/jpeg",
-              0.6,
+              0.92, // ← 92% de qualidade
             );
           };
 
@@ -62,7 +67,7 @@ export function usePhotoUpload(ficha) {
       alert("Erro ao processar imagem");
       return null;
     }
-  }, []); // deps vazio — fichaRef garante o valor atual
+  }, []);
 
   return { handlePhotoUpload };
 }

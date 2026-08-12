@@ -271,10 +271,14 @@
 /* ══════════════════════════════════════════════
    Photo Grid Items
 ══════════════════════════════════════════════ */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
 .photo-grid-item {
-  flex: 1 1 320px;
-  max-width: 400px;
-  min-width: 280px;
+  min-width: 0;
 }
 
 /* ══════════════════════════════════════════════
