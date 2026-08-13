@@ -376,7 +376,7 @@ export default function PrintViewFotosTecnicas({ ficha, isBook = false }) {
                     <div
                       style={{
                         width: "100%",
-                        height: "70mm", // mais alto que a ficha geral (50mm)
+                        height: "68mm", // mais alto que a ficha geral (50mm)
                         background: foto?.imagem
                           ? `url(${foto.imagem}) center/cover no-repeat`
                           : "#f5f5f5",

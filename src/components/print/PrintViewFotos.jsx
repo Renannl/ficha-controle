@@ -207,7 +207,7 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
+                gridTemplateColumns: "1fr 1fr",
                 gap: "3mm",
               }}
             >
@@ -270,7 +270,7 @@ export default function PrintViewFotos({ ficha, isBook = false }) {
                     <div
                       style={{
                         width: "100%",
-                        height: "50mm",
+                        height: "68mm",
                         background: foto?.imagem
                           ? `url(${foto.imagem}) center/cover no-repeat`
                           : "#f5f5f5",
