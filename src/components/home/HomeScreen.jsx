@@ -20,6 +20,7 @@ import {
 } from "../../services/exportPdfEngine";
 import { FileInputIcon } from "lucide-react";
 import { useColecoes } from "../../hooks/useColecoes";
+import ColecaoArquivosTab from "../colecao/ColecaoArquivosTab";
 
 export default function HomeScreen({
   fichas,
@@ -47,9 +48,10 @@ export default function HomeScreen({
   const [selectedFichas, setSelectedFichas] = useState([]);
   const [pendingExport, setPendingExport] = useState(null);
   const [deleteColecaoId, setDeleteColecaoId] = useState(null);
+  const [abaColecao, setAbaColecao] = useState("fichas");
 
   const navigate = useNavigate();
-  const { colecaoId } = useParams(); // 🆕 vem da URL /colecao/:colecaoId
+  const { colecaoId } = useParams();
 
   const { colecoes, criarColecao, deletarColecao, recarregarColecoes } =
     useColecoes();
@@ -115,6 +117,7 @@ export default function HomeScreen({
   // ── NAVEGAÇÃO (única versão, via URL) ──────────
   const handleAbrirColecao = (colecao) => {
     navigate(`/colecao/${colecao.id}`);
+    setAbaColecao("fichas"); // 🆕 volta pra Fichas ao abrir nova coleção
     setSelectedFichas([]);
     setSearchTerm("");
     setViewMode("list");
@@ -122,6 +125,7 @@ export default function HomeScreen({
 
   const handleVoltarColecoes = () => {
     navigate("/dashboard");
+    setAbaColecao("fichas"); // 🆕
     setSelectedFichas([]);
     setSearchTerm("");
     setViewMode("list");
@@ -241,40 +245,63 @@ export default function HomeScreen({
           <span className="colecao-breadcrumb-name">
             {selectedColecao.nome}
           </span>
+
+          <div className="colecao-tabs">
+            <button
+              className={
+                abaColecao === "fichas" ? "colecao-tab ativa" : "colecao-tab"
+              }
+              onClick={() => setAbaColecao("fichas")}
+            >
+              Fichas
+            </button>
+            <button
+              className={
+                abaColecao === "arquivos" ? "colecao-tab ativa" : "colecao-tab"
+              }
+              onClick={() => setAbaColecao("arquivos")}
+            >
+              Arquivos
+            </button>
+          </div>
         </div>
       )}
 
-      <HomeContent
-        viewMode={viewMode}
-        fichas={fichas}
-        fichasDaColecao={fichasDaColecao}
-        user={user}
-        onApprove={onApprove}
-        showNewMenu={showNewMenu}
-        mode={mode}
-        colecoes={filteredColecoes}
-        filteredFichas={filteredFichas}
-        showSearch={showSearch}
-        setShowSearch={setShowSearch}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        filterType={filterType}
-        setFilterType={setFilterType}
-        filterStatus={filterStatus}
-        setFilterStatus={setFilterStatus}
-        listaUsuarios={listaUsuarios}
-        onOpen={handleOpenFicha}
-        onDelete={handleDelete}
-        onDeleteColecao={handleDeleteColecao}
-        onToggleOperador={handleToggleOperadorFicha}
-        podeGerenciarOperadores={podeGerenciarOperadores}
-        activeDropdownFichaId={activeDropdownFichaId}
-        setActiveDropdownFichaId={setActiveDropdownFichaId}
-        selectedFichas={selectedFichas}
-        toggleFichaSelection={toggleFichaSelection}
-        onOpenColecao={handleAbrirColecao}
-        onColecaoImportada={handleColecaoImportada}
-      />
+      {abaColecao === "fichas" ? (
+        <HomeContent
+          viewMode={viewMode}
+          fichas={fichas}
+          fichasDaColecao={fichasDaColecao}
+          user={user}
+          onApprove={onApprove}
+          showNewMenu={showNewMenu}
+          mode={mode}
+          colecoes={filteredColecoes}
+          filteredFichas={filteredFichas}
+          showSearch={showSearch}
+          setShowSearch={setShowSearch}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filterType={filterType}
+          setFilterType={setFilterType}
+          filterStatus={filterStatus}
+          setFilterStatus={setFilterStatus}
+          listaUsuarios={listaUsuarios}
+          onOpen={handleOpenFicha}
+          onDelete={handleDelete}
+          onDeleteColecao={handleDeleteColecao}
+          onToggleOperador={handleToggleOperadorFicha}
+          podeGerenciarOperadores={podeGerenciarOperadores}
+          activeDropdownFichaId={activeDropdownFichaId}
+          setActiveDropdownFichaId={setActiveDropdownFichaId}
+          selectedFichas={selectedFichas}
+          toggleFichaSelection={toggleFichaSelection}
+          onOpenColecao={handleAbrirColecao}
+          onColecaoImportada={handleColecaoImportada}
+        />
+      ) : (
+        <ColecaoArquivosTab colecaoId={selectedColecao.id} />
+      )}
 
       <ConfirmModal
         isOpen={!!deleteId}
