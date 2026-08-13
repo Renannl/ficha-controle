@@ -6252,6 +6252,181 @@ svg {
   text-overflow: ellipsis;
 }
 
+/* ── BREADCRUMB ─────────────────────────────────── */
+.pastas-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.pastas-breadcrumb-home {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #9aa4b2);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.pastas-breadcrumb-home:hover {
+  background: var(--hover-bg, rgba(255, 255, 255, 0.05));
+  color: var(--text-primary, #fff);
+}
+
+.pastas-breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-secondary, #9aa4b2);
+}
+
+.pastas-breadcrumb-item button {
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #fff);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.pastas-breadcrumb-item button:hover {
+  background: var(--hover-bg, rgba(255, 255, 255, 0.05));
+}
+
+/* ── SEÇÕES ─────────────────────────────────────── */
+.pastas-secao {
+  margin-bottom: 20px;
+}
+
+.pastas-secao-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #9aa4b2);
+  margin: 0 0 10px 0;
+  padding-left: 4px;
+}
+
+/* ── GRID DE PASTAS ─────────────────────────────── */
+.pastas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.pasta-card {
+  background: var(--card-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  padding: 14px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.pasta-card:hover {
+  background: var(--hover-bg, rgba(255, 255, 255, 0.07));
+  border-color: var(--accent, #2563eb);
+  transform: translateY(-2px);
+}
+
+.pasta-card-icone {
+  color: var(--accent, #2563eb);
+}
+
+.pasta-card-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.pasta-card-count {
+  font-size: 11px;
+  color: var(--text-secondary, #9aa4b2);
+}
+
+/* ── LISTA DE ARQUIVOS ──────────────────────────── */
+.pastas-arquivos-lista {
+  background: var(--card-bg, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.arquivo-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light, rgba(255, 255, 255, 0.05));
+  gap: 12px;
+}
+
+.arquivo-linha:last-child {
+  border-bottom: none;
+}
+
+.arquivo-linha-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.arquivo-linha-nome {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary, #fff);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.arquivo-linha-tamanho {
+  font-size: 12px;
+  color: var(--text-secondary, #9aa4b2);
+  flex-shrink: 0;
+}
+
+.arquivo-linha-acoes {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-ghost-sm {
+  padding: 4px 6px;
+}
+
+/* ── ÍCONES DE ARQUIVO (versão inline) ──────────── */
+.icone--pdf { color: #ef4444;
+border-radius: 5px; }
+.icone--img { color: #22c55e;
+border-radius: 5px; }
+.icone--xls { color: #16a34a;
+border-radius: 5px; }
+.icone--doc { color: #3b82f6;
+border-radius: 5px; }
+
 /* ──────────────────────────────────────────────
    RESPONSIVO
 ────────────────────────────────────────────── */

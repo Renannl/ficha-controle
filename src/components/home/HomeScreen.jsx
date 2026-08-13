@@ -21,6 +21,7 @@ import {
 import { FileInputIcon } from "lucide-react";
 import { useColecoes } from "../../hooks/useColecoes";
 import ColecaoArquivosTab from "../colecao/ColecaoArquivosTab";
+import ColecaoPastasTab from "../colecao/ColecaoPastasTab";
 
 export default function HomeScreen({
   fichas,
@@ -257,6 +258,14 @@ export default function HomeScreen({
             </button>
             <button
               className={
+                abaColecao === "pastas" ? "colecao-tab ativa" : "colecao-tab"
+              }
+              onClick={() => setAbaColecao("pastas")}
+            >
+              Pastas
+            </button>
+            <button
+              className={
                 abaColecao === "arquivos" ? "colecao-tab ativa" : "colecao-tab"
               }
               onClick={() => setAbaColecao("arquivos")}
@@ -267,7 +276,7 @@ export default function HomeScreen({
         </div>
       )}
 
-      {abaColecao === "fichas" ? (
+      {abaColecao === "fichas" && (
         <HomeContent
           viewMode={viewMode}
           fichas={fichas}
@@ -299,8 +308,14 @@ export default function HomeScreen({
           onOpenColecao={handleAbrirColecao}
           onColecaoImportada={handleColecaoImportada}
         />
-      ) : (
+      )}
+
+      {abaColecao === "arquivos" && (
         <ColecaoArquivosTab colecaoId={selectedColecao.id} />
+      )}
+
+      {abaColecao === "pastas" && (
+        <ColecaoPastasTab colecaoId={selectedColecao.id} />
       )}
 
       <ConfirmModal
