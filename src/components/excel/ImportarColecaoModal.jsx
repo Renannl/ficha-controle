@@ -1,12 +1,6 @@
 import { useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import {
-  X,
-  Upload,
-  FileText,
-  FileSpreadsheet,
-  Trash2,
-} from "lucide-react";
+import { X, Upload, FileText, FileSpreadsheet, Trash2 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { PAINEL_LABELS } from "../../data/painelTemplates";
 
@@ -37,7 +31,8 @@ function mapearTipoPainel(texto) {
 function excelValueToISODate(valor) {
   if (!valor) return "";
   if (valor instanceof Date) return valor.toISOString().split("T")[0];
-  if (typeof valor === "string" && /^\d{4}-\d{2}-\d{2}/.test(valor)) return valor;
+  if (typeof valor === "string" && /^\d{4}-\d{2}-\d{2}/.test(valor))
+    return valor;
   if (typeof valor === "number") {
     const excelEpoch = new Date(Date.UTC(1899, 11, 30));
     const date = new Date(excelEpoch.getTime() + valor * 86400000);
@@ -67,7 +62,8 @@ function parseColecaoExcel(file) {
           defval: "",
         });
 
-        if (linhasMatriz.length === 0) throw new Error("A planilha está vazia.");
+        if (linhasMatriz.length === 0)
+          throw new Error("A planilha está vazia.");
 
         const headerColecao = linhasMatriz[0] || [];
         const valoresColecao = linhasMatriz[1] || [];
@@ -88,7 +84,9 @@ function parseColecaoExcel(file) {
             : "";
 
         if (!clienteBase)
-          throw new Error("A célula de Cliente (linha 2) não pode estar vazia.");
+          throw new Error(
+            "A célula de Cliente (linha 2) não pode estar vazia.",
+          );
 
         const headerIndex = linhasMatriz.findIndex((linha) =>
           linha.some(
@@ -147,13 +145,11 @@ const DOCUMENTOS = [
   { id: "listaMaterial", label: "Lista de Material", obrigatorio: true },
   { id: "docCliente", label: "Projetos e Documentos do Cliente", obrigatorio: false },
   { id: "orcamentos", label: "Orçamentos de Fornecedores", obrigatorio: false },
+  { id: "art", label: "ART", obrigatorio: false },
+  { id: "seguranca", label: "Comprovante de Segurança", obrigatorio: false },
 ];
 
-export default function ImportarColecaoModal({
-  show,
-  onClose,
-  onImportado,
-}) {
+export default function ImportarColecaoModal({ show, onClose, onImportado }) {
   const { authFetch } = useAuth();
   const [arquivos, setArquivos] = useState({});
   const [excel, setExcel] = useState(null);
@@ -209,7 +205,6 @@ export default function ImportarColecaoModal({
         if (arquivos[d.id]) form.append(d.id, arquivos[d.id]);
       });
 
-      // ⚠️ NÃO setar Content-Type manualmente — o navegador monta o multipart
       const res = await authFetch(`${API_URL}/colecoes/importar`, {
         method: "POST",
         body: form,
@@ -229,7 +224,8 @@ export default function ImportarColecaoModal({
     } catch (err) {
       console.error("[Importar Coleção]", err);
       alert(
-        err.message || "Erro ao importar. Verifique o arquivo e tente novamente.",
+        err.message ||
+          "Erro ao importar. Verifique o arquivo e tente novamente.",
       );
     } finally {
       setCarregando(false);
