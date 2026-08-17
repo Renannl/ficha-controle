@@ -2,6 +2,7 @@ import PrintHeader from "./PrintHeader";
 import { OPERACOES, NOTA_DOCUMENTOS } from "../../data/fichaTemplate";
 import { getPainelChecklistItems } from "../../data/painelTemplates";
 import { getEtapaLabel, getCargoLabel } from "../../utils/etapas";
+import { formatarNomeUsuario } from "../../utils/tempoUtils";
 
 function getHistorico(ficha) {
   if (Array.isArray(ficha?.historicoEtapas)) return ficha.historicoEtapas;
@@ -16,22 +17,42 @@ function getHistorico(ficha) {
   return [];
 }
 
-function agruparHistorico(historico) {
-  const map = {};
-  historico.forEach((h) => {
-    const chave = h.usuario || h.nome;
-    if (!chave) return;
-    if (!map[chave]) {
-      map[chave] = { nome: h.nome || chave, cargo: h.cargo, etapas: [] };
+function inferirEtapaDaSessao(sessao, logs) {
+  if (sessao.etapa) return sessao.etapa;
+  const inicioMs = new Date(sessao.inicio).getTime();
+  let ultimaEtapa = null;
+  (logs || []).forEach((log) => {
+    if (!log.etapa) return;
+    const t = new Date(log.timestamp).getTime();
+    if (t <= inicioMs) {
+      if (!ultimaEtapa || t > new Date(ultimaEtapa.timestamp).getTime()) {
+        ultimaEtapa = log;
+      }
     }
-    if (h.etapa && !map[chave].etapas.includes(h.etapa)) {
-      map[chave].etapas.push(h.etapa);
+  });
+  return ultimaEtapa?.etapa || null;
+}
+
+function agruparSessoesPorEtapaComFallback(sessoes, logs) {
+  const map = {};
+  (sessoes || []).forEach((s) => {
+    const etapa = inferirEtapaDaSessao(s, logs);
+    if (!etapa) return;
+    if (!map[etapa]) map[etapa] = { etapa, usuarios: [] };
+    const nome = formatarNomeUsuario(s.usuario || "").trim();
+    if (nome && !map[etapa].usuarios.includes(nome)) {
+      map[etapa].usuarios.push(nome);
     }
   });
   return Object.values(map);
 }
 
-export default function PrintViewOperacao({ ficha, isBook = false }) {
+export default function PrintViewOperacao({
+  ficha,
+  isBook = false,
+  sessoes = [],
+  logs = [],
+}) {
   const op = OPERACOES[ficha.operacao];
   const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
 
@@ -40,6 +61,8 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
     : op?.items || [];
 
   const totalDataCols = isPainel ? 2 : 17;
+
+  const grupos = agruparSessoesPorEtapaComFallback(sessoes, logs);
 
   return (
     <div className={`print-view-root ${isBook ? "book-mode" : "print-only"}`}>
@@ -98,38 +121,26 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
               <strong>Recurso:</strong> {ficha.recurso}
             </td>
           </tr>
-          <tr>
-            <td colSpan="4">
-              <strong>Colaboradores:</strong> {ficha.colaboradores}
-            </td>
-          </tr>
         </tbody>
       </table>
 
-      {(() => {
-        const grupos = agruparHistorico(getHistorico(ficha));
-        if (grupos.length === 0) return null;
-        return (
-          <div className="print-final-block">
-            <div className="print-section-title">MÃO DE OBRA POR ETAPA</div>
-            <table className="print-info-table">
-              <tbody>
-                {grupos.map((g, i) => (
-                  <tr key={i}>
-                    <td>
-                      <strong>{g.nome}</strong>
-                      {g.cargo ? (
-                        <small> ({getCargoLabel(g.cargo)})</small>
-                      ) : null}
-                    </td>
-                    <td>{g.etapas.map(getEtapaLabel).join(", ")}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-      })()}
+      {grupos.length > 0 && (
+        <div className="print-final-block">
+          <div className="print-section-title">MÃO DE OBRA POR ETAPA</div>
+          <table className="print-info-table">
+            <tbody>
+              {grupos.map((g, i) => (
+                <tr key={i}>
+                  <td>
+                    <strong>{getEtapaLabel(g.etapa)}</strong>
+                  </td>
+                  <td>{g.usuarios.join(", ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* CHECKLIST TABLE */}
       {!isPainel && (
