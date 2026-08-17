@@ -25,18 +25,17 @@ import ColecaoPastasTab from "../colecao/ColecaoPastasTab";
 
 export default function HomeScreen({
   fichas,
-  onNova,
   onFichasAtualizadas,
+  onNova,
   onOpen,
   onDelete,
+  onAtualizarOperadores,
   user,
   onLogout,
   theme,
   onToggleTheme,
   onOpenAdmin,
-  onApprove,
-  listaUsuarios = [],
-  onAtualizarOperadores,
+  listaUsuarios = []
 }) {
   // ── STATE ──────────────────────────────────────
   const [viewMode, setViewMode] = useLocalStorageState("homeViewMode", "list");
@@ -282,7 +281,6 @@ export default function HomeScreen({
           fichas={fichas}
           fichasDaColecao={fichasDaColecao}
           user={user}
-          onApprove={onApprove}
           showNewMenu={showNewMenu}
           mode={mode}
           colecoes={filteredColecoes}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { useFichas } from "./hooks/useFichas";
 import LoginScreen from "./components/LoginScreen";
@@ -110,6 +110,14 @@ export default function App() {
 
   const toggleTheme = () =>
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
+
+  const handleUserUpdated = useCallback((usuarioAtualizado) => {
+    setUsuarios((prev) =>
+      prev.map((u) =>
+        u.id === usuarioAtualizado.id ? { ...u, ...usuarioAtualizado } : u,
+      ),
+    );
+  }, []);
 
   // ─── LOADING ───
   if (isLoading) {
@@ -311,7 +319,10 @@ export default function App() {
         path="/admin"
         element={
           user?.role === "admin" ? (
-            <AdminPanel onBack={() => navigate("/dashboard")} />
+            <AdminPanel
+              onBack={() => navigate("/dashboard")}
+              onUserUpdated={handleUserUpdated} // 🆕
+            />
           ) : (
             <Navigate to="/dashboard" />
           )

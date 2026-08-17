@@ -7,7 +7,7 @@ import UserForm from "./UserForm";
 import UserTable from "./UserTable";
 import LoadingState from "./LoadingState";
 
-export default function AdminPanel({ onBack }) {
+export default function AdminPanel({ onBack, onUserUpdated }) {
   const { users, loading, updateUser } = useUsers();
 
   const [editingUser, setEditingUser] = useState(null);
@@ -39,6 +39,15 @@ export default function AdminPanel({ onBack }) {
 
     try {
       await updateUser(editingUser.id, {
+        nome,
+        role,
+        permissoes,
+        active,
+      });
+
+      // 🆕 Propaga o cargo novo para a lista do App (sem F5)
+      onUserUpdated?.({
+        ...editingUser,
         nome,
         role,
         permissoes,
