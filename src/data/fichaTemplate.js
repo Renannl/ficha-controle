@@ -12,6 +12,7 @@ export function buildPainelItems(tipoPainel) {
       id: item.id,
       descricao: item.descricao,
       categoria: item.categoria,
+      etapa: item.etapa,
       sessionMarks: Array(15).fill(""),
       resultado: "",
     }),
@@ -23,6 +24,7 @@ export function buildTafVerificacaoItems(tipoPainel) {
     id: item.id,
     descricao: item.descricao,
     categoria: item.categoria,
+    etapa: item.etapa,
     sessionMarks: Array(15).fill(""),
     resultado: "",
   }));

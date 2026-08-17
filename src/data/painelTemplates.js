@@ -310,7 +310,7 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
       id: `mm-seq-${i}`,
       numero: contador++,
       descricao,
-      etapa: "montagem_mecanica",
+      etapa: "montagem",
       categoria: `Sequência de Montagem — ${tpl.montagemMecanica.titulo}`,
     });
   });
@@ -321,7 +321,7 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
         id: `mm-ver-${i}`,
         numero: contador++,
         descricao,
-        etapa: "montagem_mecanica",
+        etapa: "montagem",
         categoria: "Verificação da Montagem",
       });
     });

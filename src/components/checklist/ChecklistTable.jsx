@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import TafHeader from "./TafHeader";
 import ChecklistSummary from "./ChecklistSummary";
 import ChecklistItem from "./ChecklistItem";
+import { podeTrabalharNaEtapa } from "../../utils/etapas";
 
 export default function ChecklistTable({
   ficha,
@@ -13,7 +14,8 @@ export default function ChecklistTable({
   isPainel = false,
   tafData,
   onUpdateTaf,
-  readOnly = false,
+  user,
+  sessaoIniciada,
 }) {
   const [expandedId, setExpandedId] = useState(null);
 
@@ -31,9 +33,7 @@ export default function ChecklistTable({
     const todosConcluidos =
       Array.isArray(ficha.items) &&
       ficha.items.length > 0 &&
-      ficha.items.every(
-        (it) => it.resultado === "ok" || it.resultado === "na",
-      );
+      ficha.items.every((it) => it.resultado === "ok" || it.resultado === "na");
 
     if (todosConcluidos) {
       const hoje = new Date().toISOString().slice(0, 10);
@@ -46,6 +46,13 @@ export default function ChecklistTable({
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
+  function podeEditarItem(item) {
+    if (!sessaoIniciada) return false;
+    if (!isPainel) return true; // só painel tem restrição por cargo
+    const template = checklistItems.find((c) => c.id === item.id);
+    return podeTrabalharNaEtapa(user, template?.etapa);
+  }
+
   function isItemLiberado(index) {
     if (index === 0) return true;
     const anterior = ficha.items[index - 1];
@@ -53,23 +60,23 @@ export default function ChecklistTable({
   }
 
   function handleResultado(index, value, observacao) {
-    if (readOnly) return;
     if (!isItemLiberado(index)) return;
+    if (!podeEditarItem(ficha.items[index])) return;
     const current = ficha.items[index].resultado;
     const novoValor = current === value ? "" : value;
     onSetResultado(index, novoValor, novoValor ? observacao : "");
   }
 
   function handleToggleMark(index, sessionIndex, value) {
-    if (readOnly) return;
     if (!isItemLiberado(index)) return;
+    if (!podeEditarItem(ficha.items[index])) return;
     onToggleMark(index, sessionIndex, value);
   }
 
   let categoriaAnterior = null;
 
   return (
-    <div className={`checklist-wrap ${readOnly ? "checklist-readonly" : ""}`}>
+    <div className="checklist-wrap">
       {isTaf && <TafHeader tafData={tafData} onUpdateTaf={onUpdateTaf} />}
 
       <ChecklistSummary
@@ -126,7 +133,7 @@ export default function ChecklistTable({
               onToggleExpand={toggleExpand}
               onToggleMark={handleToggleMark}
               onResultado={handleResultado}
-              readOnly={readOnly || !liberado}
+              readOnly={!podeEditarItem(item) || !liberado}
               liberado={liberado}
             />
           </div>

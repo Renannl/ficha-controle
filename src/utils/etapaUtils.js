@@ -17,7 +17,7 @@ export function getMapaEtapasPorItem(tipoPainel) {
 }
 
 export const ETAPA_LABELS = {
-  montagem_mecanica: "Montagem Mecânica",
+  montagem: "Montagem Mecânica",
   barramento: "Barramento",
   cabeamento: "Cabeamento",
 };

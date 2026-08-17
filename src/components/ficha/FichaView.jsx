@@ -21,6 +21,7 @@ import {
 } from "../../data/painelTemplates";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
+import { getEtapaAtual, podeTrabalharNaEtapa } from "../../utils/etapas";
 
 export default function FichaView({
   user,
@@ -189,6 +190,9 @@ export default function FichaView({
     const item = ficha.items?.[itemIndex];
     if (!item) return;
 
+    const template = activeChecklistItems.find((c) => c.id === item.id);
+    if (isPainel && !podeTrabalharNaEtapa(user, template?.etapa)) return; // 🆕
+
     const novosItems = [...(ficha.items ?? [])];
     novosItems[itemIndex] = { ...novosItems[itemIndex], [key]: value };
 
@@ -199,18 +203,15 @@ export default function FichaView({
     });
 
     if (key === "resultado" && value) {
-      const template = activeChecklistItems.find((c) => c.id === item.id);
       registrarMarcacao({
         itemId: item.id,
         descricao: template?.descricao || `Item ${item.id}`,
         campo: "resultado",
         valor: value,
+        etapa: template?.etapa,
         usuario: user?.nome || user?.username,
       });
-
-      if (template?.etapa) {
-        verificarFimEtapa(template.etapa, novosItems);
-      }
+      if (template?.etapa) verificarFimEtapa(template.etapa, novosItems);
     }
   }
 
@@ -240,6 +241,9 @@ export default function FichaView({
     const item = ficha.items?.[itemIndex];
     if (!item) return;
 
+    const template = activeChecklistItems.find((c) => c.id === item.id); // 🆕 sobe
+    if (isPainel && !podeTrabalharNaEtapa(user, template?.etapa)) return; // 🆕
+
     const novosItems = [...(ficha.items ?? [])];
     novosItems[itemIndex] = { ...novosItems[itemIndex], resultado, observacao };
 
@@ -250,19 +254,16 @@ export default function FichaView({
     });
 
     if (resultado) {
-      const template = activeChecklistItems.find((c) => c.id === item.id);
       registrarMarcacao({
         itemId: item.id,
         descricao: template?.descricao || `Item ${item.id}`,
         campo: "resultado",
         valor: resultado,
         observacao,
+        etapa: template?.etapa,
         usuario: user?.nome || user?.username,
       });
-
-      if (template?.etapa) {
-        verificarFimEtapa(template.etapa, novosItems);
-      }
+      if (template?.etapa) verificarFimEtapa(template.etapa, novosItems);
     }
   }
 
@@ -271,6 +272,10 @@ export default function FichaView({
     marcarReedicaoSeAprovada();
     const item = ficha.items?.[itemIndex];
     if (!item) return;
+
+    const template = activeChecklistItems.find((c) => c.id === item.id);
+    if (isPainel && !podeTrabalharNaEtapa(user, template?.etapa)) return;
+
     const novoValor = item.sessionMarks?.[sessionIndex] === value ? "" : value;
 
     atualizarFicha(fichaId, (prev) => {
@@ -282,13 +287,13 @@ export default function FichaView({
     });
 
     if (novoValor) {
-      const template = activeChecklistItems.find((c) => c.id === item.id);
       registrarMarcacao({
         itemId: item.id,
         descricao: template?.descricao || `Item ${item.id}`,
         campo: "sessionMark",
         valor: novoValor,
         sessaoIndex: sessionIndex,
+        etapa: template?.etapa,
         usuario: user?.nome || user?.username,
       });
     }
@@ -596,6 +601,10 @@ export default function FichaView({
     ? getPainelChecklistItems(ficha?.tipoPainel, { incluirVerificacao: false })
     : checklistItems;
 
+  const etapaAtual = isPainel
+    ? getEtapaAtual(ficha?.items, activeChecklistItems)
+    : null;
+
   const tabs = isTaf
     ? [
         { id: "taf", icon: "⚡", label: "Testes" },
@@ -659,6 +668,8 @@ export default function FichaView({
               tafData={ficha?.tafData}
               onUpdateTaf={handleUpdateTaf}
               readOnly={!sessaoIniciada}
+              user={user}
+              sessaoIniciada={sessaoIniciada}
             />
           )}
 
@@ -725,6 +736,7 @@ export default function FichaView({
           sessoes={sessoes}
           loading={sessoesLoading}
           onChange={loadSessoes}
+          etapa={etapaAtual}
         />
       </div>
 

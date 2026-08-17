@@ -36,7 +36,7 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
 
     return base.map((log) => ({
       ...log,
-      etapa: mapaEtapas[log.itemId] || null,
+      etapa: log.etapa || mapaEtapas[log.itemId] || null,
     }));
   }, [logs, sessoes, mapaEtapas]);
 

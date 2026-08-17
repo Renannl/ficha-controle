@@ -1,6 +1,35 @@
 import PrintHeader from "./PrintHeader";
 import { OPERACOES, NOTA_DOCUMENTOS } from "../../data/fichaTemplate";
 import { getPainelChecklistItems } from "../../data/painelTemplates";
+import { getEtapaLabel, getCargoLabel } from "../../utils/etapas";
+
+function getHistorico(ficha) {
+  if (Array.isArray(ficha?.historicoEtapas)) return ficha.historicoEtapas;
+  const dados = ficha?.dados;
+  if (
+    dados &&
+    typeof dados === "object" &&
+    Array.isArray(dados.historicoEtapas)
+  ) {
+    return dados.historicoEtapas;
+  }
+  return [];
+}
+
+function agruparHistorico(historico) {
+  const map = {};
+  historico.forEach((h) => {
+    const chave = h.usuario || h.nome;
+    if (!chave) return;
+    if (!map[chave]) {
+      map[chave] = { nome: h.nome || chave, cargo: h.cargo, etapas: [] };
+    }
+    if (h.etapa && !map[chave].etapas.includes(h.etapa)) {
+      map[chave].etapas.push(h.etapa);
+    }
+  });
+  return Object.values(map);
+}
 
 export default function PrintViewOperacao({ ficha, isBook = false }) {
   const op = OPERACOES[ficha.operacao];
@@ -76,6 +105,31 @@ export default function PrintViewOperacao({ ficha, isBook = false }) {
           </tr>
         </tbody>
       </table>
+
+      {(() => {
+        const grupos = agruparHistorico(getHistorico(ficha));
+        if (grupos.length === 0) return null;
+        return (
+          <div className="print-final-block">
+            <div className="print-section-title">MÃO DE OBRA POR ETAPA</div>
+            <table className="print-info-table">
+              <tbody>
+                {grupos.map((g, i) => (
+                  <tr key={i}>
+                    <td>
+                      <strong>{g.nome}</strong>
+                      {g.cargo ? (
+                        <small> ({getCargoLabel(g.cargo)})</small>
+                      ) : null}
+                    </td>
+                    <td>{g.etapas.map(getEtapaLabel).join(", ")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      })()}
 
       {/* CHECKLIST TABLE */}
       {!isPainel && (

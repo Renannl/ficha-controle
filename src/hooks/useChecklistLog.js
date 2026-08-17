@@ -27,7 +27,15 @@ export function useChecklistLog(fichaId) {
 
   // dispara e não espera resposta bloquear a UI (fire-and-forget com recarga depois)
   const registrarMarcacao = useCallback(
-    async ({ itemId, descricao, campo, valor, sessaoIndex, usuario }) => {
+    async ({
+      itemId,
+      descricao,
+      campo,
+      valor,
+      sessaoIndex,
+      etapa,
+      usuario,
+    }) => {
       try {
         const res = await authFetch(`/fichas/${fichaId}/checklist-log`, {
           method: "POST",
@@ -38,6 +46,7 @@ export function useChecklistLog(fichaId) {
             campo,
             valor,
             sessaoIndex,
+            etapa,
             usuario,
           }),
         });

@@ -2,7 +2,7 @@ import { getFichaStatus, getProgressPct } from "../../utils/fichaStatus";
 import { OPERACOES } from "../../data/fichaTemplate";
 import { canDeleteFicha, canGeneratePdf } from "../../utils/hasPermission";
 import FichaTimerBadge from "./FichaTimerBadge";
-import { getRoleColor } from "../../utils/roleColors";
+import { getRoleColor, getRoleLabel } from "../../utils/roleColors";
 import {
   User,
   Tag,
@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   FileText,
   Circle,
-  FileInputIcon,
 } from "lucide-react";
 import { FaFilePdf } from "react-icons/fa";
 import OperatorSelector from "./OperatorSelector";
@@ -34,7 +33,17 @@ export default function FichaCard({
 }) {
   const status = getFichaStatus(ficha);
   const pct = getProgressPct(ficha);
-  const operadores = ficha.operadores || []; // Garante o array de operadores ativos no card
+  const operadores = ficha.operadores || [];
+
+  // 🆕 Função DENTRO do componente (pra ter acesso ao listaUsuarios)
+  function getOperadorRole(op) {
+    if (op.role) return op.role;
+
+    const doBanco = listaUsuarios?.find(
+      (u) => u.id === op.id || u.username === op.username,
+    );
+    return doBanco?.role || null;
+  }
 
   function getCodigoTagClass(codigo) {
     if (!codigo) return "ficha-meta-code";
@@ -152,7 +161,6 @@ export default function FichaCard({
         )}
       </div>
 
-      {/* ─── MODIFICAÇÃO: AREA DE OPERADORES ATIVOS NO CARD (Entre o topo e a barra de progresso) ─── */}
       <div
         className="ficha-card-operators-section"
         style={{
@@ -165,9 +173,8 @@ export default function FichaCard({
           borderTop: "1px solid var(--border)",
           position: "relative",
         }}
-        onClick={(e) => e.stopPropagation()} // Impede que o clique nesta área abra a ficha inteira
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Lista de Avatares Pilhados */}
         <div
           style={{
             display: "flex",
@@ -194,37 +201,42 @@ export default function FichaCard({
                 marginLeft: "4px",
               }}
             >
-              {operadores.map((op, idx) => (
-                <div
-                  key={op.id || idx}
-                  title={`${op.nome} (${op.role || "sem cargo"})`}
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    borderRadius: "50%",
-                    backgroundColor: getRoleColor(op.role), // 👈 cor dinâmica pelo cargo
-                    color: "#ffffff",
-                    border: "2px solid var(--bg-card)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "10px",
-                    fontWeight: "bold",
-                    marginLeft: idx === 0 ? 0 : -8,
-                    position: "relative",
-                    zIndex: operadores.length - idx,
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    flexShrink: 0,
-                  }}
-                >
-                  {(op.nome || "?")[0].toUpperCase()}
-                </div>
-              ))}
+              {operadores.map((op, idx) => {
+                const role = getOperadorRole(op); // 🆕
+
+                return (
+                  <div
+                    key={op.id || idx}
+                    title={`${op.nome} (${
+                      role ? getRoleLabel(role) : "sem cargo"
+                    })`}
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      backgroundColor: getRoleColor(role),
+                      color: "#ffffff",
+                      border: "2px solid var(--bg-card)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      marginLeft: idx === 0 ? 0 : -8,
+                      position: "relative",
+                      zIndex: operadores.length - idx,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {(op.nome || "?")[0].toUpperCase()}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Botão de Adicionar (+) com Dropdown Absoluto */}
         {podeGerenciarOperadores && (
           <OperatorSelector
             ficha={ficha}

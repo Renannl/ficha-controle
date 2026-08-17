@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Pencil, ChevronDown, ChevronRight } from "lucide-react";
 import EditarSessaoModal from "./EditarSessaoModal";
 import { formatarNomeUsuario } from "../../utils/tempoUtils";
+import { getEtapaLabel } from "../../utils/etapas";
 
 function formatarData(iso) {
   if (!iso) return "em andamento";
@@ -67,7 +68,12 @@ export default function SessoesTrabalhoList({
     sessoes.forEach((s) => {
       const chave = s.usuario || "desconhecido";
       if (!map[chave]) {
-        map[chave] = { usuario: chave, sessoes: [], totalSegundos: 0, temAtiva: false };
+        map[chave] = {
+          usuario: chave,
+          sessoes: [],
+          totalSegundos: 0,
+          temAtiva: false,
+        };
       }
       map[chave].sessoes.push(s);
       map[chave].totalSegundos += calcularDuracao(s);
@@ -190,6 +196,20 @@ export default function SessoesTrabalhoList({
                           <span className="sessao-duracao">
                             {formatarDuracao(calcularDuracao(s))}
                           </span>
+
+                          {s.etapa && (
+                            <span
+                              style={{
+                                fontSize: 11,
+                                padding: "2px 8px",
+                                borderRadius: 10,
+                                background: "var(--blue-accent, #3b82f6)",
+                                color: "#fff",
+                              }}
+                            >
+                              {getEtapaLabel(s.etapa)}
+                            </span>
+                          )}
                           {s.origem === "manual" && (
                             <span
                               className="sessao-tag-manual"

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { authFetch } from "../../services/apiClient";
+import { getEtapaLabel, podeTrabalharNaEtapa } from "../../utils/etapas";
 
 function formatarTempo(segundos) {
   const h = Math.floor(segundos / 3600);
@@ -8,13 +9,18 @@ function formatarTempo(segundos) {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export default function BotaoSessaoTrabalho({ fichaId, user, sessoes, onChange }) {
+export default function BotaoSessaoTrabalho({
+  fichaId,
+  user,
+  sessoes,
+  onChange,
+  etapa,
+}) {
   const [tempoAtual, setTempoAtual] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const sessaoAtiva = sessoes?.find(
-    (s) => !s.fim && s.usuario === user?.username,
-  ) || null;
+  const sessaoAtiva =
+    sessoes?.find((s) => !s.fim && s.usuario === user?.username) || null;
 
   useEffect(() => {
     if (!sessaoAtiva) {
@@ -28,12 +34,17 @@ export default function BotaoSessaoTrabalho({ fichaId, user, sessoes, onChange }
     return () => clearInterval(interval);
   }, [sessaoAtiva]);
 
+  const podeIniciar = podeTrabalharNaEtapa(user, etapa);
+  const bloqueado = !podeIniciar && !sessaoAtiva;
+
   const handlePlay = async () => {
+    if (bloqueado) return;
     try {
       setLoading(true);
       const res = await authFetch(`/fichas/${fichaId}/sessao/iniciar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ etapa }), // 🆕 envia a etapa
       });
       if (!res) return;
       const data = await res.json();
@@ -41,7 +52,7 @@ export default function BotaoSessaoTrabalho({ fichaId, user, sessoes, onChange }
         alert(data.error || "Erro ao iniciar sessão.");
         return;
       }
-      await onChange?.(); // 🔑 recarrega a fonte única de verdade
+      await onChange?.();
     } finally {
       setLoading(false);
     }
@@ -71,10 +82,25 @@ export default function BotaoSessaoTrabalho({ fichaId, user, sessoes, onChange }
 
   return (
     <div className="sessao-trabalho-float">
+      {!rodando && etapa && (
+        <div
+          style={{
+            fontSize: 12,
+            color: bloqueado ? "var(--red, #e74c3c)" : "var(--text-secondary)",
+            marginBottom: 4,
+            fontWeight: 600,
+          }}
+        >
+          Etapa atual: {getEtapaLabel(etapa)}
+          {bloqueado && " — seu cargo não permite"}
+        </div>
+      )}
+
       <button
         onClick={rodando ? handlePause : handlePlay}
-        disabled={loading}
+        disabled={loading || bloqueado}
         className={`sessao-trabalho-btn ${rodando ? "pausar" : "iniciar"}`}
+        title={bloqueado ? "Seu cargo não permite iniciar nesta etapa" : ""}
       >
         {rodando ? "⏸" : "▶"}
       </button>
