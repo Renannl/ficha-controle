@@ -126,7 +126,7 @@ export default function PrintViewOperacao({
 
       {grupos.length > 0 && (
         <div className="print-final-block">
-          <div className="print-section-title">MÃO DE OBRA POR ETAPA</div>
+          <div className="print-section-title">COLABORADORES:</div>
           <table className="print-info-table">
             <tbody>
               {grupos.map((g, i) => (

@@ -389,3 +389,24 @@ export function getPainelVerificacaoItems(tipoPainel) {
     incluirVerificacao: true,
   }).filter((item) => item.id.includes("-ver-"));
 }
+
+// ────────────────────────────────────────────────
+// Verificação por etapa (uso no modal pós-checklist)
+// ────────────────────────────────────────────────
+
+const ETAPA_PARA_SECAO = {
+  montagem: "montagemMecanica",
+  barramento: "barramento",
+  cabeamento: "cabeamento",
+};
+
+/**
+ * Retorna os itens de "verificacaoMontagem" de uma etapa específica
+ * (montagem | barramento | cabeamento).
+ */
+export function getPainelVerificacaoPorEtapa(tipoPainel, etapa) {
+  const tpl = painelTemplates[tipoPainel];
+  if (!tpl) return [];
+  const secao = tpl[ETAPA_PARA_SECAO[etapa]];
+  return secao?.verificacaoMontagem || [];
+}
