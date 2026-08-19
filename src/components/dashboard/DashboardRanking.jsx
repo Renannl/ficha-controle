@@ -7,7 +7,10 @@ export default function DashboardRanking({ fichas }) {
 
       <div className="dash-ranking">
         {fichas.slice(0, 8).map((f, i) => (
-          <div key={f.id} className="dash-rank-item">
+          <div
+            key={f.id ?? f.dbId ?? f.numeroInd ?? i}
+            className="dash-rank-item"
+          >
             <span className="dash-rank-pos">#{i + 1}</span>
 
             <div className="dash-rank-info">

@@ -9,6 +9,12 @@ import DashboardRecent from "./DashboardRecent";
 import DashboardProgress from "./DashboardProgress";
 import DashboardHeader from "./DashboardHeader";
 import DashboardEmpty from "./DashboardEmpty";
+import DashboardKpis from "./DashboardKpis";
+import DashboardTempo from "./DashboardTempo";
+import DashboardAprovacao from "./DashboardAprovacao";
+import DashboardProducaoMensal from "./DashboardProducaoMensal";
+import DashboardColaboradores from "./DashboardColaboradores";
+import DashboardClientes from "./DashboardClientes";
 import useFilteredFichas from "../../hooks/useFilteredFichas";
 import useRecentFinalized from "../../hooks/useRecentFInalized";
 
@@ -34,12 +40,13 @@ export default function Dashboard({ fichas, user, onApprove }) {
   } = metrics;
 
   const filteredFichas = useFilteredFichas(fichaProgress, searchTerm);
-
   const recentFinalized = useRecentFinalized(fichaProgress);
 
   return (
     <div className="dashboard animate-scaleIn">
       <DashboardHeader total={total} />
+
+      <DashboardKpis metrics={metrics} />
 
       <DashboardProgress
         pctGeral={pctGeral}
@@ -65,7 +72,18 @@ export default function Dashboard({ fichas, user, onApprove }) {
         />
       </div>
 
+      <div className="dash-grid-2">
+        <DashboardTempo metrics={metrics} />
+        <DashboardAprovacao metrics={metrics} />
+      </div>
+
       <DashboardTypeDistribution taf={taf} controle={controle} fotos={fotos} />
+
+      <DashboardProducaoMensal producaoMensal={metrics.producaoMensal} />
+
+      <DashboardColaboradores colaboradores={metrics.colaboradores} />
+
+      <DashboardClientes clientes={metrics.clientesRanking} />
 
       <DashboardRanking fichas={fichaProgress} />
 

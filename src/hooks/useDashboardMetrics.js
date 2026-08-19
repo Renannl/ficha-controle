@@ -52,7 +52,7 @@ export function useDashboardMetrics(fichas) {
       else if (["done", "approved"].includes(status)) concluidas++;
 
       fichaProgress.push({
-        id: f.id,
+        id: f.dbId ?? f.id,
         numeroInd: f.numeroInd || "—",
         nome: f.nomeEquipamento || "Sem nome",
         tipo: OPERACOES[f.operacao]?.nome || "—",

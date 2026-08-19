@@ -49,7 +49,7 @@ export default function DashboardTable({
             {fichas.length > 0 ? (
               fichas.map((f) => (
                 <DashboardTableRow
-                  key={f.id}
+                  key={f.id ?? f.dbId ?? f.numeroInd ?? f.nome}
                   ficha={f}
                   user={user}
                   onApprove={onApprove}

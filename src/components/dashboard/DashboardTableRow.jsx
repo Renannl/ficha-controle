@@ -1,6 +1,11 @@
 export default function DashboardTableRow({ ficha, user, onApprove }) {
+  const idCurto = String(ficha.id ?? ficha.dbId ?? "—").slice(0, 8);
+
   return (
-    <tr key={ficha.id} style={{ borderBottom: "1px solid var(--border)" }}>
+    <tr
+      key={ficha.id ?? ficha.dbId ?? ficha.numeroInd}
+      style={{ borderBottom: "1px solid var(--border)" }}
+    >
       <td
         style={{
           padding: "10px",
@@ -9,7 +14,7 @@ export default function DashboardTableRow({ ficha, user, onApprove }) {
           color: "var(--text-muted)",
         }}
       >
-        {ficha.id.slice(0, 8)}
+        {idCurto}
       </td>
       <td style={{ padding: "10px", fontWeight: 600 }}>{ficha.numeroInd}</td>
       <td style={{ padding: "10px" }}>{ficha.nome}</td>

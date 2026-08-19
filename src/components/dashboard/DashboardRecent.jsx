@@ -7,7 +7,7 @@ export default function DashboardRecent({ fichas }) {
 
       <div className="dash-recent">
         {fichas.map((f) => (
-          <div key={f.id} className="dash-recent-item">
+          <div key={f.id ?? f.dbId ?? f.nome} className="dash-recent-item">
             <div className="dash-recent-dot" />
 
             <div className="dash-recent-info">
