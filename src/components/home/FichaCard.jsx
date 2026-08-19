@@ -35,14 +35,11 @@ export default function FichaCard({
   const pct = getProgressPct(ficha);
   const operadores = ficha.operadores || [];
 
-  // 🆕 Função DENTRO do componente (pra ter acesso ao listaUsuarios)
   function getOperadorRole(op) {
-    if (op.role) return op.role;
-
     const doBanco = listaUsuarios?.find(
       (u) => u.id === op.id || u.username === op.username,
     );
-    return doBanco?.role || null;
+    return doBanco?.role || op.role || null;
   }
 
   function getCodigoTagClass(codigo) {
@@ -202,7 +199,7 @@ export default function FichaCard({
               }}
             >
               {operadores.map((op, idx) => {
-                const role = getOperadorRole(op); // 🆕
+                const role = getOperadorRole(op);
 
                 return (
                   <div
