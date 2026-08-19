@@ -98,6 +98,7 @@ export default function ChecklistTable({
   }
 
   let categoriaAnterior = null;
+  let contadorNumero = 0;
 
   return (
     <div className="checklist-wrap">
@@ -110,14 +111,17 @@ export default function ChecklistTable({
       />
 
       {ficha.items.map((item, index) => {
-        const template = checklistItems.find((c) => c.id === item.id);
-        const categoria = template?.categoria || null;
+        const templateOriginal = checklistItems.find((c) => c.id === item.id);
+        const categoria = templateOriginal?.categoria || null;
         const liberado = isItemLiberado(index);
 
-        // 🆕 Pula itens de verificação (serão mostrados no modal)
-        if (isPainel && template?.id?.includes("-ver-")) {
+        if (isPainel && templateOriginal?.id?.includes("-ver-")) {
           return null;
         }
+
+        contadorNumero += 1;
+
+        const template = { ...templateOriginal, numero: contadorNumero };
 
         const isPrimeiroDaMontagem =
           isPainel &&
@@ -167,6 +171,7 @@ export default function ChecklistTable({
               item={item}
               index={index}
               template={template}
+              numero={template.numero}
               isExpanded={!isTaf && !isPainel && expandedId === item.id}
               isTaf={isTaf}
               isPainel={isPainel}

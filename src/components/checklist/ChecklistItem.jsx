@@ -7,6 +7,7 @@ import { FileText, X } from "lucide-react";
 export default function ChecklistItem({
   item,
   index,
+  numero,
   template,
   isExpanded,
   isTaf,
@@ -56,7 +57,7 @@ export default function ChecklistItem({
         className="checklist-item-header"
         onClick={() => onToggleExpand(item.id)}
       >
-        <div className="checklist-item-number">{index + 1}</div>
+        <div className="checklist-item-number">{numero ?? index + 1}</div>
         <div className="checklist-item-desc">{template?.descricao}</div>
         <div className="checklist-item-status">
           <div className="resultado-btns">
