@@ -82,19 +82,6 @@ export default function BotaoSessaoTrabalho({
 
   return (
     <div className="sessao-trabalho-float">
-      {!rodando && etapa && (
-        <div
-          style={{
-            fontSize: 12,
-            color: bloqueado ? "var(--red, #e74c3c)" : "var(--text-secondary)",
-            marginBottom: 4,
-            fontWeight: 600,
-          }}
-        >
-          Etapa atual: {getEtapaLabel(etapa)}
-          {bloqueado && " — seu cargo não permite"}
-        </div>
-      )}
 
       <button
         onClick={rodando ? handlePause : handlePlay}

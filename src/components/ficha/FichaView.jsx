@@ -460,13 +460,30 @@ export default function FichaView({
     }
 
     if (!foto && f.items?.length > 0) {
-      const itensSemResultado = f.items.filter(
-        (item) => !item?.resultado || String(item.resultado).trim() === "",
-      );
+      const itensSemResultado = f.items.filter((item) => {
+        // 🆕 Pula itens de verificação — eles são validados em ficha.verificacoes
+        if (item.id?.includes("-ver-")) return false;
+        return !item?.resultado || String(item.resultado).trim() === "";
+      });
+
       if (itensSemResultado.length > 0) {
         faltando.push(
           `Checklist incompleto (${itensSemResultado.length} item(ns) sem resultado)`,
         );
+      }
+
+      if (isPainel && f.verificacoes) {
+        const etapasComVerificacao = ["montagem", "barramento", "cabeamento"];
+        for (const etapa of etapasComVerificacao) {
+          const resultados = f.verificacoes[etapa] || [];
+          if (resultados.length === 0) continue; // etapa sem verificação no template
+          const temPendente = resultados.some((v) => !v || v === "erro");
+          if (temPendente) {
+            faltando.push(
+              `Verificação de ${etapa === "montagem" ? "Montagem" : etapa === "barramento" ? "Barramento" : "Cabeamento"} pendente ou com erro`,
+            );
+          }
+        }
       }
     }
 
@@ -596,13 +613,32 @@ export default function FichaView({
     setRejectInfo(null);
   }
 
+  // 🆕 Helper: mapeia o prefixo do id do item de verificação pra etapa
+  function getEtapaDeItemId(id) {
+    const s = String(id || "");
+    if (s.startsWith("mm-")) return "montagem";
+    if (s.startsWith("bar-")) return "barramento";
+    if (s.startsWith("cab-")) return "cabeamento";
+    return null;
+  }
+
   function getProgress() {
     if (!ficha) return 0;
     const total = ficha.items?.length || 0;
-    const done =
-      ficha.items?.filter((i) => i.resultado === "ok" || i.resultado === "na")
-        .length || 0;
-    return total > 0 ? Math.round((done / total) * 100) : 0;
+    if (total === 0) return 0;
+
+    const done = ficha.items.reduce((acc, item) => {
+      // 🆕 Itens de verificação ficam em ficha.verificacoes, não em resultado
+      if (item.id?.includes("-ver-")) {
+        const etapa = getEtapaDeItemId(item.id);
+        const idx = parseInt(String(item.id).split("-").pop(), 10);
+        const v = ficha.verificacoes?.[etapa]?.[idx];
+        return v === "ok" || v === "na" ? acc + 1 : acc;
+      }
+      return item.resultado === "ok" || item.resultado === "na" ? acc + 1 : acc;
+    }, 0);
+
+    return Math.round((done / total) * 100);
   }
 
   // ─── Loading ───
@@ -656,7 +692,7 @@ export default function FichaView({
     : checklistItems;
 
   const etapaAtual = isPainel
-    ? getEtapaAtual(ficha?.items, activeChecklistItems)
+    ? getEtapaAtual(ficha?.items, activeChecklistItems, ficha?.verificacoes)
     : null;
 
   const tabs = isTaf

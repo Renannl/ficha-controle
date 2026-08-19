@@ -20,10 +20,25 @@ export default function ChecklistTable({
 }) {
   const [expandedId, setExpandedId] = useState(null);
 
+  // 🆕 Cálculo considera itens de sequência + verificações
   const totalItems = ficha.items.length;
-  const doneItems = ficha.items.filter(
-    (i) => i.resultado === "ok" || i.resultado === "na",
-  ).length;
+
+  const doneItems = ficha.items.reduce((acc, item, idx) => {
+    const template = checklistItems.find((c) => c.id === item.id);
+
+    // Item de verificação → busca em ficha.verificacoes
+    if (template?.id?.includes("-ver-")) {
+      const idxVer = parseInt(String(template.id).split("-").pop(), 10);
+      const v = ficha.verificacoes?.[template.etapa]?.[idxVer];
+      if (v === "ok" || v === "na") return acc + 1;
+      return acc;
+    }
+
+    // Item de sequência → busca em item.resultado
+    if (item.resultado === "ok" || item.resultado === "na") return acc + 1;
+    return acc;
+  }, 0);
+
   const pct = totalItems ? Math.round((doneItems / totalItems) * 100) : 0;
 
   useEffect(() => {
@@ -56,7 +71,16 @@ export default function ChecklistTable({
   function isItemLiberado(index) {
     if (index === 0) return true;
     const anterior = ficha.items[index - 1];
-    return anterior?.resultado === "ok" || anterior?.resultado === "na";
+    if (!anterior) return false;
+
+    const anteriorTemplate = checklistItems.find((c) => c.id === anterior.id);
+    if (anteriorTemplate?.id?.includes("-ver-")) {
+      const idxVer = parseInt(String(anteriorTemplate.id).split("-").pop(), 10);
+      const valorVer = ficha.verificacoes?.[anteriorTemplate.etapa]?.[idxVer];
+      return valorVer === "ok" || valorVer === "na";
+    }
+
+    return anterior.resultado === "ok" || anterior.resultado === "na";
   }
 
   function handleResultado(index, value, observacao) {
@@ -115,10 +139,13 @@ export default function ChecklistTable({
         // 🆕 Verifica se este é o último item da sequência (Validar todas as etapas anteriores)
         const isUltimoDaSequencia =
           isPainel &&
-          template?.descricao?.toLowerCase().includes("validar todas as etapas");
+          template?.descricao
+            ?.toLowerCase()
+            .includes("validar todas as etapas");
 
         // 🆕 Verifica se a sequência foi completada
-        const sequenciaCompletada = isUltimoDaSequencia && liberado && item.resultado;
+        const sequenciaCompletada =
+          isUltimoDaSequencia && liberado && item.resultado;
 
         return (
           <div key={item.id}>

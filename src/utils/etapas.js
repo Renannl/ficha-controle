@@ -26,12 +26,20 @@ export function getCargoLabel(cargo) {
 }
 
 // Etapa atual = primeira etapa (na ordem) com item pendente
-export function getEtapaAtual(items, checklistItems) {
+export function getEtapaAtual(items, checklistItems, verificacoes = {}) {
   for (const etapa of ETAPA_ORDER) {
     const itensDaEtapa = checklistItems.filter((ci) => ci.etapa === etapa);
     if (itensDaEtapa.length === 0) continue;
 
     const todosConcluidos = itensDaEtapa.every((ci) => {
+      // 🆕 Itens de verificação ficam em ficha.verificacoes[etapa], não em ficha.items
+      if (ci.id?.includes("-ver-")) {
+        const idx = parseInt(String(ci.id).split("-").pop(), 10);
+        const v = verificacoes?.[etapa]?.[idx];
+        return v === "ok" || v === "na";
+      }
+
+      // Itens da sequência continuam em ficha.items
       const itemData = (items || []).find((i) => i.id === ci.id);
       return itemData?.resultado === "ok" || itemData?.resultado === "na";
     });
