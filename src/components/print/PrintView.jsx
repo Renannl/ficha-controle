@@ -20,18 +20,19 @@ function getOperacao(operacoes, id) {
 }
 
 export default function PrintView({ ficha, isBook = false }) {
-  const { sessoes } = useSessoesTrabalho(ficha?.dbId);
+  // 🆕 Resolve o ID correto (dbId preferencial, fallback pra id)
+  const fichaId = ficha?.dbId ?? ficha?.id;
+
+  const { sessoes } = useSessoesTrabalho(fichaId);
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    if (!ficha?.dbId) return;
+    if (!fichaId) return;
     let cancelado = false;
 
     (async () => {
       try {
-        const response = await authFetch(
-          `/fichas/${ficha.dbId}/checklist-log`,
-        );
+        const response = await authFetch(`/fichas/${fichaId}/checklist-log`);
         if (!response || !response.ok) return;
         const data = await response.json();
         if (!cancelado) setLogs(Array.isArray(data) ? data : data.logs || []);
@@ -43,7 +44,7 @@ export default function PrintView({ ficha, isBook = false }) {
     return () => {
       cancelado = true;
     };
-  }, [ficha?.dbId]);
+  }, [fichaId]);
 
   const op = getOperacao(OPERACOES, ficha.operacao);
 
