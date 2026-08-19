@@ -62,7 +62,26 @@ export default function PrintViewOperacao({
 
   const totalDataCols = isPainel ? 2 : 17;
 
-  const grupos = agruparSessoesPorEtapaComFallback(sessoes, logs);
+  const gruposSessoes = agruparSessoesPorEtapaComFallback(sessoes, logs);
+
+  // ─── Colaboradores da ficha (fonte síncrona e sempre disponível) ───
+  const operadores = Array.isArray(ficha.operadores) ? ficha.operadores : [];
+
+  const gruposOperadores = (() => {
+    const map = {};
+    operadores.forEach((op) => {
+      const cargo = op.role || "equipe";
+      if (!map[cargo]) map[cargo] = { cargo, usuarios: [] };
+      const nome = (op.nome || op.username || "").trim();
+      if (nome && !map[cargo].usuarios.includes(nome)) {
+        map[cargo].usuarios.push(nome);
+      }
+    });
+    return Object.values(map);
+  })();
+
+  // Prioriza sessões (com etapa) se carregadas; senão usa os operadores
+  const grupos = gruposSessoes.length > 0 ? gruposSessoes : gruposOperadores;
 
   return (
     <div className={`print-view-root ${isBook ? "book-mode" : "print-only"}`}>
@@ -132,7 +151,11 @@ export default function PrintViewOperacao({
               {grupos.map((g, i) => (
                 <tr key={i}>
                   <td>
-                    <strong>{getEtapaLabel(g.etapa)}</strong>
+                    <strong>
+                      {g.etapa
+                        ? getEtapaLabel(g.etapa)
+                        : getCargoLabel(g.cargo) || g.cargo || "Equipe"}
+                    </strong>
                   </td>
                   <td>{g.usuarios.join(", ")}</td>
                 </tr>
