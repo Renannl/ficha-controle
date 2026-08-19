@@ -1,49 +1,59 @@
 import { useMemo } from "react";
-import { OPERACOES } from "../data/fichaTemplate";
-import { getFichaStatus, getProgressPct } from "../utils/fichaStatus";
+import { getFichaStatus } from "../utils/fichaStatus";
 
 export function useDashboardMetrics(fichas) {
   return useMemo(() => {
     const total = fichas.length;
 
     let concluidas = 0;
-    let reprovadas = 0;
     let emAndamento = 0;
     let novas = 0;
+    let reprovadas = 0;
 
     let totalItems = 0;
     let itemsOk = 0;
     let itemsNa = 0;
+    let itemsErro = 0;
+
     let totalFotos = 0;
 
+    let producao = 0;
     let taf = 0;
-    let controle = 0;
     let fotos = 0;
+    let qualidade = 0;
 
-    const fichaProgress = [];
+    let totalSegundos = 0;
+    let sessoesAtivas = 0;
+    let fichasParadas = 0;
+
+    let qtdAprovadas = 0;
+    let qtdReprovadas = 0;
+    let qtdAguardando = 0;
+    let qtdRevisao = 0;
+
+    const operadoresMap = {};
+    const clientesMap = {};
+    const producaoMensalMap = {};
+    const aguardandoAprovacao = [];
 
     fichas.forEach((f) => {
       const itemCount = f.items?.length || 0;
-
       totalItems += itemCount;
 
-      if (f.operacao === "50") taf++;
-      else if (f.operacao === "80") fotos++;
-      else controle++;
+      // ✅ Sempre compara como string (corrige o bug de tipo)
+      const op = String(f.operacao ?? "");
+      if (op === "50") taf++;
+      else if (op === "80") fotos++;
+      else if (op === "90") qualidade++;
+      else producao++;
 
       f.items?.forEach((item) => {
         if (item.foto) totalFotos++;
         if (item.resultado === "ok") itemsOk++;
-        if (item.resultado === "na") itemsNa++;
+        else if (item.resultado === "na") itemsNa++;
+        else if (item.resultado === "erro") itemsErro++;
       });
 
-      const done =
-        itemCount > 0
-          ? f.items.filter((i) => i.resultado === "ok" || i.resultado === "na")
-              .length
-          : 0;
-
-      const pct = getProgressPct(f);
       const status = getFichaStatus(f);
 
       if (status === "empty") novas++;
@@ -51,25 +61,70 @@ export function useDashboardMetrics(fichas) {
       else if (status === "rejected") reprovadas++;
       else if (["done", "approved"].includes(status)) concluidas++;
 
-      fichaProgress.push({
-        id: f.dbId ?? f.id,
-        numeroInd: f.numeroInd || "—",
-        nome: f.nomeEquipamento || "Sem nome",
-        tipo: OPERACOES[f.operacao]?.nome || "—",
-        pct,
-        done,
-        total: itemCount,
-        status,
-        statusAprovacao: f.statusAprovacao || null,
-        criadoEm: f.criadoEm,
-        finalizadaAt: f.finalizadaAt,
+      // ⏱️ Tempo
+      totalSegundos += Number(f.tempo_acumulado_segundos) || 0;
+      if (f.sessao_ativa) sessoesAtivas++;
+
+      // ⚠️ Ficha parada = em andamento mas ninguém trabalhando agora
+      if (status === "progress" && !f.sessao_ativa) fichasParadas++;
+
+      // 🛡️ Aprovação
+      const sa = f.statusAprovacao;
+      if (sa === "aprovado") qtdAprovadas++;
+      else if (sa === "reprovado") qtdReprovadas++;
+      else if (sa === "aguardando") {
+        qtdAguardando++;
+        aguardandoAprovacao.push({
+          id: f.dbId ?? f.id,
+          numeroInd: f.numeroInd || "—",
+          nome: f.nomeEquipamento || "Sem nome",
+          codigo: f.codigo || "—",
+        });
+      } else if (sa === "revisao") qtdRevisao++;
+
+      // 👥 Operadores (produtividade)
+      (f.operadores || []).forEach((opItem) => {
+        const key = opItem.username || opItem.id;
+        if (!key) return;
+        if (!operadoresMap[key]) {
+          operadoresMap[key] = {
+            nome: opItem.nome || key,
+            username: key,
+            role: opItem.role || null,
+            fichas: 0,
+          };
+        }
+        operadoresMap[key].fichas += 1;
       });
+
+      // 🏢 Clientes
+      const cliente = String(f.cliente || "").trim();
+      if (cliente) clientesMap[cliente] = (clientesMap[cliente] || 0) + 1;
+
+      // 📈 Produção mensal
+      if (f.created_at) {
+        const d = new Date(f.created_at);
+        if (!isNaN(d.getTime())) {
+          const mesKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          producaoMensalMap[mesKey] = (producaoMensalMap[mesKey] || 0) + 1;
+        }
+      }
     });
 
-    const pctGeral =
-      totalItems > 0 ? Math.round(((itemsOk + itemsNa) / totalItems) * 100) : 0;
+    const itemsPendentes = totalItems - itemsOk - itemsNa - itemsErro;
+    const pctGeral = totalItems > 0 ? Math.round(((itemsOk + itemsNa) / totalItems) * 100) : 0;
 
-    fichaProgress.sort((a, b) => b.pct - a.pct);
+    const colaboradores = Object.values(operadoresMap).sort((a, b) => b.fichas - a.fichas);
+    const clientesRanking = Object.entries(clientesMap)
+      .map(([nome, qtd]) => ({ nome, qtd }))
+      .sort((a, b) => b.qtd - a.qtd);
+    const producaoMensal = Object.entries(producaoMensalMap)
+      .map(([mes, qtd]) => ({ mes, qtd }))
+      .sort((a, b) => a.mes.localeCompare(b.mes));
+
+    const decididas = qtdAprovadas + qtdReprovadas;
+    const taxaAprovacao = decididas > 0 ? Math.round((qtdAprovadas / decididas) * 100) : 0;
+    const mediaTempoPorFicha = total > 0 ? Math.round(totalSegundos / total) : 0;
 
     return {
       total,
@@ -80,12 +135,28 @@ export function useDashboardMetrics(fichas) {
       totalItems,
       itemsOk,
       itemsNa,
+      itemsErro,
+      itemsPendentes,
       totalFotos,
+      producao,
       taf,
-      controle,
       fotos,
+      qualidade,
       pctGeral,
-      fichaProgress,
+      totalSegundos,
+      mediaTempoPorFicha,
+      sessoesAtivas,
+      fichasParadas,
+      qtdAprovadas,
+      qtdReprovadas,
+      qtdAguardando,
+      qtdRevisao,
+      taxaAprovacao,
+      colaboradores,
+      totalColaboradores: colaboradores.length,
+      clientesRanking,
+      producaoMensal,
+      aguardandoAprovacao,
     };
   }, [fichas]);
 }

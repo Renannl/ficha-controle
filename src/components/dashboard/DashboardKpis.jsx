@@ -11,9 +11,9 @@ export default function DashboardKpis({ metrics }) {
     { label: "Fichas", value: metrics.total, icon: "📋", color: "#3b82f6" },
     { label: "Em andamento", value: metrics.emAndamento, icon: "🕐", color: "#f59e0b" },
     { label: "Concluídas", value: metrics.concluidas, icon: "✅", color: "#22c55e" },
-    { label: "Colaboradores", value: metrics.totalColaboradores, icon: "👥", color: "#8b5cf6" },
-    { label: "Sessões ativas", value: metrics.sessoesAtivas, icon: "🔴", color: "#ef4444" },
-    { label: "Tempo total", value: formatarHoras(metrics.totalSegundos), icon: "⏱️", color: "#06b6d4" },
+    { label: "Taxa de aprovação", value: `${metrics.taxaAprovacao}%`, icon: "🎯", color: "#8b5cf6" },
+    { label: "Em atividade agora", value: metrics.sessoesAtivas, icon: "🔴", color: "#ef4444" },
+    { label: "Horas investidas", value: formatarHoras(metrics.totalSegundos), icon: "⏱️", color: "#06b6d4" },
   ];
 
   return (

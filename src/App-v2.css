@@ -7931,3 +7931,102 @@ svg {
   font-size: 12px;
   font-weight: 700;
 }
+
+/* ─── MÉTRICAS ─── */
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.dash-kpi {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-elevated, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-top: 3px solid var(--blue-accent, #3b82f6);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.dash-kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.dash-kpi-body { display: flex; flex-direction: column; }
+.dash-kpi-value { font-size: 20px; font-weight: 800; line-height: 1; }
+.dash-kpi-label { font-size: 11px; color: var(--text-secondary); }
+
+.dash-qualidade-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.dash-qualidade-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  border-radius: 8px;
+  background: var(--bg-base, #f8fafc);
+}
+.dash-qualidade-item strong { font-size: 18px; font-weight: 800; }
+.dash-qualidade-item span { font-size: 10px; color: var(--text-secondary); }
+
+.dash-aprovacao-rate { text-align: center; margin-bottom: 10px; }
+.dash-aprovacao-big { font-size: 30px; font-weight: 900; color: var(--green); }
+.dash-aprovacao-big-label { font-size: 12px; color: var(--text-secondary); }
+.dash-aprovacao-list { display: flex; flex-direction: column; gap: 8px; }
+.dash-aprovacao-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+.dash-aprovacao-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+
+.dash-workload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.dash-workload-item {
+  text-align: center;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--bg-base, #f8fafc);
+}
+.dash-workload-value { display: block; font-size: 22px; font-weight: 800; }
+.dash-workload-label { font-size: 11px; color: var(--text-secondary); }
+
+.dash-aprov-pendente-list { display: flex; flex-direction: column; gap: 8px; }
+.dash-aprov-pendente-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.dash-aprov-pendente-info { display: flex; flex-direction: column; min-width: 0; }
+.dash-aprov-pendente-nome { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-aprov-pendente-meta { font-size: 11px; color: var(--text-secondary); }
+.dash-aprov-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dash-aprov-btn.aprovar { background: var(--green); color: #fff; }
+.dash-aprov-btn.reprovar { background: var(--red); color: #fff; }
+
+.dash-type-producao { background: #3b82f6; }
+.dash-type-taf { background: var(--amber); }
+.dash-type-fotos { background: #8b5cf6; }
+.dash-type-qualidade { background: var(--green); }

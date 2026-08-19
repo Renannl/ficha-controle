@@ -254,6 +254,7 @@ export default function App() {
               listaUsuarios={usuarios}
               onOpen={handleOpen}
               onDelete={handleDelete}
+              onAtualizarFicha={atualizarFicha}
               onAtualizarOperadores={atualizarOperadores}
               user={user}
               onLogout={logout}

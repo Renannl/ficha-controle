@@ -30,6 +30,7 @@ export default function HomeScreen({
   onOpen,
   onDelete,
   onAtualizarOperadores,
+  onAtualizarFicha,
   user,
   onLogout,
   theme,
@@ -89,6 +90,27 @@ export default function HomeScreen({
   function handleDeleteColecao(e, id) {
     e?.stopPropagation?.();
     setDeleteColecaoId(id);
+  }
+
+  function handleApprove(fichaId, estado) {
+    if (!onAtualizarFicha) return;
+    const agora = new Date().toISOString();
+    const autor = user?.nome || user?.username;
+
+    if (estado === "aprovado") {
+      onAtualizarFicha(fichaId, {
+        statusAprovacao: "aprovado",
+        aprovadoPor: autor,
+        aprovadoEm: agora,
+      });
+    } else {
+      onAtualizarFicha(fichaId, {
+        statusAprovacao: "reprovado",
+        status: "andamento",
+        reprovadoPor: autor,
+        reprovadoEm: agora,
+      });
+    }
   }
 
   const confirmDeleteColecao = async () => {
@@ -284,6 +306,7 @@ export default function HomeScreen({
           showNewMenu={showNewMenu}
           mode={mode}
           colecoes={filteredColecoes}
+          onApprove={handleApprove}
           filteredFichas={filteredFichas}
           showSearch={showSearch}
           setShowSearch={setShowSearch}
