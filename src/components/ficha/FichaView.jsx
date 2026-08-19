@@ -15,7 +15,11 @@ import VerificacaoEtapaModal from "../buttons/VerificacaoEtapaModal";
 import ChecklistLogList from "../sessions/CheckListLogList";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import { useChecklistLog } from "../../hooks/useChecklistLog";
-import { getChecklistItems, buildPainelItems } from "../../data/fichaTemplate";
+import {
+  getChecklistItems,
+  buildPainelItems,
+  ensurePainelItemsComVerificacao,
+} from "../../data/fichaTemplate";
 import {
   getPainelChecklistItems,
   getPainelVerificacaoItems,
@@ -23,11 +27,7 @@ import {
 } from "../../data/painelTemplates";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import {
-  getEtapaAtual,
-  getEtapaLabel,
-  podeTrabalharNaEtapa,
-} from "../../utils/etapas";
+import { getEtapaAtual, podeTrabalharNaEtapa } from "../../utils/etapas";
 
 export default function FichaView({
   user,
@@ -53,7 +53,6 @@ export default function FichaView({
   const [rejectInfo, setRejectInfo] = useState(null);
   const [approveInfo, setApproveInfo] = useState(null);
   const [verificacaoEtapa, setVerificacaoEtapa] = useState(null);
-  const [verificacaoItemIndex, setVerificacaoItemIndex] = useState(null);
   const { registrarMarcacao } = useChecklistLog(ficha?.dbId);
   const sessaoIniciada = sessoes.some(
     (s) => !s.fim && s.usuario === user?.username,
@@ -89,6 +88,21 @@ export default function FichaView({
     );
     if (atualizada) setFicha(atualizada);
   }, [fichas, fichaId, ficha]);
+
+  // 🆕 Migração: garante que fichas de painel antigas tenham os itens de verificação
+  useEffect(() => {
+    if (!ficha || String(ficha.operacao) !== "10" || !ficha.tipoPainel) return;
+    if (!Array.isArray(ficha.items)) return;
+
+    const completos = ensurePainelItemsComVerificacao(
+      ficha.tipoPainel,
+      ficha.items,
+    );
+
+    if (completos !== ficha.items) {
+      atualizarFicha(fichaId, (prev) => ({ ...prev, items: completos }));
+    }
+  }, [ficha, fichaId, atualizarFicha]);
 
   // ─── Ajusta aba inicial quando a ficha carregar ───
   useEffect(() => {
@@ -219,101 +233,68 @@ export default function FichaView({
         etapa: template?.etapa,
         usuario: user?.nome || user?.username,
       });
-      if (template?.etapa)
-        verificarFimEtapa(template.etapa, novosItems, itemIndex); // 🆕
+      if (template?.etapa) verificarFimEtapa(template.etapa, novosItems);
     }
   }
 
-  // 🆕 Verifica se todos os itens de uma etapa foram preenchidos
-  function verificarFimEtapa(etapa, itemsAtuais, itemIndex = null) {
-    const itensDaEtapa = activeChecklistItems.filter(
-      (ci) => ci.etapa === etapa,
+  // 🆕 Verifica se todos os itens da SEQUÊNCIA (não verificação) foram preenchidos
+  function verificarFimEtapa(etapa, itemsAtuais) {
+    // Pega só os itens da sequência (não verificação)
+    const itensDaSequencia = activeChecklistItems.filter(
+      (ci) => ci.etapa === etapa && !ci.id.includes("-ver-"),
     );
-    if (itensDaEtapa.length === 0) return;
+    if (itensDaSequencia.length === 0) return;
 
-    const todosPreenchidos = itensDaEtapa.every((ci) => {
+    const todosPreenchidos = itensDaSequencia.every((ci) => {
       const itemData = itemsAtuais.find((i) => i.id === ci.id);
       return itemData?.resultado === "ok" || itemData?.resultado === "na";
     });
 
-    if (!todosPreenchidos) return;
-
-    console.log(`[FichaView] ✅ Etapa "${etapa}" concluída!`);
-
-    const itensVerificacao = getPainelVerificacaoPorEtapa(
-      ficha?.tipoPainel,
-      etapa,
-    );
-
-    if (itensVerificacao.length > 0) {
-      // 🆕 Abre o modal de verificação (sessão continua até salvar)
-      setVerificacaoEtapa(etapa);
-      setVerificacaoItemIndex(itemIndex);
-    } else {
+    if (todosPreenchidos) {
+      console.log(
+        `[FichaView] ✅ Etapa "${etapa}" concluída! Parando todos os cronômetros...`,
+      );
       sessoesTrabalho.pararTodasSessoes();
     }
   }
 
-  // 🆕 Salva o resultado da verificação da etapa na ficha
-  function handleSalvarVerificacao(resultados) {
+  function handleToggleVerificacao(idx, valor) {
     if (!verificacaoEtapa || !ficha?.tipoPainel) return;
+    if (user?.role !== "admin") return;
 
     const etapa = verificacaoEtapa;
-    const itensVerificacao = getPainelVerificacaoPorEtapa(
-      ficha.tipoPainel,
-      etapa,
-    );
+    const itens = getPainelVerificacaoPorEtapa(ficha.tipoPainel, etapa);
 
-    const resultadosArray = itensVerificacao.map(
-      (_, idx) => resultados[idx] || "",
-    );
+    const valorAtual = ficha?.verificacoes?.[etapa]?.[idx];
+    const vaiMarcar = valorAtual !== valor;
 
-    atualizarFicha(fichaId, (prev) => ({
-      ...prev,
-      verificacoes: {
-        ...(prev?.verificacoes || {}),
-        [etapa]: resultadosArray,
-      },
-    }));
+    atualizarFicha(fichaId, (prev) => {
+      const base = [...(prev?.verificacoes?.[etapa] || [])];
+      while (base.length < itens.length) base.push("");
+      base[idx] = vaiMarcar ? valor : "";
+      return {
+        ...prev,
+        verificacoes: {
+          ...(prev?.verificacoes || {}),
+          [etapa]: base,
+        },
+      };
+    });
 
-    // Registra cada marcação no log (aparece na aba Sessões)
-    itensVerificacao.forEach((desc, idx) => {
-      const valor = resultados[idx];
-      if (!valor) return;
+    if (vaiMarcar) {
+      // 🆕 Normaliza o valor para exibição no log
+      const valorNormalizado =
+        valor === "ok" ? "OK" : valor === "na" ? "N/A" : "ERRO";
+
       registrarMarcacao({
         itemId: `ver-${etapa}-${idx}`,
-        descricao: desc,
+        descricao: itens[idx] || `Verificação ${idx + 1}`,
         campo: "verificacao",
-        valor,
+        valor: valorNormalizado,
         etapa,
         usuario: user?.nome || user?.username,
       });
-    });
-
-    // 🆕 Só agora para os cronômetros (verificação concluída)
-    sessoesTrabalho.pararTodasSessoes();
-
-    setVerificacaoEtapa(null);
-    setVerificacaoItemIndex(null);
-  }
-
-  // 🆕 Cancela a verificação e desfaz o "Validar todas as etapas anteriores"
-  function handleCancelarVerificacao() {
-    if (verificacaoItemIndex != null && verificacaoEtapa) {
-      atualizarFicha(fichaId, (prev) => {
-        const items = [...(prev?.items ?? [])];
-        if (items[verificacaoItemIndex]) {
-          items[verificacaoItemIndex] = {
-            ...items[verificacaoItemIndex],
-            resultado: "",
-            observacao: "",
-          };
-        }
-        return { ...prev, items };
-      });
     }
-    setVerificacaoEtapa(null);
-    setVerificacaoItemIndex(null);
   }
 
   function updateItemResultado(itemIndex, resultado, observacao = "") {
@@ -344,8 +325,7 @@ export default function FichaView({
         etapa: template?.etapa,
         usuario: user?.nome || user?.username,
       });
-      if (template?.etapa)
-        verificarFimEtapa(template.etapa, novosItems, itemIndex); // 🆕
+      if (template?.etapa) verificarFimEtapa(template.etapa, novosItems);
     }
   }
 
@@ -424,7 +404,6 @@ export default function FichaView({
     atualizarFicha(fichaId, (prev) => ({ ...prev, operacao: novoCodigo }));
   }
 
-  // 🆕 Monta os testadores: todo mundo com tempo contando na ficha (> 0)
   function montarTestadores() {
     const nomes = [];
 
@@ -671,8 +650,9 @@ export default function FichaView({
       ? getPainelVerificacaoItems(ficha?.tipoPainel)
       : getChecklistItems(ficha?.operacao);
 
+  // 🆕 Painel inclui verificação no checklist (para o modal)
   const activeChecklistItems = isPainel
-    ? getPainelChecklistItems(ficha?.tipoPainel, { incluirVerificacao: false })
+    ? getPainelChecklistItems(ficha?.tipoPainel, { incluirVerificacao: true })
     : checklistItems;
 
   const etapaAtual = isPainel
@@ -744,6 +724,7 @@ export default function FichaView({
               readOnly={!sessaoIniciada}
               user={user}
               sessaoIniciada={sessaoIniciada}
+              onAbrirVerificacao={setVerificacaoEtapa}
             />
           )}
 
@@ -847,11 +828,12 @@ export default function FichaView({
             ? getPainelVerificacaoPorEtapa(ficha.tipoPainel, verificacaoEtapa)
             : []
         }
-        resultadosIniciais={
+        resultados={
           verificacaoEtapa ? ficha?.verificacoes?.[verificacaoEtapa] || [] : []
         }
-        onConfirm={handleSalvarVerificacao}
-        onCancel={handleCancelarVerificacao}
+        onToggle={handleToggleVerificacao}
+        onClose={() => setVerificacaoEtapa(null)}
+        isAdmin={user?.role === "admin"}
       />
     </>
   );

@@ -15,12 +15,14 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
   const [gruposAbertos, setGruposAbertos] = useState({}); // 🆕
 
   function formatarValor(campo, valor) {
-    if (campo === "resultado") {
-      if (valor === "ok") return "OK";
-      if (valor === "erro") return "ERRO";
-      return "N/A";
+    if (campo === "resultado" || campo === "verificacao") {
+      const v = String(valor || "").toLowerCase();
+      if (v === "ok") return "OK";
+      if (v === "na") return "N/A";
+      if (v === "erro") return "ERRO";
+      return valor || "N/A";
     }
-    return valor === "feito" ? "concluído" : "N/A";
+    return valor === "feito" ? "concluído" : valor || "N/A";
   }
 
   const mapaEtapas = useMemo(

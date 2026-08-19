@@ -1017,8 +1017,6 @@
   font-weight: 600;
 }
 
-
-
 /* PRO - Produção (azul, mantém o padrão atual) */
 .ficha-meta-code--pro {
   background: var(--blue-glow);
@@ -6420,14 +6418,22 @@ svg {
 }
 
 /* ── ÍCONES DE ARQUIVO (versão inline) ──────────── */
-.icone--pdf { color: #ef4444;
-border-radius: 5px; }
-.icone--img { color: #22c55e;
-border-radius: 5px; }
-.icone--xls { color: #16a34a;
-border-radius: 5px; }
-.icone--doc { color: #3b82f6;
-border-radius: 5px; }
+.icone--pdf {
+  color: #ef4444;
+  border-radius: 5px;
+}
+.icone--img {
+  color: #22c55e;
+  border-radius: 5px;
+}
+.icone--xls {
+  color: #16a34a;
+  border-radius: 5px;
+}
+.icone--doc {
+  color: #3b82f6;
+  border-radius: 5px;
+}
 
 /* ──────────────────────────────────────────────
    RESPONSIVO
@@ -7382,11 +7388,11 @@ border-radius: 5px; }
     min-width: 0;
   }
 
-    .arq-nome-text {
+  .arq-nome-text {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;  
-    min-width: 0;        
+    white-space: nowrap;
+    min-width: 0;
     text-align: center;
     display: block;
   }
@@ -7405,14 +7411,61 @@ border-radius: 5px; }
   }
 }
 
-/* ── Modal de Verificação por Etapa ── */
+/* ═══════════════════════════════════════════
+   BOTÃO "INICIAR VERIFICAÇÃO" (checklist)
+   ═══════════════════════════════════════════ */
+.verificacao-botao-container {
+  margin: 12px 0;
+  padding: 12px;
+  background: var(--bg-secondary, rgba(255, 255, 255, 0.04));
+  border: 1.5px dashed var(--accent, #2563eb);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+}
 
+.verificacao-botao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--accent, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.verificacao-botao:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.verificacao-icone {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+/* ═══════════════════════════════════════════
+   MODAL DE VERIFICAÇÃO POR ETAPA
+   ═══════════════════════════════════════════ */
 .verificacao-modal {
   width: min(760px, 95vw);
   max-height: 88vh;
-  background: #fff;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
   border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -7420,19 +7473,24 @@ border-radius: 5px; }
 
 .verificacao-modal-header {
   padding: 20px 24px 16px;
-  border-bottom: 1px solid #eef0f3;
+  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
 }
 
 .verificacao-modal-header h2 {
   margin: 0;
   font-size: 18px;
-  color: #1f2937;
+  color: var(--text-primary, #1f2937);
 }
 
 .verificacao-subtitle {
   margin: 4px 0 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-secondary, #6b7280);
+}
+
+.verificacao-aviso {
+  color: var(--red, #dc2626);
+  font-weight: 600;
 }
 
 .verificacao-modal-body {
@@ -7443,14 +7501,36 @@ border-radius: 5px; }
   gap: 10px;
 }
 
+/* Linha padrão */
 .verificacao-row {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  background: #f8fafc;
-  border: 1px solid #e5e9ef;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color, #e5e9ef);
   border-radius: 10px;
+  transition:
+    opacity 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+}
+
+/* Item já marcado */
+.verificacao-row--ok {
+  background: var(--verificacao-ok-bg, rgba(34, 197, 94, 0.08));
+  border-color: var(--verificacao-ok-border, rgba(34, 197, 94, 0.4));
+}
+
+/* Próximo item a marcar (destaque) */
+.verificacao-row--next {
+  border-color: var(--accent, #2563eb);
+  box-shadow: 0 0 0 1px var(--accent, #2563eb) inset;
+}
+
+/* Item travado (fora da ordem) */
+.verificacao-row--locked {
+  opacity: 0.55;
 }
 
 .verificacao-numero {
@@ -7461,17 +7541,22 @@ border-radius: 5px; }
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--bg-base, #e2e8f0);
+  color: var(--text-secondary, #475569);
   font-size: 12px;
   font-weight: 700;
+}
+
+.verificacao-row--ok .verificacao-numero {
+  background: var(--green, #16a34a);
+  color: #fff;
 }
 
 .verificacao-desc {
   flex: 1;
   font-size: 14px;
   line-height: 1.45;
-  color: #1f2937;
+  color: var(--text-primary, #1f2937);
 }
 
 .verificacao-actions {
@@ -7487,17 +7572,25 @@ border-radius: 5px; }
   align-items: center;
   gap: 5px;
   border-radius: 8px;
-  border: 1.5px solid #d1d5db;
-  background: #fff;
-  color: #374151;
+  border: 1.5px solid var(--border-color, #d1d5db);
+  background: var(--bg-card, #fff);
+  color: var(--text-primary, #374151);
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
-.verificacao-btn:hover {
-  border-color: #9ca3af;
+.verificacao-btn:hover:not(:disabled) {
+  border-color: var(--text-secondary, #9ca3af);
+}
+
+.verificacao-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .verificacao-btn.ok.ok-active {
@@ -7518,17 +7611,19 @@ border-radius: 5px; }
   color: #fff;
 }
 
+/* ── Rodapé ── */
 .verificacao-modal-footer {
   padding: 14px 24px;
-  border-top: 1px solid #eef0f3;
+  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.08));
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  background: #fafbfc;
+  background: var(--bg-base, #fafbfc);
 }
 
-.verificacao-cancel,
-.verificacao-save {
+.verificacao-voltar,
+.verificacao-concluir {
   height: 38px;
   padding: 0 18px;
   border-radius: 8px;
@@ -7536,33 +7631,40 @@ border-radius: 5px; }
   font-weight: 600;
   cursor: pointer;
   border: 1.5px solid transparent;
-  transition: background 0.15s, opacity 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition:
+    background 0.15s,
+    opacity 0.15s,
+    border-color 0.15s;
 }
 
-.verificacao-cancel {
-  background: #fff;
-  border-color: #d1d5db;
-  color: #374151;
+.verificacao-voltar {
+  background: transparent;
+  border-color: var(--border-color, #d1d5db);
+  color: var(--text-primary, #374151);
 }
 
-.verificacao-cancel:hover {
-  background: #f3f4f6;
+.verificacao-voltar:hover {
+  background: var(--hover-bg, rgba(0, 0, 0, 0.05));
 }
 
-.verificacao-save {
-  background: #2563eb;
+.verificacao-concluir {
+  background: var(--green, #16a34a);
   color: #fff;
 }
 
-.verificacao-save:hover {
-  background: #1d4ed8;
+.verificacao-concluir:hover:not(:disabled) {
+  background: #15803d;
 }
 
-.verificacao-save:disabled {
+.verificacao-concluir:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
+/* ── Responsivo ── */
 @media (max-width: 560px) {
   .verificacao-row {
     flex-wrap: wrap;
@@ -7571,5 +7673,39 @@ border-radius: 5px; }
     width: 100%;
     justify-content: flex-end;
   }
+  .verificacao-modal-footer {
+    flex-direction: column-reverse;
+  }
+  .verificacao-voltar,
+  .verificacao-concluir {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
+/* 🆕 Aviso de erro (trava o checklist) */
+.verificacao-alerta-erro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 24px 0;
+  padding: 10px 14px;
+  background: var(--red-bg, rgba(220, 38, 38, 0.12));
+  border: 1px solid var(--red, #dc2626);
+  border-radius: 8px;
+  color: var(--red, #dc2626);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* 🆕 Item com erro (destaque vermelho) */
+.verificacao-row--erro {
+  background: var(--red-bg, rgba(220, 38, 38, 0.08));
+  border-color: var(--red, #dc2626) !important;
+  box-shadow: 0 0 0 1px var(--red, #dc2626) inset;
+}
+
+.verificacao-row--erro .verificacao-numero {
+  background: var(--red, #dc2626);
+  color: #fff;
+}

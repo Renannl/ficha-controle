@@ -16,6 +16,7 @@ export default function ChecklistTable({
   onUpdateTaf,
   user,
   sessaoIniciada,
+  onAbrirVerificacao,
 }) {
   const [expandedId, setExpandedId] = useState(null);
 
@@ -25,7 +26,6 @@ export default function ChecklistTable({
   ).length;
   const pct = totalItems ? Math.round((doneItems / totalItems) * 100) : 0;
 
-  // 🔹 Data de Término automática (só TAF, quando todo o checklist concluir)
   useEffect(() => {
     if (!isTaf) return;
     if (tafData?.dataTermino) return;
@@ -48,7 +48,7 @@ export default function ChecklistTable({
 
   function podeEditarItem(item) {
     if (!sessaoIniciada) return false;
-    if (!isPainel) return true; // só painel tem restrição por cargo
+    if (!isPainel) return true;
     const template = checklistItems.find((c) => c.id === item.id);
     return podeTrabalharNaEtapa(user, template?.etapa);
   }
@@ -90,6 +90,11 @@ export default function ChecklistTable({
         const categoria = template?.categoria || null;
         const liberado = isItemLiberado(index);
 
+        // 🆕 Pula itens de verificação (serão mostrados no modal)
+        if (isPainel && template?.id?.includes("-ver-")) {
+          return null;
+        }
+
         const isPrimeiroDaMontagem =
           isPainel &&
           categoria?.startsWith("Sequência de Montagem") &&
@@ -106,6 +111,14 @@ export default function ChecklistTable({
           !categoriaAnterior?.startsWith("Cabeamento");
 
         categoriaAnterior = categoria;
+
+        // 🆕 Verifica se este é o último item da sequência (Validar todas as etapas anteriores)
+        const isUltimoDaSequencia =
+          isPainel &&
+          template?.descricao?.toLowerCase().includes("validar todas as etapas");
+
+        // 🆕 Verifica se a sequência foi completada
+        const sequenciaCompletada = isUltimoDaSequencia && liberado && item.resultado;
 
         return (
           <div key={item.id}>
@@ -136,6 +149,20 @@ export default function ChecklistTable({
               readOnly={!podeEditarItem(item) || !liberado}
               liberado={liberado}
             />
+
+            {/* 🆕 Botão para abrir verificação após "Validar todas as etapas anteriores" */}
+            {sequenciaCompletada && (
+              <div className="verificacao-botao-container">
+                <button
+                  type="button"
+                  className="verificacao-botao"
+                  onClick={() => onAbrirVerificacao?.(template.etapa)}
+                >
+                  <span className="verificacao-icone">✓</span>
+                  <span>Iniciar Verificação</span>
+                </button>
+              </div>
+            )}
           </div>
         );
       })}

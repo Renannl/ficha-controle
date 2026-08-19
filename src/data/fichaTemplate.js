@@ -7,7 +7,8 @@ import {
 } from "./painelTemplates";
 
 export function buildPainelItems(tipoPainel) {
-  return getPainelChecklistItems(tipoPainel, { incluirVerificacao: false }).map(
+  // 🔴 AQUI: troca { incluirVerificacao: false } por { incluirVerificacao: true }
+  return getPainelChecklistItems(tipoPainel, { incluirVerificacao: true }).map(
     (item) => ({
       id: item.id,
       descricao: item.descricao,
@@ -269,4 +270,40 @@ export function createEmptyFicha(
     reprovadoEm: "",
     finalizadaAt: null,
   };
+}
+
+/**
+ * Garante que uma ficha de painel já existente tenha os itens de verificação.
+ * Preserva resultados/observações já marcados e adiciona os que faltam.
+ */
+export function ensurePainelItemsComVerificacao(tipoPainel, itemsAtuais) {
+  if (!tipoPainel) return itemsAtuais;
+
+  const completos = getPainelChecklistItems(tipoPainel, {
+    incluirVerificacao: true,
+  });
+
+  const idsCompletos = completos.map((i) => i.id);
+  const idsAtuais = (itemsAtuais || []).map((i) => i.id);
+
+  // Já está completo → não mexe em nada (retorna a MESMA referência)
+  if (idsCompletos.every((id) => idsAtuais.includes(id))) {
+    return itemsAtuais;
+  }
+
+  // Reconstrói preservando o que já foi preenchido
+  const porId = {};
+  (itemsAtuais || []).forEach((i) => {
+    porId[i.id] = i;
+  });
+
+  return completos.map((t) => ({
+    id: t.id,
+    descricao: t.descricao,
+    categoria: t.categoria,
+    etapa: t.etapa,
+    sessionMarks: porId[t.id]?.sessionMarks || Array(15).fill(""),
+    resultado: porId[t.id]?.resultado || "",
+    observacao: porId[t.id]?.observacao || "",
+  }));
 }
