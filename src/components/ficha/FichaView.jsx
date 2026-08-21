@@ -28,6 +28,15 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { getEtapaAtual, podeTrabalharNaEtapa } from "../../utils/etapas";
+import {
+  Zap,
+  ListChecks,
+  Timer,
+  PenLine,
+  ClipboardList,
+  Camera,
+  StickyNote,
+} from "lucide-react";
 
 export default function FichaView({
   user,
@@ -697,23 +706,23 @@ export default function FichaView({
 
   const tabs = isTaf
     ? [
-        { id: "taf", icon: "⚡", label: "Testes" },
-        { id: "checklist", icon: "✅", label: "Funcionais e Visuais" },
-        { id: "sessions", icon: "🕐", label: "Sessões" },
-        { id: "signatures", icon: "✍️", label: "Assinaturas" },
+        { id: "taf", Icon: Zap, label: "Testes" },
+        { id: "checklist", Icon: ListChecks, label: "Funcionais e Visuais" },
+        { id: "sessions", Icon: Timer, label: "Sessões" },
+        { id: "signatures", Icon: PenLine, label: "Assinaturas" },
       ]
     : isFoto
       ? [
-          { id: "info", icon: "📋", label: "Dados" },
-          { id: "fotos", icon: "📸", label: "Fotos" },
-          { id: "notes", icon: "📝", label: "Notas" },
+          { id: "info", Icon: ClipboardList, label: "Dados" },
+          { id: "fotos", Icon: Camera, label: "Fotos" },
+          { id: "notes", Icon: StickyNote, label: "Notas" },
         ]
       : [
-          { id: "info", icon: "📋", label: "Dados" },
-          { id: "checklist", icon: "✅", label: "Checklist" },
-          { id: "sessions", icon: "🕐", label: "Sessões" },
-          { id: "notes", icon: "📝", label: "Notas" },
-          { id: "signatures", icon: "✍️", label: "Assinaturas" },
+          { id: "info", Icon: ClipboardList, label: "Dados" },
+          { id: "checklist", Icon: ListChecks, label: "Checklist" },
+          { id: "sessions", Icon: Timer, label: "Sessões" },
+          { id: "notes", Icon: StickyNote, label: "Notas" },
+          { id: "signatures", Icon: PenLine, label: "Assinaturas" },
         ];
 
   return (
@@ -809,14 +818,16 @@ export default function FichaView({
         </main>
 
         <nav className="tab-bar">
-          {tabs.map((tab) => (
+          {tabs.map(({ id, Icon, label }) => (
             <button
-              key={tab.id}
-              className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.id)}
+              key={id}
+              className={`tab-item ${activeTab === id ? "active" : ""}`}
+              onClick={() => setActiveTab(id)}
             >
-              <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
+              <span className="tab-icon">
+                <Icon size={18} />
+              </span>
+              <span className="tab-label">{label}</span>
             </button>
           ))}
         </nav>
