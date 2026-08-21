@@ -4815,10 +4815,18 @@ body {
 }
 
 .dash-section-h3 {
+  display: flex;
   font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 14px;
+  gap: 6px;
+  align-items: center;
+}
+
+.dash-section-h3 svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
 }
 
 .dash-section-header h3 {
@@ -7959,9 +7967,19 @@ svg {
   font-size: 20px;
   flex-shrink: 0;
 }
-.dash-kpi-body { display: flex; flex-direction: column; }
-.dash-kpi-value { font-size: 20px; font-weight: 800; line-height: 1; }
-.dash-kpi-label { font-size: 11px; color: var(--text-secondary); }
+.dash-kpi-body {
+  display: flex;
+  flex-direction: column;
+}
+.dash-kpi-value {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+.dash-kpi-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
 
 .dash-qualidade-grid {
   display: grid;
@@ -7977,15 +7995,46 @@ svg {
   border-radius: 8px;
   background: var(--bg-base, #f8fafc);
 }
-.dash-qualidade-item strong { font-size: 18px; font-weight: 800; }
-.dash-qualidade-item span { font-size: 10px; color: var(--text-secondary); }
+.dash-qualidade-item strong {
+  font-size: 18px;
+  font-weight: 800;
+}
+.dash-qualidade-item span {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
 
-.dash-aprovacao-rate { text-align: center; margin-bottom: 10px; }
-.dash-aprovacao-big { font-size: 30px; font-weight: 900; color: var(--green); }
-.dash-aprovacao-big-label { font-size: 12px; color: var(--text-secondary); }
-.dash-aprovacao-list { display: flex; flex-direction: column; gap: 8px; }
-.dash-aprovacao-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
-.dash-aprovacao-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+.dash-aprovacao-rate {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.dash-aprovacao-big {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--green);
+}
+.dash-aprovacao-big-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.dash-aprovacao-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dash-aprovacao-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.dash-aprovacao-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
 
 .dash-workload-grid {
   display: grid;
@@ -7998,10 +8047,21 @@ svg {
   border-radius: 10px;
   background: var(--bg-base, #f8fafc);
 }
-.dash-workload-value { display: block; font-size: 22px; font-weight: 800; }
-.dash-workload-label { font-size: 11px; color: var(--text-secondary); }
+.dash-workload-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+}
+.dash-workload-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
 
-.dash-aprov-pendente-list { display: flex; flex-direction: column; gap: 8px; }
+.dash-aprov-pendente-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .dash-aprov-pendente-item {
   display: flex;
   align-items: center;
@@ -8011,9 +8071,22 @@ svg {
   border: 1px solid var(--border);
   border-radius: 8px;
 }
-.dash-aprov-pendente-info { display: flex; flex-direction: column; min-width: 0; }
-.dash-aprov-pendente-nome { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dash-aprov-pendente-meta { font-size: 11px; color: var(--text-secondary); }
+.dash-aprov-pendente-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dash-aprov-pendente-nome {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dash-aprov-pendente-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
 .dash-aprov-btn {
   border: none;
   border-radius: 6px;
@@ -8023,10 +8096,24 @@ svg {
   cursor: pointer;
   white-space: nowrap;
 }
-.dash-aprov-btn.aprovar { background: var(--green); color: #fff; }
-.dash-aprov-btn.reprovar { background: var(--red); color: #fff; }
+.dash-aprov-btn.aprovar {
+  background: var(--green);
+  color: #fff;
+}
+.dash-aprov-btn.reprovar {
+  background: var(--red);
+  color: #fff;
+}
 
-.dash-type-producao { background: #3b82f6; }
-.dash-type-taf { background: var(--amber); }
-.dash-type-fotos { background: #8b5cf6; }
-.dash-type-qualidade { background: var(--green); }
+.dash-type-producao {
+  background: #3b82f6;
+}
+.dash-type-taf {
+  background: var(--amber);
+}
+.dash-type-fotos {
+  background: #8b5cf6;
+}
+.dash-type-qualidade {
+  background: var(--green);
+}

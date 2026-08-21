@@ -1,3 +1,5 @@
+import { Building2 } from "lucide-react";
+
 export default function DashboardClientes({ clientes }) {
   if (!clientes?.length) return null;
 
@@ -5,7 +7,10 @@ export default function DashboardClientes({ clientes }) {
 
   return (
     <div className="dash-section">
-      <h3 className="dash-section-h3">🏢 Fichas por Cliente</h3>
+      <h3 className="dash-section-h3">
+        <Building2 size={16} /> Fichas por Cliente
+      </h3>
+
       <div className="dash-cliente-list">
         {clientes.slice(0, 8).map((c) => (
           <div key={c.nome} className="dash-cliente-item">

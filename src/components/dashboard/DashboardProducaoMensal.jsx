@@ -1,3 +1,5 @@
+import { TrendingUp } from "lucide-react";
+
 const MESES = {
   "01": "Jan", "02": "Fev", "03": "Mar", "04": "Abr",
   "05": "Mai", "06": "Jun", "07": "Jul", "08": "Ago",
@@ -11,7 +13,10 @@ export default function DashboardProducaoMensal({ producaoMensal }) {
 
   return (
     <div className="dash-section">
-      <h3 className="dash-section-h3">📈 Produção Mensal</h3>
+      <h3 className="dash-section-h3">
+        <TrendingUp size={16} /> Produção Mensal
+      </h3>
+
       <div className="dash-prod-chart">
         {producaoMensal.map((p) => {
           const [ano, mes] = p.mes.split("-");

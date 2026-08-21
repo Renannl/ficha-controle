@@ -5,8 +5,6 @@ import DashboardProgress from "./DashboardProgress";
 import DashboardDonut from "./DashboardDonut";
 import DashboardQualidade from "./DashboardQualidade";
 import DashboardWorkload from "./DashboardWorkload";
-import DashboardAprovacoesPendentes from "./DashboardAprovacoesPendentes";
-import DashboardTypeDistribution from "./DashboardTypeDistribution";
 import DashboardProducaoMensal from "./DashboardProducaoMensal";
 import DashboardColaboradores from "./DashboardColaboradores";
 import DashboardClientes from "./DashboardClientes";
@@ -32,16 +30,6 @@ export default function Dashboard({ fichas, user, onApprove }) {
 
       {/* Gargalos e carga de trabalho */}
       <DashboardWorkload metrics={metrics} />
-
-      {/* Fichas aguardando aprovação (com ação) */}
-      <DashboardAprovacoesPendentes
-        fichas={metrics.aguardandoAprovacao}
-        user={user}
-        onApprove={onApprove}
-      />
-
-      {/* Mix de operação */}
-      <DashboardTypeDistribution metrics={metrics} />
 
       {/* Tendência de produção */}
       <DashboardProducaoMensal producaoMensal={metrics.producaoMensal} />

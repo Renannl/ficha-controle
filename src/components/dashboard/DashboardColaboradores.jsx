@@ -1,3 +1,4 @@
+import { Users } from "lucide-react";
 import { getRoleColor } from "../../utils/roleColors";
 
 export default function DashboardColaboradores({ colaboradores }) {
@@ -7,7 +8,10 @@ export default function DashboardColaboradores({ colaboradores }) {
 
   return (
     <div className="dash-section">
-      <h3 className="dash-section-h3">👥 Colaboradores mais ativos</h3>
+      <h3 className="dash-section-h3">
+        <Users size={16} /> Colaboradores mais ativos
+      </h3>
+
       <div className="dash-colab-list">
         {colaboradores.slice(0, 8).map((c, i) => (
           <div key={c.username} className="dash-colab-item">

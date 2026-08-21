@@ -1,10 +1,14 @@
+import { BarChart3 } from "lucide-react";
+
 export default function DashboardProgress({ metrics }) {
   const verificados = metrics.itemsOk + metrics.itemsNa;
 
   return (
     <div className="dash-section">
       <div className="dash-section-header">
-        <h3 className="dash-section-h3">Progresso Geral do Checklist</h3>
+        <h3 className="dash-section-h3">
+          <BarChart3 size={16} /> Progresso Geral do Checklist
+        </h3>
         <span className="dash-pct-badge">{metrics.pctGeral}%</span>
       </div>
       <div className="dash-progress-bar-lg">

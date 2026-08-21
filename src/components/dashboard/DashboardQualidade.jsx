@@ -1,10 +1,14 @@
+import { ShieldCheck } from "lucide-react";
+
 export default function DashboardQualidade({ metrics }) {
   const { itemsOk, itemsNa, itemsErro, itemsPendentes } = metrics;
   const { qtdAprovadas, qtdReprovadas, qtdAguardando, qtdRevisao, taxaAprovacao } = metrics;
 
   return (
     <div className="dash-section">
-      <h3 className="dash-section-h3">Qualidade & Aprovação</h3>
+      <h3 className="dash-section-h3">
+        <ShieldCheck size={16} /> Qualidade & Aprovação
+      </h3>
 
       <div className="dash-aprovacao-rate">
         <div className="dash-aprovacao-big">{taxaAprovacao}%</div>

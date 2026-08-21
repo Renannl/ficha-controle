@@ -1,3 +1,5 @@
+import { PieChart } from "lucide-react";
+
 export default function DashboardDonut({ metrics }) {
   const { total, concluidas, emAndamento, novas, reprovadas } = metrics;
 
@@ -17,7 +19,10 @@ export default function DashboardDonut({ metrics }) {
 
   return (
     <div className="dash-section">
-      <h3 className="dash-section-h3">Status das Fichas</h3>
+      <h3 className="dash-section-h3">
+        <PieChart size={16} /> Status das Fichas
+      </h3>
+
       <div className="dash-donut-wrap">
         <div className="dash-donut" style={{ background: conicGradient }}>
           <div className="dash-donut-hole">
@@ -26,6 +31,7 @@ export default function DashboardDonut({ metrics }) {
           </div>
         </div>
       </div>
+
       <div className="dash-donut-legend">
         <div className="dash-legend-item">
           <span className="dash-legend-dot" style={{ background: "var(--green)" }} />

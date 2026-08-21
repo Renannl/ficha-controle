@@ -1,3 +1,5 @@
+import { Gauge } from "lucide-react";
+
 function formatarHoras(segundos) {
   const s = Math.floor(Number(segundos) || 0);
   const h = Math.floor(s / 3600);
@@ -9,7 +11,10 @@ function formatarHoras(segundos) {
 export default function DashboardWorkload({ metrics }) {
   return (
     <div className="dash-section">
-      <h3 className="dash-section-h3">Carga de Trabalho & Gargalos</h3>
+      <h3 className="dash-section-h3">
+        <Gauge size={16} /> Carga de Trabalho & Gargalos
+      </h3>
+
       <div className="dash-workload-grid">
         <div className="dash-workload-item">
           <span className="dash-workload-value" style={{ color: "var(--amber)" }}>
