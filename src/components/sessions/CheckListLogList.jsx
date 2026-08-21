@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ClipboardList, Clock3 } from "lucide-react";
 import { useChecklistLog } from "../../hooks/useChecklistLog";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
 import {
@@ -12,7 +12,7 @@ import { getMapaEtapasPorItem, ETAPA_LABELS } from "../../utils/etapaUtils";
 export default function ChecklistLogList({ fichaId, tipoPainel }) {
   const { logs, loading } = useChecklistLog(fichaId);
   const { sessoes } = useSessoesTrabalho(fichaId);
-  const [gruposAbertos, setGruposAbertos] = useState({}); // 🆕
+  const [gruposAbertos, setGruposAbertos] = useState({});
 
   function formatarValor(campo, valor) {
     if (campo === "resultado" || campo === "verificacao") {
@@ -50,7 +50,6 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
     [logsComTempo],
   );
 
-  // 🆕 Agrupa por etapa (mantendo "sem etapa" como grupo próprio)
   const grupos = useMemo(() => {
     const map = {};
     logsExibicao.forEach((log) => {
@@ -62,7 +61,6 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
       if (log.duracao != null) map[chave].totalDuracao += log.duracao;
     });
 
-    // ordena grupos pela data mais recente do primeiro log de cada um
     return Object.values(map).sort((a, b) => {
       const dataA = new Date(a.logs[0]?.timestamp || 0);
       const dataB = new Date(b.logs[0]?.timestamp || 0);
@@ -70,11 +68,10 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
     });
   }, [logsExibicao]);
 
-  // 🆕 Abre o grupo mais recente por padrão
   useEffect(() => {
     if (!grupos.length) return;
     setGruposAbertos((prev) => {
-      if (Object.keys(prev).length > 0) return prev; // não sobrescreve escolha do usuário
+      if (Object.keys(prev).length > 0) return prev;
       return { [grupos[0].etapa]: true };
     });
   }, [grupos]);
@@ -83,13 +80,12 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
     setGruposAbertos((prev) => ({ ...prev, [etapa]: !prev[etapa] }));
   }
 
-  console.log("sessoes:", sessoes);
-  console.log("logsComTempo:", logsComTempo);
-
   return (
     <div className="card mb-3">
       <div className="section-header">
-        <div className="section-icon">📋</div>
+        <div className="section-icon">
+          <ClipboardList size={18} />
+        </div>
         <div>
           <h2>Histórico de Marcações</h2>
           <p>Cada item marcado no checklist, com data/hora e responsável</p>
@@ -101,7 +97,6 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
         <p className="sessoes-empty">Nenhuma marcação registrada ainda.</p>
       )}
 
-      {/* 🆕 Grupos por etapa, colapsáveis */}
       <div className="sessoes-grupos-list">
         {grupos.map((grupo) => {
           const aberto = !!gruposAbertos[grupo.etapa];
@@ -156,7 +151,11 @@ export default function ChecklistLogList({ fichaId, tipoPainel }) {
                         </span>
                         {log.duracao !== null && (
                           <span className="sessao-duracao sessao-duracao-tempo">
-                            ⏱ +{formatarTempo(log.duracao)} (total:{" "}
+                            <Clock3
+                              size={13}
+                              style={{ verticalAlign: "-2px" }}
+                            />{" "}
+                            +{formatarTempo(log.duracao)} (total:{" "}
                             {formatarTempo(log.tempoAcumulado)})
                           </span>
                         )}

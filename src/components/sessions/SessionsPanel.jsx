@@ -1,3 +1,4 @@
+import { Timer } from "lucide-react";
 import SessionRow from "./SessionRow";
 import { calcTotalMinutes } from "./sessionUtils";
 
@@ -11,7 +12,9 @@ export default function SessionsPanel({ sessions, onUpdate }) {
     <div className="sessions-panel">
       <div className="card mb-3">
         <div className="section-header">
-          <div className="section-icon">🕐</div>
+          <div className="section-icon">
+            <Timer size={18} />
+          </div>
 
           <div>
             <h2>Sessões de Trabalho</h2>

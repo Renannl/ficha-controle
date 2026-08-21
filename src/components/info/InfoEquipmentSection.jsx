@@ -1,3 +1,5 @@
+import { Cog } from "lucide-react";
+
 export default function InfoEquipmentSection({
   ficha,
   handle,
@@ -6,7 +8,9 @@ export default function InfoEquipmentSection({
   return (
     <div className="card mb-3">
       <div className="section-header">
-        <div className="section-icon">⚙️</div>
+        <div className="section-icon">
+          <Cog size={18} />
+        </div>
         <div>
           <h2>Dados do Equipamento</h2>
           <p>Identificação e localização</p>

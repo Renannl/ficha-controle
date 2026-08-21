@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Play, Pause } from "lucide-react";
 import { authFetch } from "../../services/apiClient";
 import { getEtapaLabel, podeTrabalharNaEtapa } from "../../utils/etapas";
 
@@ -44,7 +45,7 @@ export default function BotaoSessaoTrabalho({
       const res = await authFetch(`/fichas/${fichaId}/sessao/iniciar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ etapa }), // 🆕 envia a etapa
+        body: JSON.stringify({ etapa }),
       });
       if (!res) return;
       const data = await res.json();
@@ -72,7 +73,7 @@ export default function BotaoSessaoTrabalho({
         alert(data.error || "Erro ao pausar sessão.");
         return;
       }
-      await onChange?.(); // 🔑 recarrega a fonte única de verdade
+      await onChange?.();
     } finally {
       setLoading(false);
     }
@@ -82,14 +83,13 @@ export default function BotaoSessaoTrabalho({
 
   return (
     <div className="sessao-trabalho-float">
-
       <button
         onClick={rodando ? handlePause : handlePlay}
         disabled={loading || bloqueado}
         className={`sessao-trabalho-btn ${rodando ? "pausar" : "iniciar"}`}
         title={bloqueado ? "Seu cargo não permite iniciar nesta etapa" : ""}
       >
-        {rodando ? "⏸" : "▶"}
+        {rodando ? <Pause size={20} /> : <Play size={20} />}
       </button>
 
       {rodando && (

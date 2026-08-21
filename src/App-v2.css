@@ -8288,3 +8288,68 @@ svg {
 .tab-label {
   line-height: 1;
 }
+
+/* Seções do InfoCard com ícone */
+.section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.section-icon svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+/* Canvas de assinatura */
+.signature-canvas-wrap {
+  position: relative;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  background: var(--bg-base);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+.signature-canvas-wrap:hover {
+  border-color: var(--blue, #1565c0);
+}
+
+.signature-canvas {
+  display: block;
+  width: 100%;
+  height: 160px;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.signature-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+/* Preview da assinatura salva */
+.signature-preview {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 160px;
+  overflow: hidden;
+}
+
+.signature-preview img {
+  max-width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+}

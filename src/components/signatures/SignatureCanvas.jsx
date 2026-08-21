@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from "react";
+import { PenLine } from "lucide-react";
 
 export default function SignatureCanvas({ dataUrl, onSave, onClear }) {
   const canvasRef = useRef(null);
@@ -121,7 +122,10 @@ export default function SignatureCanvas({ dataUrl, onSave, onClear }) {
         />
 
         {!hasDrawn && (
-          <div className="signature-placeholder">Assine aqui ✍️</div>
+          <div className="signature-placeholder">
+            <PenLine size={16} />
+            Assine aqui
+          </div>
         )}
       </div>
 

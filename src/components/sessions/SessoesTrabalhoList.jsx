@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Pencil, ChevronDown, ChevronRight } from "lucide-react";
+import { Pencil, ChevronDown, ChevronRight, Timer } from "lucide-react";
 import EditarSessaoModal from "./EditarSessaoModal";
 import { formatarNomeUsuario } from "../../utils/tempoUtils";
 import { getEtapaLabel } from "../../utils/etapas";
@@ -116,7 +116,9 @@ export default function SessoesTrabalhoList({
     <div className="sessions-panel">
       <div className="card mb-3">
         <div className="section-header">
-          <div className="section-icon">🕐</div>
+          <div className="section-icon">
+            <Timer size={18} />
+          </div>
           <div>
             <h2>Sessões de Trabalho</h2>
             <p>Histórico automático de início e fim de cada sessão</p>

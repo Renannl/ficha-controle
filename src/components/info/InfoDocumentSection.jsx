@@ -1,8 +1,12 @@
+import { FileText } from "lucide-react";
+
 export default function InfoDocumentSection({ ficha, handle }) {
   return (
     <div className="card mb-3">
       <div className="section-header">
-        <div className="section-icon">📄</div>
+        <div className="section-icon">
+          <FileText size={18} />
+        </div>
         <div>
           <h2>Identificação do Documento</h2>
           <p>Código, folha e revisão</p>

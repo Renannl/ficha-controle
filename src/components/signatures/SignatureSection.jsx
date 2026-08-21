@@ -1,3 +1,4 @@
+import { PenLine } from "lucide-react";
 import SignatureBlock from "./SignatureBlock";
 import SignatureFinalize from "./SignatureFinalize";
 
@@ -32,7 +33,9 @@ export default function SignatureSection({
             marginBottom: 16,
           }}
         >
-          <div className="section-icon">✍️</div>
+          <div className="section-icon">
+            <PenLine size={18} />
+          </div>
 
           <div>
             <h2>Assinaturas</h2>

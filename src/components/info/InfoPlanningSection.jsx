@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { CalendarDays } from "lucide-react";
 import { OPERACOES, OPERACAO_KEYS } from "../../data/fichaTemplate";
 import { PAINEL_LABELS, PAINEL_KEYS } from "../../data/painelTemplates";
 import { formatarNomeUsuario } from "../../utils/tempoUtils";
@@ -21,7 +22,9 @@ export default function InfoPlanningSection({
   return (
     <div className="card mb-3">
       <div className="section-header">
-        <div className="section-icon">📅</div>
+        <div className="section-icon">
+          <CalendarDays size={18} />
+        </div>
         <div>
           <h2>Planejamento</h2>
           <p>Datas, recursos e equipe</p>
