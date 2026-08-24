@@ -28,6 +28,8 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { getEtapaAtual, podeTrabalharNaEtapa } from "../../utils/etapas";
+import QrCodeModal from "../qrcode/QrCodeModal";
+import { montarUrlPublica } from "../qrcode/QrCodeDocumentacao";
 import {
   Zap,
   ListChecks,
@@ -36,6 +38,7 @@ import {
   ClipboardList,
   Camera,
   StickyNote,
+  QrCode,
 } from "lucide-react";
 
 export default function FichaView({
@@ -53,6 +56,7 @@ export default function FichaView({
   const [activeTab, setActiveTab] = useState("info");
   const sessoesTrabalho = useSessoesTrabalho(ficha?.dbId);
   const { sessoes, loading: sessoesLoading, loadSessoes } = sessoesTrabalho;
+  const [qrOpen, setQrOpen] = useState(false);
 
   const [successModal, setSuccessModal] = useState({
     isOpen: false,
@@ -525,6 +529,14 @@ export default function FichaView({
     return faltando;
   }
 
+  function gerarTokenPublico() {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    // fallback
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
   async function handleFinalizar() {
     if (!ficha) return;
 
@@ -572,6 +584,7 @@ export default function FichaView({
       status: "finalizada",
       statusAprovacao: "aguardando",
       finalizadaAt: new Date().toISOString(),
+      tokenPublico: fichaEfetiva.tokenPublico || gerarTokenPublico(), // 🆕
     });
 
     setSuccessModal({
@@ -841,6 +854,23 @@ export default function FichaView({
           etapa={etapaAtual}
         />
       </div>
+
+      {ficha?.tokenPublico && (
+        <button
+          className="qr-code-float"
+          onClick={() => setQrOpen(true)}
+          title="QR Code para o painel"
+        >
+          <QrCode size={22} />
+        </button>
+      )}
+
+      <QrCodeModal
+        open={qrOpen}
+        url={montarUrlPublica(ficha?.tokenPublico)}
+        filename={`qr-code-${ficha?.numeroInd || ficha?.dbId || "painel"}.png`}
+        onClose={() => setQrOpen(false)}
+      />
 
       <ConfirmModal
         isOpen={successModal.isOpen}
