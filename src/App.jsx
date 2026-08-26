@@ -5,6 +5,7 @@ import LoginScreen from "./components/LoginScreen";
 import HomeScreen from "./components/home/HomeScreen";
 import AdminPanel from "./components/admin/AdminPanel";
 import FichaView from "./components/ficha/FichaView";
+import PainelPublicoView from "./components/publico/PainelPublicoView";
 import { useColecoes } from "./hooks/useColecoes";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import "./App-v2.css";
@@ -322,13 +323,16 @@ export default function App() {
           user?.role === "admin" ? (
             <AdminPanel
               onBack={() => navigate("/dashboard")}
-              onUserUpdated={handleUserUpdated} // 🆕
+              onUserUpdated={handleUserUpdated}
             />
           ) : (
             <Navigate to="/dashboard" />
           )
         }
       />
+
+      <Route path="/publico/painel/:token" element={<PainelPublicoView />} />
+
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );

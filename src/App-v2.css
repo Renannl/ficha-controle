@@ -8378,54 +8378,37 @@ svg {
   background: var(--blue, #1565c0);
 }
 
-/* Modal do QR */
-.qr-modal {
-  max-width: 360px;
+.publico-painel {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  color: #1a1a2e;
 }
-.qr-modal-title {
+.publico-header {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.qr-modal-body {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 12px;
-  text-align: center;
+  padding: 16px 0;
+  border-bottom: 2px solid #1a4b50;
 }
-.qr-code-preview {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+.publico-header h1 { font-size: 20px; margin: 0; }
+.publico-header p { font-size: 13px; color: #667; margin: 4px 0 0; }
+.publico-contagem { margin: 16px 0 8px; font-size: 14px; color: #444; }
+.publico-tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
+.publico-tabela th, .publico-tabela td {
+  padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee;
 }
-.qr-code-preview img {
-  width: 220px;
-  height: 220px;
-  display: block;
-  image-rendering: pixelated;
+.publico-nome { display: flex; align-items: center; gap: 8px; }
+.publico-acoes { display: flex; gap: 6px; }
+.publico-acoes button {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 10px; border: 1px solid #1a4b50; border-radius: 6px;
+  background: #1a4b50; color: #fff; cursor: pointer; font-size: 12px;
 }
-.qr-code-hint {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
+.publico-acoes button:disabled { opacity: 0.5; cursor: wait; }
+.publico-vazio, .publico-loading, .publico-erro {
+  text-align: center; padding: 40px 16px; color: #667;
 }
-.qr-code-url {
-  font-size: 11px;
-  color: var(--text-secondary);
-  word-break: break-all;
-  background: var(--bg-base);
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-.qr-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 24px;
-  color: var(--text-secondary);
-  font-size: 13px;
-}
+.publico-loading { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.publico-erro { color: #b00020; }
+.publico-footer { margin-top: 24px; text-align: center; font-size: 11px; color: #999; }

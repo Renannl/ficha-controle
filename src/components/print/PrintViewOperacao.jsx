@@ -1,4 +1,5 @@
 import PrintHeader from "./PrintHeader";
+import QrCodePrint from "../qrcode/QrCodePrint";
 import { OPERACOES, NOTA_DOCUMENTOS } from "../../data/fichaTemplate";
 import { getPainelChecklistItems } from "../../data/painelTemplates";
 import { getEtapaLabel, getCargoLabel } from "../../utils/etapas";
@@ -53,6 +54,12 @@ export default function PrintViewOperacao({
   sessoes = [],
   logs = [],
 }) {
+  console.log("[PrintViewOperacao] ficha:", {
+    id: ficha?.dbId ?? ficha?.id,
+    tokenPublico: ficha?.tokenPublico,
+    dados_tokenPublico: ficha?.dados?.tokenPublico,
+    status: ficha?.status,
+  });
   const op = OPERACOES[ficha.operacao];
   const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
 
@@ -352,6 +359,19 @@ export default function PrintViewOperacao({
                 <div className="sig-date">
                   Data: {ficha.assinaturas.qualidade.data || "__/__/____"}
                 </div>
+              </td>
+
+              {/* 🆕 QR Code — documentação do painel */}
+              <td
+                className="sig-box"
+                style={{
+                  width: "33.33%",
+                  padding: "5px",
+                  verticalAlign: "middle",
+                  textAlign: "center",
+                }}
+              >
+                <QrCodePrint ficha={ficha} />
               </td>
             </tr>
           </tbody>

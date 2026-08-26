@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 
-// Monta a URL pública que o QR vai apontar
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export function montarUrlPublica(token) {
-  return `${window.location.origin}/publico/ficha/${token}`;
+  return `${API_URL}/publico/ficha/${token}/pdf`;
 }
 
 // Hook: gera o data URL PNG do QR de forma assíncrona
