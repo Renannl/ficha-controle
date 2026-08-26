@@ -10,6 +10,7 @@ import {
   ShieldX,
   UserPlus,
   Trash,
+  QrCode,
 } from "lucide-react";
 
 import { FaFilePdf } from "react-icons/fa";
@@ -77,5 +78,10 @@ export const MANAGEMENT_PERMISSIONS = [
     key: "gerar_pdf",
     label: "Gerar PDF",
     icon: FaFilePdf,
+  },
+  {
+    key: "ver_qrcode",
+    label: "Visualizar QR Code",
+    icon: QrCode,
   },
 ];

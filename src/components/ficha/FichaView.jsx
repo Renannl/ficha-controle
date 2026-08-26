@@ -855,15 +855,17 @@ export default function FichaView({
         />
       </div>
 
-      {ficha?.tokenPublico && (
-        <button
-          className="qr-code-float"
-          onClick={() => setQrOpen(true)}
-          title="QR Code para o painel"
-        >
-          <QrCode size={22} />
-        </button>
-      )}
+      {ficha?.tokenPublico &&
+        (user?.role === "admin" ||
+          user?.permissoes?.includes("ver_qrcode")) && (
+          <button
+            className="qr-code-float"
+            onClick={() => setQrOpen(true)}
+            title="QR Code para o painel"
+          >
+            <QrCode size={22} />
+          </button>
+        )}
 
       <QrCodeModal
         open={qrOpen}

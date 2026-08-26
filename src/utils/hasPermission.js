@@ -22,3 +22,5 @@ export const canEditFicha = (user) => hasPermission(user, "editar_ficha");
 export const canDeleteFicha = (user) => hasPermission(user, "excluir_ficha");
 
 export const canGeneratePdf = (user) => hasPermission(user, "gerar_pdf");
+
+export const canViewQrCode = (user) => hasPermission(user, "ver_qrcode");

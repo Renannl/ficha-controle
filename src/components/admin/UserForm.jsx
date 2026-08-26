@@ -8,8 +8,6 @@ import {
 import { ROLES, ROLE_PRESETS } from "../../data/users";
 import PermissionGroup from "./PermissionGroup";
 
-import PermissionItem from "./PermissionItem";
-
 export default function UserForm({
   editingUser,
   nome,
