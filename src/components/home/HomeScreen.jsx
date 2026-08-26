@@ -36,7 +36,7 @@ export default function HomeScreen({
   theme,
   onToggleTheme,
   onOpenAdmin,
-  listaUsuarios = []
+  listaUsuarios = [],
 }) {
   // ── STATE ──────────────────────────────────────
   const [viewMode, setViewMode] = useLocalStorageState("homeViewMode", "list");
@@ -90,6 +90,10 @@ export default function HomeScreen({
   function handleDeleteColecao(e, id) {
     e?.stopPropagation?.();
     setDeleteColecaoId(id);
+  }
+
+  function getNumeroInd(ficha) {
+    return ficha?.numeroInd || null;
   }
 
   function handleApprove(fichaId, estado) {
@@ -177,7 +181,12 @@ export default function HomeScreen({
     if (!pendingExport) return;
     const raf = requestAnimationFrame(() => {
       requestAnimationFrame(async () => {
-        await generateBookPdf(pendingExport);
+        const prefixo = bookFichas[0]?.numeroInd
+          ? String(bookFichas[0].numeroInd).split("-")[0]
+          : "BOOK";
+        const filename = `Book_${prefixo}-xx.pdf`;
+
+        await generateBookPdf(pendingExport, "book-print-root", filename);
         setPendingExport(null);
       });
     });
@@ -220,9 +229,32 @@ export default function HomeScreen({
   };
 
   const toggleFichaSelection = (id) => {
-    setSelectedFichas((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+    setSelectedFichas((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((f) => f !== id);
+      }
+      const ficha = fichasDaColecao.find((f) => f.dbId === id);
+      if (ficha && !fichaPodeSerSelecionada(ficha)) {
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
+
+  const baseIndSelecionada = useMemo(() => {
+    if (selectedFichas.length === 0) return null;
+    const primeiraFicha = fichasDaColecao.find(
+      (f) => f.dbId === selectedFichas[0],
     );
+    const numeroInd = primeiraFicha?.numeroInd;
+    return numeroInd ? String(numeroInd).split("-")[1] : null;
+  }, [selectedFichas, fichasDaColecao]);
+
+  const fichaPodeSerSelecionada = (ficha) => {
+    if (!baseIndSelecionada) return true;
+    const numeroInd = ficha?.numeroInd;
+    const base = numeroInd ? String(numeroInd).split("-")[1] : null;
+    return base === baseIndSelecionada;
   };
 
   // 🆕 onOpen agora repassa o colecaoId (se estiver dentro de uma coleção)
@@ -308,6 +340,7 @@ export default function HomeScreen({
           colecoes={filteredColecoes}
           onApprove={handleApprove}
           filteredFichas={filteredFichas}
+          fichaPodeSerSelecionada={fichaPodeSerSelecionada}
           showSearch={showSearch}
           setShowSearch={setShowSearch}
           searchTerm={searchTerm}

@@ -63,6 +63,7 @@ export default function HomeList({
   toggleFichaSelection,
   onOpenColecao,
   onColecaoImportada,
+  fichaPodeSerSelecionada = () => true,
 }) {
   const [expandedColecaoId, setExpandedColecaoId] = useState(null);
 
@@ -290,6 +291,7 @@ export default function HomeList({
             onToggleOperador={onToggleOperador}
             podeGerenciarOperadores={podeGerenciarOperadores}
             activeDropdownFichaId={activeDropdownFichaId}
+            disabledParaPdf={!fichaPodeSerSelecionada(ficha)}
             setActiveDropdownFichaId={setActiveDropdownFichaId}
           />
         ))

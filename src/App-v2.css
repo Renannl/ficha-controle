@@ -8643,3 +8643,19 @@ svg {
   padding: 14px 20px;
   border-top: 1px solid var(--border, #e5e7eb);
 }
+
+.pdf-badge--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.pdf-badge--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.pdf-badge--disabled:hover {
+  opacity: 0.35; /* evita hover effect quando desabilitado */
+}

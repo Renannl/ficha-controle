@@ -116,7 +116,11 @@ function withOverlay(fn) {
   });
 }
 
-export async function generateBookPdf(fichaIds, elementId = "book-print-root") {
+export async function generateBookPdf(
+  fichaIds,
+  elementId = "book-print-root",
+  filename = "BOOK.pdf", // 🆕
+) {
   const el = document.getElementById(elementId);
   if (!el) return false;
   if (!fichaIds || fichaIds.length === 0) {
@@ -156,7 +160,7 @@ export async function generateBookPdf(fichaIds, elementId = "book-print-root") {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "BOOK.pdf";
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       setTimeout(() => {

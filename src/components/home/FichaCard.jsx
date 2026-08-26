@@ -30,6 +30,7 @@ export default function FichaCard({
   podeGerenciarOperadores,
   activeDropdownFichaId,
   setActiveDropdownFichaId,
+  disabledParaPdf = false,
 }) {
   const status = getFichaStatus(ficha);
   const pct = getProgressPct(ficha);
@@ -121,22 +122,29 @@ export default function FichaCard({
             {canGeneratePdf(user) && (
               <div className="pdf-selector">
                 <div
-                  className="pdf-badge"
+                  className={`pdf-badge ${disabledParaPdf ? "pdf-badge--disabled" : ""}`}
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (disabledParaPdf) return; // 🆕 bloqueia clique
                     onToggleSelection(ficha.dbId);
                   }}
+                  title={
+                    disabledParaPdf
+                      ? "Ficha de outro IND — não pode entrar neste Book"
+                      : ""
+                  }
                 >
                   <FaFilePdf className="pdf-icon" />
-
                   <span className="pdf-label">PDF</span>
                   <label className="ficha-checkbox">
                     <input
                       type="checkbox"
                       checked={selected}
-                      onChange={() => onToggleSelection(ficha.dbId)}
+                      disabled={disabledParaPdf}
+                      onChange={() =>
+                        !disabledParaPdf && onToggleSelection(ficha.dbId)
+                      }
                     />
-
                     <span
                       className="checkmark"
                       data-order={selected ? selectionOrder : ""}

@@ -33,6 +33,7 @@ export default function HomeContent({
   toggleFichaSelection,
   onOpenColecao,
   onColecaoImportada,
+  fichaPodeSerSelecionada,
 }) {
   const usuarios = Array.isArray(listaUsuarios) ? listaUsuarios : [];
 
@@ -97,6 +98,7 @@ export default function HomeContent({
       selectedFichas={selectedFichas}
       toggleFichaSelection={toggleFichaSelection}
       onOpenColecao={onOpenColecao}
+      fichaPodeSerSelecionada={fichaPodeSerSelecionada}
     />
   );
 }

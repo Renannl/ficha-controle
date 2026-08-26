@@ -54,12 +54,6 @@ export default function PrintViewOperacao({
   sessoes = [],
   logs = [],
 }) {
-  console.log("[PrintViewOperacao] ficha:", {
-    id: ficha?.dbId ?? ficha?.id,
-    tokenPublico: ficha?.tokenPublico,
-    dados_tokenPublico: ficha?.dados?.tokenPublico,
-    status: ficha?.status,
-  });
   const op = OPERACOES[ficha.operacao];
   const isPainel = String(ficha.operacao) === "10" && !!ficha.tipoPainel;
 
