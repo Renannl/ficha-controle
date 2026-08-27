@@ -871,6 +871,7 @@ export default function FichaView({
         open={qrOpen}
         url={montarUrlPublica(ficha?.tokenPublico)}
         filename={`qr-code-${ficha?.numeroInd || ficha?.dbId || "painel"}.png`}
+        fichaId={ficha?.dbId}
         onClose={() => setQrOpen(false)}
       />
 

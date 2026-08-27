@@ -181,10 +181,13 @@ export default function HomeScreen({
     if (!pendingExport) return;
     const raf = requestAnimationFrame(() => {
       requestAnimationFrame(async () => {
-        const prefixo = bookFichas[0]?.numeroInd
-          ? String(bookFichas[0].numeroInd).split("-")[0]
+        // Pega o IND completo (ex: "10066-01") em vez de só o número base
+        const numeroInd = bookFichas[0]?.numeroInd
+          ? String(bookFichas[0].numeroInd)
           : "BOOK";
-        const filename = `Book_${prefixo}-xx.pdf`;
+
+        // "Book IND10066-01.pdf" — sem o "xx"
+        const filename = `Book IND${numeroInd}.pdf`;
 
         await generateBookPdf(pendingExport, "book-print-root", filename);
         setPendingExport(null);

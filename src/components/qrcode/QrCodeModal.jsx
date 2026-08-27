@@ -1,7 +1,8 @@
 import { QrCode } from "lucide-react";
 import { useQrDataUrl, baixarQrCode } from "./QrCodeDocumentacao";
+import FichaPdfCliente from "./FichaPdfCliente";
 
-export default function QrCodeModal({ open, url, filename, onClose }) {
+export default function QrCodeModal({ open, url, filename, fichaId, onClose }) {
   const dataUrl = useQrDataUrl(url);
 
   if (!open) return null;
@@ -50,6 +51,17 @@ export default function QrCodeModal({ open, url, filename, onClose }) {
             Baixar PNG
           </button>
         </div>
+
+        {/* 🆕 Seletor de PDF do QR, embaixo do QR code */}
+        {fichaId && (
+          <div className="qr-pdf-section">
+            <div className="qr-pdf-section-titulo">PDF do QR Code</div>
+            <p className="qr-pdf-section-hint">
+              Escolha qual PDF o cliente verá ao escanear o QR desta ficha.
+            </p>
+            <FichaPdfCliente fichaId={fichaId} />
+          </div>
+        )}
       </div>
     </div>
   );

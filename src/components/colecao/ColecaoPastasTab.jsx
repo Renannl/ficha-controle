@@ -46,10 +46,9 @@ function formatarTamanho(bytes) {
 export default function ColecaoPastasTab({ colecaoId }) {
   const { arquivos, carregando, erro, carregar } =
     useArquivosColecao(colecaoId);
-  const [caminhoAtual, setCaminhoAtual] = useState([]); // ["1. Comercial", "1.1 - Proposta"]
+  const [caminhoAtual, setCaminhoAtual] = useState([]);
   const [processandoId, setProcessandoId] = useState(null);
 
-  // 📁 Constrói a árvore de pastas a partir dos arquivos
   const { pastas, arquivosNaPasta } = useMemo(() => {
     const pastaMap = new Map();
 
@@ -57,10 +56,9 @@ export default function ColecaoPastasTab({ colecaoId }) {
       const partes = a.caminho
         ? a.caminho.split("/").map((p) => corrigirAcentos(p.trim()))
         : [];
-      const nomeArquivo = partes.pop(); // último é o arquivo
+      const nomeArquivo = partes.pop();
       const caminhoPasta = partes;
 
-      // Garante todas as subpastas na árvore
       let caminhoAcumulado = [];
       caminhoPasta.forEach((parte, i) => {
         const chave = caminhoAcumulado.concat(parte).join(" / ");
