@@ -8,6 +8,7 @@ import FichaView from "./components/ficha/FichaView";
 import PainelPublicoView from "./components/publico/PainelPublicoView";
 import { useColecoes } from "./hooks/useColecoes";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import ModalAssinaturaObrigatoria from "./components/signatures/ModalAssinaturaObrigatoria";
 import "./App-v2.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -238,102 +239,105 @@ export default function App() {
     excluirFicha(id);
   }
 
-  // ─── ROTAS ───
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" />} />
-      <Route path="/login" element={<Navigate to="/dashboard" />} />
-      {/* Dashboard */}
-      <Route
-        path="/dashboard"
-        element={
-          <div className="app">
-            <HomeScreen
-              fichas={fichas}
-              onFichasAtualizadas={recarregarFichas}
-              onNova={handleNova}
-              listaUsuarios={usuarios}
-              onOpen={handleOpen}
-              onDelete={handleDelete}
-              onAtualizarFicha={atualizarFicha}
-              onAtualizarOperadores={atualizarOperadores}
+    <>
+      {user?.role === "barramento" && <ModalAssinaturaObrigatoria />}
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+
+        <Route path="/login" element={<Navigate to="/dashboard" />} />
+        {/* Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <div className="app">
+              <HomeScreen
+                fichas={fichas}
+                onFichasAtualizadas={recarregarFichas}
+                onNova={handleNova}
+                listaUsuarios={usuarios}
+                onOpen={handleOpen}
+                onDelete={handleDelete}
+                onAtualizarFicha={atualizarFicha}
+                onAtualizarOperadores={atualizarOperadores}
+                user={user}
+                onLogout={logout}
+                theme={theme}
+                onToggleTheme={toggleTheme}
+                onOpenAdmin={() => navigate("/admin")}
+              />
+            </div>
+          }
+        />
+
+        <Route
+          path="/colecao/:colecaoId"
+          element={
+            <div className="app">
+              <HomeScreen
+                fichas={fichas}
+                onFichasAtualizadas={recarregarFichas}
+                onNova={handleNova}
+                listaUsuarios={usuarios}
+                onOpen={handleOpen}
+                onDelete={handleDelete}
+                onAtualizarOperadores={atualizarOperadores}
+                user={user}
+                onLogout={logout}
+                theme={theme}
+                onToggleTheme={toggleTheme}
+                onOpenAdmin={() => navigate("/admin")}
+              />
+            </div>
+          }
+        />
+        {/* Ficha aberta pelo dashboard */}
+        <Route
+          path="/dashboard/ficha/:fichaId"
+          element={
+            <FichaView
               user={user}
-              onLogout={logout}
-              theme={theme}
-              onToggleTheme={toggleTheme}
-              onOpenAdmin={() => navigate("/admin")}
-            />
-          </div>
-        }
-      />
-
-      <Route
-        path="/colecao/:colecaoId"
-        element={
-          <div className="app">
-            <HomeScreen
               fichas={fichas}
-              onFichasAtualizadas={recarregarFichas}
-              onNova={handleNova}
-              listaUsuarios={usuarios}
-              onOpen={handleOpen}
-              onDelete={handleDelete}
-              onAtualizarOperadores={atualizarOperadores}
+              atualizarFicha={atualizarFicha}
+              getFicha={getFicha}
+              excluirFicha={excluirFicha}
+              origem="dashboard"
+            />
+          }
+        />
+
+        <Route
+          path="/colecao/:colecaoId/ficha/:fichaId"
+          element={
+            <FichaView
               user={user}
-              onLogout={logout}
-              theme={theme}
-              onToggleTheme={toggleTheme}
-              onOpenAdmin={() => navigate("/admin")}
+              fichas={fichas}
+              atualizarFicha={atualizarFicha}
+              getFicha={getFicha}
+              excluirFicha={excluirFicha}
+              origem="colecao"
             />
-          </div>
-        }
-      />
-      {/* Ficha aberta pelo dashboard */}
-      <Route
-        path="/dashboard/ficha/:fichaId"
-        element={
-          <FichaView
-            user={user}
-            fichas={fichas}
-            atualizarFicha={atualizarFicha}
-            getFicha={getFicha}
-            excluirFicha={excluirFicha}
-            origem="dashboard"
-          />
-        }
-      />
+          }
+        />
 
-      <Route
-        path="/colecao/:colecaoId/ficha/:fichaId"
-        element={
-          <FichaView
-            user={user}
-            fichas={fichas}
-            atualizarFicha={atualizarFicha}
-            getFicha={getFicha}
-            excluirFicha={excluirFicha}
-            origem="colecao"
-          />
-        }
-      />
+        <Route
+          path="/admin"
+          element={
+            user?.role === "admin" ? (
+              <AdminPanel
+                onBack={() => navigate("/dashboard")}
+                onUserUpdated={handleUserUpdated}
+              />
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
+        />
 
-      <Route
-        path="/admin"
-        element={
-          user?.role === "admin" ? (
-            <AdminPanel
-              onBack={() => navigate("/dashboard")}
-              onUserUpdated={handleUserUpdated}
-            />
-          ) : (
-            <Navigate to="/dashboard" />
-          )
-        }
-      />
+        <Route path="/publico/painel/:token" element={<PainelPublicoView />} />
 
-      <Route path="/publico/painel/:token" element={<PainelPublicoView />} />
-
-      <Route path="*" element={<Navigate to="/dashboard" />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
+    </>
   );
 }
