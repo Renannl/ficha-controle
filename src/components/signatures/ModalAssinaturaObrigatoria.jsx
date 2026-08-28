@@ -2,6 +2,16 @@ import { useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://192.168.101.60:3001";
 
+// ⚠️ ÚNICO lugar com o nome do líder (mantenha igual ao server.js)
+const LIDER_USERNAME = "renan.boni"; // ⚠️ depois troque para "heveraldo.silva
+const SETORES_TODOS = ["barramento", "montagem", "cabeamento"];
+
+const NOME_SETOR = {
+  barramento: "Barramento",
+  montagem: "Montagem (Estrutura)",
+  cabeamento: "Cabeamento",
+};
+
 function getRoleFromToken() {
   try {
     const token = localStorage.getItem("token");
@@ -26,13 +36,22 @@ function getUsernameFromToken() {
 
 export default function ModalAssinaturaObrigatoria() {
   const canvasRef = useRef(null);
-  const [evento, setEvento] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [assinando, setAssinando] = useState(false);
   const [erro, setErro] = useState("");
   const [documentoHtml, setDocumentoHtml] = useState("");
   const [concordou, setConcordou] = useState(false);
+
   const usuario = getUsernameFromToken();
+  const role = getRoleFromToken();
+  const ehLider = usuario === LIDER_USERNAME;
+
+  // Setores que este usuário precisa assinar
+  const setoresParaAssinar = ehLider ? SETORES_TODOS : [role];
+
+  const [setorAtivo, setSetorAtivo] = useState(null);
+  const [status, setStatus] = useState({}); // { setor: { evento, jaAssinou } }
+  const [assinados, setAssinados] = useState([]); // assinados nesta sessão
 
   function recortarAssinatura(canvas) {
     const ctx = canvas.getContext("2d");
@@ -47,7 +66,6 @@ export default function ModalAssinaturaObrigatoria() {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const red = pixels[(y * width + x) * 4];
-        // Só considera pixel "escuro" (a assinatura desenhada)
         if (red < 200) {
           if (x < minX) minX = x;
           if (x > maxX) maxX = x;
@@ -57,9 +75,8 @@ export default function ModalAssinaturaObrigatoria() {
       }
     }
 
-    if (maxX < 0) return null; // nada desenhado
+    if (maxX < 0) return null;
 
-    // Margem de respiro ao redor da assinatura
     const margem = 10;
     minX = Math.max(0, minX - margem);
     minY = Math.max(0, minY - margem);
@@ -79,34 +96,49 @@ export default function ModalAssinaturaObrigatoria() {
     return recortado;
   }
 
-  // ─── Busca status da APR da semana ───
+  // ─── Carrega o status de TODOS os setores ───
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    fetch(`${API_URL}/assinaturas/atual`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data.jaAssinou) setEvento(data.evento);
-        setCarregando(false);
-      })
-      .catch(() => setCarregando(false));
+    Promise.all(
+      setoresParaAssinar.map((setor) =>
+        fetch(`${API_URL}/assinaturas/atual?setor=${setor}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((r) => r.json())
+          .then((data) => ({ setor, ...data }))
+          .catch(() => ({ setor, erro: true })),
+      ),
+    ).then((resultados) => {
+      const novo = {};
+      resultados.forEach((r) => {
+        novo[r.setor] = r;
+      });
+      setStatus(novo);
+
+      const pendente = resultados.find((r) => !r.jaAssinou && r.evento);
+      setSetorAtivo(pendente ? pendente.setor : null);
+      setCarregando(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ─── Busca o documento (HTML) quando o evento carrega ───
+  const evento = setorAtivo ? status[setorAtivo]?.evento : null;
+
+  // ─── Busca o documento do setor ativo ───
   useEffect(() => {
-    if (!evento) return;
+    if (!evento || !setorAtivo) return;
     const token = localStorage.getItem("token");
 
-    fetch(`${API_URL}/assinaturas/documento`, {
+    setDocumentoHtml("");
+    fetch(`${API_URL}/assinaturas/documento?setor=${setorAtivo}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
       .then((data) => setDocumentoHtml(data.html || ""))
       .catch(() => setDocumentoHtml(""));
-  }, [evento]);
+  }, [evento, setorAtivo]);
 
   // ─── Canvas de assinatura ───
   useEffect(() => {
@@ -123,7 +155,6 @@ export default function ModalAssinaturaObrigatoria() {
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
 
-    // 🔑 Usa ref em vez de variável local (não é resetado entre cliques)
     const estado = { ultimo: null, desenhando: false };
 
     const getPos = (e) => {
@@ -174,8 +205,7 @@ export default function ModalAssinaturaObrigatoria() {
       canvas.removeEventListener("touchmove", mover);
       canvas.removeEventListener("touchend", parar);
     };
-    // 🔑 Só re-executa quando o evento muda (não quando desenhando muda)
-  }, [evento]);
+  }, [evento, setorAtivo]);
 
   const limpar = () => {
     const canvas = canvasRef.current;
@@ -191,8 +221,6 @@ export default function ModalAssinaturaObrigatoria() {
     }
 
     const canvas = canvasRef.current;
-
-    // 🔑 Recorta até a área desenhada (centraliza a assinatura)
     const recortado = recortarAssinatura(canvas);
     if (!recortado) {
       setErro("Desenhe sua assinatura antes de confirmar.");
@@ -220,7 +248,22 @@ export default function ModalAssinaturaObrigatoria() {
         throw new Error(err.error || "Erro ao assinar");
       }
 
-      window.location.reload();
+      const novosAssinados = [...assinados, setorAtivo];
+      setAssinados(novosAssinados);
+
+      const proximo = setoresParaAssinar.find(
+        (s) => !novosAssinados.includes(s) && !status[s]?.jaAssinou,
+      );
+
+      setConcordou(false);
+      limpar();
+      setAssinando(false);
+
+      if (proximo) {
+        setSetorAtivo(proximo);
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       setErro(err.message);
       setAssinando(false);
@@ -249,9 +292,10 @@ export default function ModalAssinaturaObrigatoria() {
     );
   }
 
-  if (!evento) return null; // já assinou → libera
+  if (!evento) return null; // nada pendente → libera
 
-  // ─── MODAL FULLSCREEN BLOQUEANTE ───
+  const setorJaAssinado = (s) => status[s]?.jaAssinou || assinados.includes(s);
+
   return (
     <div
       style={{
@@ -278,7 +322,7 @@ export default function ModalAssinaturaObrigatoria() {
           boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
         }}
       >
-        {/* Cabeçalho do modal */}
+        {/* Cabeçalho */}
         <div
           style={{
             background: "#1976d2",
@@ -296,15 +340,49 @@ export default function ModalAssinaturaObrigatoria() {
           </p>
         </div>
 
+        {/* Seletor de setores (só para o líder) */}
+        {ehLider && (
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              justifyContent: "center",
+              padding: "12px",
+              borderBottom: "1px solid #eee",
+              flexShrink: 0,
+            }}
+          >
+            {SETORES_TODOS.map((s) => (
+              <button
+                key={s}
+                onClick={() => {
+                  setSetorAtivo(s);
+                  setConcordou(false);
+                  limpar();
+                  setErro("");
+                }}
+                disabled={setorJaAssinado(s)}
+                style={{
+                  padding: "8px 16px",
+                  border: setorAtivo === s ? "none" : "1px solid #1976d2",
+                  background: setorAtivo === s ? "#1976d2" : "#fff",
+                  color: setorAtivo === s ? "#fff" : "#1976d2",
+                  borderRadius: "6px",
+                  cursor: setorJaAssinado(s) ? "not-allowed" : "pointer",
+                  opacity: setorJaAssinado(s) ? 0.5 : 1,
+                  fontWeight: setorAtivo === s ? "bold" : "normal",
+                }}
+              >
+                {setorJaAssinado(s) ? `✓ ${NOME_SETOR[s]}` : NOME_SETOR[s]}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Corpo rolável */}
         <div style={{ padding: "24px", overflowY: "auto" }}>
-          {/* 📄 DOCUMENTO DA APR */}
           <h3
-            style={{
-              margin: "0 0 10px",
-              fontSize: "15px",
-              color: "#1976d2",
-            }}
+            style={{ margin: "0 0 10px", fontSize: "15px", color: "#1976d2" }}
           >
             Leia o documento antes de assinar:
           </h3>
@@ -321,11 +399,7 @@ export default function ModalAssinaturaObrigatoria() {
               <iframe
                 srcDoc={documentoHtml}
                 title="Documento APR"
-                style={{
-                  width: "100%",
-                  height: "380px",
-                  border: "none",
-                }}
+                style={{ width: "100%", height: "380px", border: "none" }}
               />
             ) : (
               <p
@@ -341,7 +415,6 @@ export default function ModalAssinaturaObrigatoria() {
             )}
           </div>
 
-          {/* ✅ Checkbox de ciência */}
           <label
             style={{
               display: "flex",
@@ -353,7 +426,7 @@ export default function ModalAssinaturaObrigatoria() {
               cursor: "pointer",
             }}
           >
-            {usuario === "renan.boni" && (
+            {ehLider && (
               <p
                 style={{
                   color: "#1976d2",
@@ -380,7 +453,6 @@ export default function ModalAssinaturaObrigatoria() {
             </span>
           </label>
 
-          {/* ✍️ Canvas de assinatura */}
           <div
             style={{
               border: "2px dashed #1976d2",
@@ -416,7 +488,6 @@ export default function ModalAssinaturaObrigatoria() {
             </p>
           )}
 
-          {/* Botões */}
           <div
             style={{
               display: "flex",

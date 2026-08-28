@@ -12,6 +12,8 @@ import ModalAssinaturaObrigatoria from "./components/signatures/ModalAssinaturaO
 import "./App-v2.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const SECTOR_ROLES = ["barramento", "montagem", "cabeamento"];
+const LIDER_USERNAME = "renan.boni";
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth();
@@ -120,7 +122,9 @@ export default function App() {
       ),
     );
   }, []);
-
+  
+  const deveAssinarApr =
+    SECTOR_ROLES.includes(user?.role) || user?.username === LIDER_USERNAME;
   // ─── LOADING ───
   if (isLoading) {
     return (
@@ -241,7 +245,7 @@ export default function App() {
 
   return (
     <>
-      {user?.role === "barramento" && <ModalAssinaturaObrigatoria />}
+      {deveAssinarApr && <ModalAssinaturaObrigatoria />}
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" />} />
 
