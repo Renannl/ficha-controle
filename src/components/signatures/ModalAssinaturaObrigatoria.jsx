@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://192.168.101.60:3001";
 
-// ⚠️ ÚNICO lugar com o nome do líder (mantenha igual ao server.js)
-const LIDER_USERNAME = "renan.boni"; // ⚠️ depois troque para "heveraldo.silva
+const LIDER_USERNAME = "renan.boni"; // ⚠️ depois troque para "heveraldo.silva"
 const SETORES_TODOS = ["barramento", "montagem", "cabeamento"];
+
+// intervalo de re-checagem (detecta troca de cargo sem re-login)
+const INTERVALO_RECHECK = 15000; // 15 segundos
 
 const NOME_SETOR = {
   barramento: "Barramento",
@@ -41,17 +43,90 @@ export default function ModalAssinaturaObrigatoria() {
   const [erro, setErro] = useState("");
   const [documentoHtml, setDocumentoHtml] = useState("");
   const [concordou, setConcordou] = useState(false);
+  const [assinouAlgo, setAssinouAlgo] = useState(false);
 
   const usuario = getUsernameFromToken();
-  const role = getRoleFromToken();
   const ehLider = usuario === LIDER_USERNAME;
 
-  // Setores que este usuário precisa assinar
-  const setoresParaAssinar = ehLider ? SETORES_TODOS : [role];
+  // 🆕 role fresca (do /perfil, NÃO do token)
+  const [role, setRole] = useState(null);
+  const setoresParaAssinar = ehLider ? SETORES_TODOS : role ? [role] : [];
 
   const [setorAtivo, setSetorAtivo] = useState(null);
-  const [status, setStatus] = useState({}); // { setor: { evento, jaAssinou } }
-  const [assinados, setAssinados] = useState([]); // assinados nesta sessão
+  const [status, setStatus] = useState({});
+  const [assinados, setAssinados] = useState([]);
+
+  // refs pra não interromper a assinatura durante o polling
+  const assinandoRef = useRef(false);
+  const assinouAlgoRef = useRef(false);
+  useEffect(() => {
+    assinandoRef.current = assinando;
+  }, [assinando]);
+  useEffect(() => {
+    assinouAlgoRef.current = assinouAlgo;
+  }, [assinouAlgo]);
+
+  // ─── Carrega role fresca + status (e re-checa de tempos em tempos) ───
+  const carregarStatus = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // 1) Busca a role ATUALIZADA no banco (o token pode estar desatualizado)
+    let roleAtual = getRoleFromToken();
+    try {
+      const perfilRes = await fetch(`${API_URL}/perfil`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (perfilRes.ok) {
+        const perfilData = await perfilRes.json();
+        roleAtual = perfilData.user?.role || roleAtual;
+      }
+    } catch {
+      /* mantém a role do token como fallback */
+    }
+    setRole(roleAtual);
+
+    const setores = ehLider ? SETORES_TODOS : [roleAtual];
+
+    const resultados = await Promise.all(
+      setores.map((setor) =>
+        fetch(`${API_URL}/assinaturas/atual?setor=${setor}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((r) => r.json())
+          .then((data) => ({ setor, ...data }))
+          .catch(() => ({ setor, erro: true })),
+      ),
+    );
+
+    const novo = {};
+    resultados.forEach((r) => {
+      novo[r.setor] = r;
+    });
+    setStatus(novo);
+
+    // Só troca o setor sozinho se NÃO estiver assinando/desenhando
+    if (!assinandoRef.current && !assinouAlgoRef.current) {
+      const pendente = resultados.find((r) => !r.jaAssinou && r.evento);
+      setSetorAtivo(pendente ? pendente.setor : null);
+    }
+
+    setCarregando(false);
+  }, [ehLider]);
+
+  // monta + polling + re-check ao voltar pra aba
+  useEffect(() => {
+    carregarStatus();
+    const interval = setInterval(carregarStatus, INTERVALO_RECHECK);
+    const aoFocar = () => carregarStatus();
+    window.addEventListener("focus", aoFocar);
+    document.addEventListener("visibilitychange", aoFocar);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", aoFocar);
+      document.removeEventListener("visibilitychange", aoFocar);
+    };
+  }, [carregarStatus]);
 
   function recortarAssinatura(canvas) {
     const ctx = canvas.getContext("2d");
@@ -96,34 +171,6 @@ export default function ModalAssinaturaObrigatoria() {
     return recortado;
   }
 
-  // ─── Carrega o status de TODOS os setores ───
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    Promise.all(
-      setoresParaAssinar.map((setor) =>
-        fetch(`${API_URL}/assinaturas/atual?setor=${setor}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((r) => r.json())
-          .then((data) => ({ setor, ...data }))
-          .catch(() => ({ setor, erro: true })),
-      ),
-    ).then((resultados) => {
-      const novo = {};
-      resultados.forEach((r) => {
-        novo[r.setor] = r;
-      });
-      setStatus(novo);
-
-      const pendente = resultados.find((r) => !r.jaAssinou && r.evento);
-      setSetorAtivo(pendente ? pendente.setor : null);
-      setCarregando(false);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const evento = setorAtivo ? status[setorAtivo]?.evento : null;
 
   // ─── Busca o documento do setor ativo ───
@@ -138,7 +185,7 @@ export default function ModalAssinaturaObrigatoria() {
       .then((r) => r.json())
       .then((data) => setDocumentoHtml(data.html || ""))
       .catch(() => setDocumentoHtml(""));
-  }, [evento, setorAtivo]);
+  }, [setorAtivo]);
 
   // ─── Canvas de assinatura ───
   useEffect(() => {
@@ -182,6 +229,7 @@ export default function ModalAssinaturaObrigatoria() {
       ctx.lineTo(p.x, p.y);
       ctx.stroke();
       estado.ultimo = p;
+      setAssinouAlgo(true);
     };
 
     const parar = () => {
@@ -205,13 +253,14 @@ export default function ModalAssinaturaObrigatoria() {
       canvas.removeEventListener("touchmove", mover);
       canvas.removeEventListener("touchend", parar);
     };
-  }, [evento, setorAtivo]);
+  }, [evento?.id, setorAtivo]);
 
   const limpar = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setAssinouAlgo(false);
   };
 
   const confirmar = async () => {
@@ -311,7 +360,7 @@ export default function ModalAssinaturaObrigatoria() {
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card, #fff)",
           borderRadius: "12px",
           maxWidth: "820px",
           width: "100%",
@@ -333,7 +382,7 @@ export default function ModalAssinaturaObrigatoria() {
           }}
         >
           <h2 style={{ margin: 0, fontSize: "20px" }}>
-            📋 APR Semanal Obrigatória
+            APR Semanal Obrigatória
           </h2>
           <p style={{ margin: "6px 0 0", fontSize: "13px", opacity: 0.95 }}>
             {evento.titulo}
@@ -348,7 +397,7 @@ export default function ModalAssinaturaObrigatoria() {
               gap: "8px",
               justifyContent: "center",
               padding: "12px",
-              borderBottom: "1px solid #eee",
+              borderBottom: "1px solid var(--border, #eee)",
               flexShrink: 0,
             }}
           >
@@ -373,7 +422,7 @@ export default function ModalAssinaturaObrigatoria() {
                   fontWeight: setorAtivo === s ? "bold" : "normal",
                 }}
               >
-                {setorJaAssinado(s) ? `✓ ${NOME_SETOR[s]}` : NOME_SETOR[s]}
+                {setorJaAssinado(s) ? `${NOME_SETOR[s]}` : NOME_SETOR[s]}
               </button>
             ))}
           </div>
@@ -389,7 +438,7 @@ export default function ModalAssinaturaObrigatoria() {
 
           <div
             style={{
-              border: "1px solid #ccc",
+              border: "1px solid var(--border, #ccc)",
               borderRadius: "8px",
               overflow: "hidden",
               background: "#fff",
@@ -422,24 +471,10 @@ export default function ModalAssinaturaObrigatoria() {
               gap: "8px",
               marginTop: "16px",
               fontSize: "13px",
-              color: "#333",
+              color: "var(--text-primary, #333)",
               cursor: "pointer",
             }}
           >
-            {ehLider && (
-              <p
-                style={{
-                  color: "#1976d2",
-                  fontSize: "13px",
-                  fontWeight: "bold",
-                  margin: "12px 0 0",
-                }}
-              >
-                👑 Você é o <strong>Responsável pela atividade (Líder)</strong>.
-                Sua assinatura será registrada no campo do responsável.
-              </p>
-            )}
-
             <input
               type="checkbox"
               checked={concordou}
@@ -453,38 +488,48 @@ export default function ModalAssinaturaObrigatoria() {
             </span>
           </label>
 
-          <div
-            style={{
-              border: "2px dashed #1976d2",
-              borderRadius: "8px",
-              padding: "8px",
-              background: "#fafafa",
-              textAlign: "center",
-              marginTop: "16px",
-            }}
-          >
-            <canvas
-              ref={canvasRef}
+          {ehLider && (
+            <p
               style={{
-                width: "100%",
-                height: "200px",
-                cursor: "crosshair",
-                borderRadius: "4px",
-                touchAction: "none",
+                color: "#1976d2",
+                fontSize: "13px",
+                fontWeight: "bold",
+                margin: "12px 0 0",
               }}
-            />
-            <small
-              style={{ color: "#666", display: "block", marginTop: "4px" }}
             >
-              Assine com o mouse ou com o dedo (touch)
-            </small>
+              Você é o <strong>Responsável pela atividade (Líder)</strong>. Sua
+              assinatura será registrada no campo do responsável.
+            </p>
+          )}
+
+          {/* ─── Canvas de assinatura (estilo do app) ─── */}
+          <div style={{ marginTop: "16px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "13px",
+                fontWeight: 600,
+                color: "var(--text-primary, #333)",
+                marginBottom: "8px",
+              }}
+            >
+              Sua assinatura:
+            </label>
+            <div className="signature-canvas-wrap">
+              <canvas ref={canvasRef} className="signature-canvas" />
+              {!assinouAlgo && (
+                <div className="signature-placeholder">
+                  <span>Assine aqui com o mouse ou dedo</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {erro && (
             <p
               style={{ color: "#d32f2f", marginTop: "10px", fontSize: "13px" }}
             >
-              ⚠️ {erro}
+              {erro}
             </p>
           )}
 
@@ -499,16 +544,10 @@ export default function ModalAssinaturaObrigatoria() {
             <button
               onClick={limpar}
               disabled={assinando}
-              style={{
-                padding: "10px 20px",
-                border: "1px solid #ccc",
-                background: "#fff",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "14px",
-              }}
+              className="btn-ghost"
+              style={{ padding: "10px 20px", fontSize: "14px" }}
             >
-              🗑️ Limpar
+              Limpar
             </button>
             <button
               onClick={confirmar}
@@ -518,13 +557,14 @@ export default function ModalAssinaturaObrigatoria() {
                 border: "none",
                 background: assinando || !concordou ? "#999" : "#2e7d32",
                 color: "#fff",
-                borderRadius: "6px",
+                borderRadius: "8px",
                 cursor: assinando || !concordou ? "not-allowed" : "pointer",
                 fontSize: "14px",
                 fontWeight: "bold",
+                transition: "all 0.15s ease",
               }}
             >
-              {assinando ? "Enviando..." : "✓ Confirmar Assinatura"}
+              {assinando ? "Enviando..." : "Confirmar Assinatura"}
             </button>
           </div>
         </div>
