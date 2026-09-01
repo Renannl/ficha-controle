@@ -17,7 +17,7 @@ export default function InfoDocumentSection({ ficha, handle }) {
         <div className="field">
           <label>Código</label>
           <input
-            disabled
+            readOnly
             value={ficha.codigo}
             onChange={handle("codigo")}
             placeholder="PRO-001"
@@ -27,6 +27,7 @@ export default function InfoDocumentSection({ ficha, handle }) {
         <div className="field">
           <label>Nº do Ind.</label>
           <input
+            readOnly
             value={ficha.numeroInd}
             onChange={handle("numeroInd")}
             placeholder="10110-01"
@@ -36,6 +37,7 @@ export default function InfoDocumentSection({ ficha, handle }) {
         <div className="field">
           <label>Revisão</label>
           <input
+            readOnly
             value={ficha.revisao}
             onChange={handle("revisao")}
             placeholder="01"

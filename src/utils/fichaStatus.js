@@ -1,23 +1,81 @@
+import {
+  getPainelChecklistItems,
+  getPainelVerificacaoItems,
+} from "../data/painelTemplates";
+
+function isItemRespondido(item) {
+  const r = String(item?.resultado ?? "").toLowerCase();
+  return ["ok", "na", "erro"].includes(r);
+}
+
+// Retorna a lista COMPLETA de itens esperada para a ficha,
+// de acordo com o template (não o que está salvo em ficha.items).
+function getTemplateItems(ficha) {
+  const op = String(ficha.operacao ?? "");
+  const tipoPainel = ficha.tipoPainel || ficha.dados?.tipoPainel;
+
+  if (!tipoPainel) return null;
+
+  if (op === "50") {
+    // TAF: usa apenas os itens de verificação
+    return getPainelVerificacaoItems(tipoPainel);
+  }
+
+  if (op === "10") {
+    // Produção (painel): usa apenas a sequência de montagem
+    return getPainelChecklistItems(tipoPainel, { incluirVerificacao: false });
+  }
+
+  return null;
+}
+
+function getChecklistProgress(ficha) {
+  const templateItems = getTemplateItems(ficha);
+  const itensSalvos = ficha.items || [];
+
+  if (templateItems) {
+    const resultados = new Map(
+      itensSalvos.map((item) => [item.id, item.resultado]),
+    );
+
+    const total = templateItems.length;
+    const done = templateItems.filter((t) =>
+      isItemRespondido({ resultado: resultados.get(t.id) }),
+    ).length;
+
+    return { total, done };
+  }
+
+  // Fallback para operações sem template de painel (FOTO, QUA...)
+  const total = itensSalvos.length;
+  const done = itensSalvos.filter(isItemRespondido).length;
+  return { total, done };
+}
+
 export function getProgressStatus(ficha) {
-  const total = ficha.items?.length || 0;
+  const { total, done } = getChecklistProgress(ficha);
 
-  if (total === 0) {
-    return "empty";
-  }
-
-  const done = ficha.items.filter(
-    (i) => i.resultado === "ok" || i.resultado === "na",
-  ).length;
-
-  if (done === 0) {
-    return "empty";
-  }
-
-  if (done === total) {
-    return "done";
-  }
-
+  if (total === 0) return "empty";
+  if (done === 0) return "empty";
+  if (done === total) return "done";
   return "progress";
+}
+
+export function computeStatusField(ficha) {
+  if (ficha.status === "finalizada") return "finalizada";
+
+  const { total, done } = getChecklistProgress(ficha);
+
+  if (total === 0) return ficha.status || "aberta";
+  if (done > 0) return "em andamento";
+  return "aberta";
+}
+
+export function getProgressPct(ficha) {
+  const { total, done } = getChecklistProgress(ficha);
+
+  if (total === 0) return 0;
+  return Math.round((done / total) * 100);
 }
 
 export function getApprovalStatus(ficha) {
@@ -36,28 +94,6 @@ export function getApprovalStatus(ficha) {
   return "none";
 }
 
-export function computeStatusField(ficha) {
-  if (ficha.status === "finalizada") {
-    return "finalizada";
-  }
-
-  const total = ficha.items?.length || 0;
-
-  if (total === 0) {
-    return ficha.status || "aberta";
-  }
-
-  const done = ficha.items.filter(
-    (i) => i.resultado === "ok" || i.resultado === "na",
-  ).length;
-
-  if (done > 0) {
-    return "em andamento";
-  }
-
-  return "aberta";
-}
-
 export function getFichaStatus(ficha) {
   const approval = getApprovalStatus(ficha);
 
@@ -66,18 +102,4 @@ export function getFichaStatus(ficha) {
   }
 
   return getProgressStatus(ficha);
-}
-
-export function getProgressPct(ficha) {
-  const total = ficha.items?.length || 0;
-
-  if (total === 0) {
-    return 0;
-  }
-
-  const done = ficha.items.filter(
-    (i) => i.resultado === "ok" || i.resultado === "na",
-  ).length;
-
-  return Math.round((done / total) * 100);
 }

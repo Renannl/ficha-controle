@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://192.168.101.60:3001";
 
-const LIDER_USERNAME = "renan.boni"; // ⚠️ depois troque para "heveraldo.silva"
+const LIDER_USERNAME = "heveraldo";
 const SETORES_TODOS = ["barramento", "montagem", "cabeamento"];
 
 // intervalo de re-checagem (detecta troca de cargo sem re-login)

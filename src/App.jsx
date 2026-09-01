@@ -13,7 +13,7 @@ import "./App-v2.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const SECTOR_ROLES = ["barramento", "montagem", "cabeamento"];
-const LIDER_USERNAME = "renan.boni";
+const LIDER_USERNAME = "heveraldo";
 
 export default function App() {
   const { user, isAuthenticated, login, logout } = useAuth();

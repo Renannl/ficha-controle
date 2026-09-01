@@ -1,7 +1,7 @@
 import { BarChart3 } from "lucide-react";
 
 export default function DashboardProgress({ metrics }) {
-  const verificados = metrics.itemsOk + metrics.itemsNa;
+  const verificados = metrics.itemsOk + metrics.itemsNa + metrics.itemsErro;
 
   return (
     <div className="dash-section">

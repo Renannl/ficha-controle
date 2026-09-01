@@ -4,7 +4,7 @@ export default function HeaderProgress({ progress }) {
       <div className="progress-bar">
         <div className="progress-fill" style={{ width: `${progress}%` }} />
       </div>
-
+      
       <span>{progress}%</span>
     </div>
   );

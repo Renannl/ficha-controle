@@ -112,9 +112,14 @@ export function useDashboardMetrics(fichas) {
     });
 
     const itemsPendentes = totalItems - itemsOk - itemsNa - itemsErro;
-    const pctGeral = totalItems > 0 ? Math.round(((itemsOk + itemsNa) / totalItems) * 100) : 0;
+    const pctGeral =
+      totalItems > 0
+        ? Math.round(((itemsOk + itemsNa + itemsErro) / totalItems) * 100)
+        : 0;
 
-    const colaboradores = Object.values(operadoresMap).sort((a, b) => b.fichas - a.fichas);
+    const colaboradores = Object.values(operadoresMap).sort(
+      (a, b) => b.fichas - a.fichas,
+    );
     const clientesRanking = Object.entries(clientesMap)
       .map(([nome, qtd]) => ({ nome, qtd }))
       .sort((a, b) => b.qtd - a.qtd);
@@ -123,8 +128,10 @@ export function useDashboardMetrics(fichas) {
       .sort((a, b) => a.mes.localeCompare(b.mes));
 
     const decididas = qtdAprovadas + qtdReprovadas;
-    const taxaAprovacao = decididas > 0 ? Math.round((qtdAprovadas / decididas) * 100) : 0;
-    const mediaTempoPorFicha = total > 0 ? Math.round(totalSegundos / total) : 0;
+    const taxaAprovacao =
+      decididas > 0 ? Math.round((qtdAprovadas / decididas) * 100) : 0;
+    const mediaTempoPorFicha =
+      total > 0 ? Math.round(totalSegundos / total) : 0;
 
     return {
       total,
