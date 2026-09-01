@@ -48,6 +48,73 @@ function agruparSessoesPorEtapaComFallback(sessoes, logs) {
   return Object.values(map);
 }
 
+function agruparVerificadoresPorEtapa(logs) {
+  const map = {};
+  (logs || []).forEach((log) => {
+    if (log.campo !== "verificacao") return;
+    const etapa = log.etapa;
+    if (!etapa) return;
+    if (!map[etapa]) map[etapa] = { etapa, usuarios: [] };
+    const bruto = log.usuario || log.nome || log.username || "";
+    const nome = formatarNomeUsuario(bruto).trim();
+    if (nome && !map[etapa].usuarios.includes(nome)) {
+      map[etapa].usuarios.push(nome);
+    }
+  });
+  return Object.values(map);
+}
+
+function chaveUsuario(valor) {
+  return String(valor || "")
+    .trim()
+    .toLowerCase();
+}
+
+function addChavesDoUsuario(set, raw) {
+  const bruto = String(raw || "").trim();
+  if (!bruto) return;
+  set.add(chaveUsuario(bruto));
+  const formatado = formatarNomeUsuario(bruto).trim();
+  if (formatado) set.add(chaveUsuario(formatado));
+}
+
+// 🆕 Quem SÓ verificou POR ETAPA: tem log de verificação E nenhum log de
+// resultado NA MESMA ETAPA. Resolve o caso do admin que trabalhou numa etapa
+// (ex.: barramento) mas só verificou em outra (ex.: montagem/cabeamento).
+function getSomenteVerificadoresPorEtapa(logs) {
+  const verificadoresPorEtapa = {};
+  const trabalhadoresPorEtapa = {};
+
+  (logs || []).forEach((log) => {
+    const etapa = log.etapa;
+    if (!etapa) return;
+    const u = log.usuario || log.nome || log.username;
+    if (!u) return;
+
+    if (log.campo === "verificacao") {
+      if (!verificadoresPorEtapa[etapa])
+        verificadoresPorEtapa[etapa] = new Set();
+      addChavesDoUsuario(verificadoresPorEtapa[etapa], u);
+    }
+    if (log.campo === "resultado") {
+      if (!trabalhadoresPorEtapa[etapa])
+        trabalhadoresPorEtapa[etapa] = new Set();
+      addChavesDoUsuario(trabalhadoresPorEtapa[etapa], u);
+    }
+  });
+
+  const resultado = {};
+  Object.keys(verificadoresPorEtapa).forEach((etapa) => {
+    const trabalhadores = trabalhadoresPorEtapa[etapa] || new Set();
+    const somente = new Set(
+      [...verificadoresPorEtapa[etapa]].filter((u) => !trabalhadores.has(u)),
+    );
+    if (somente.size > 0) resultado[etapa] = somente;
+  });
+
+  return resultado;
+}
+
 export default function PrintViewOperacao({
   ficha,
   isBook = false,
@@ -81,8 +148,35 @@ export default function PrintViewOperacao({
     return Object.values(map);
   })();
 
-  // Prioriza sessões (com etapa) se carregadas; senão usa os operadores
-  const grupos = gruposSessoes.length > 0 ? gruposSessoes : gruposOperadores;
+  const gruposVerificadores = agruparVerificadoresPorEtapa(logs);
+  const somenteVerificadoresPorEtapa = getSomenteVerificadoresPorEtapa(logs);
+
+  // 🆕 COLABORADORES = sessões (ou operadores) MENOS quem SÓ verificou,
+  // filtrado POR ETAPA. Quem trabalhou sem marcar nada continua (tem sessão,
+  // sem log de verificação naquela etapa).
+  const grupos = (gruposSessoes.length > 0 ? gruposSessoes : gruposOperadores)
+    .map((g) => {
+      const somenteDaEtapa = g.etapa
+        ? somenteVerificadoresPorEtapa[g.etapa]
+        : null;
+
+      return {
+        ...g,
+        usuarios: g.usuarios.filter((u) => {
+          if (!somenteDaEtapa) return true;
+          const crua = chaveUsuario(u);
+          const formatada = chaveUsuario(formatarNomeUsuario(u));
+          return !somenteDaEtapa.has(crua) && !somenteDaEtapa.has(formatada);
+        }),
+      };
+    })
+    .filter((g) => g.usuarios.length > 0);
+
+  console.log(
+    "[PrintView] somenteVerificadoresPorEtapa:",
+    somenteVerificadoresPorEtapa,
+  ); // 🐞
+  console.log("[PrintView] grupos finais:", grupos); // 🐞
 
   return (
     <div className={`print-view-root ${isBook ? "book-mode" : "print-only"}`}>
@@ -157,6 +251,25 @@ export default function PrintViewOperacao({
                         ? getEtapaLabel(g.etapa)
                         : getCargoLabel(g.cargo) || g.cargo || "Equipe"}
                     </strong>
+                  </td>
+                  <td>{g.usuarios.join(", ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* 🆕 VERIFICAÇÃO — somente quem realizou a verificação (painel) */}
+      {isPainel && gruposVerificadores.length > 0 && (
+        <div className="print-final-block">
+          <div className="print-section-title">VERIFICAÇÃO:</div>
+          <table className="print-info-table">
+            <tbody>
+              {gruposVerificadores.map((g, i) => (
+                <tr key={i}>
+                  <td>
+                    <strong>{getEtapaLabel(g.etapa)}</strong>
                   </td>
                   <td>{g.usuarios.join(", ")}</td>
                 </tr>

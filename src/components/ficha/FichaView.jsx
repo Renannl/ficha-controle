@@ -276,6 +276,7 @@ export default function FichaView({
   function handleToggleVerificacao(idx, valor) {
     if (!verificacaoEtapa || !ficha?.tipoPainel) return;
     if (user?.role !== "admin") return;
+    if (!sessaoIniciada) return;
 
     const etapa = verificacaoEtapa;
     const itens = getPainelVerificacaoPorEtapa(ficha.tipoPainel, etapa);
@@ -918,6 +919,7 @@ export default function FichaView({
         onToggle={handleToggleVerificacao}
         onClose={() => setVerificacaoEtapa(null)}
         isAdmin={user?.role === "admin"}
+        sessaoIniciada={sessaoIniciada}
       />
     </>
   );

@@ -1,5 +1,5 @@
-import { X, Check, Minus, ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
 import { getEtapaLabel } from "../../utils/etapas";
+import { X, Check, Minus, ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
 
 export default function VerificacaoEtapaModal({
   isOpen = false,
@@ -9,27 +9,26 @@ export default function VerificacaoEtapaModal({
   onToggle,
   onClose,
   isAdmin = false,
+  sessaoIniciada = false,
 }) {
   if (!isOpen) return null;
 
   const total = itens.length;
   const marcados = itens.filter((_, idx) => Boolean(resultados[idx])).length;
 
-  // 🆕 Trava por erro
   const temErro = resultados.includes("erro");
-  const idxErro = resultados.indexOf("erro"); // -1 se não há erro
+  const idxErro = resultados.indexOf("erro");
   const proximoLivre = itens.findIndex((_, idx) => !resultados[idx]);
   const idxDestaque = temErro ? idxErro : proximoLivre;
 
   const concluido = marcados === total && !temErro;
 
-  // Marca em sequência: só libera o item se o anterior já estiver marcado.
-  // 🆕 Se o anterior estiver com "erro", o próximo NÃO libera.
   function podeMarcar(idx) {
     if (!isAdmin) return false;
+    if (!sessaoIniciada) return false;
     if (idx === 0) return true;
     const anterior = resultados[idx - 1];
-    if (anterior === "erro") return false; // erro trava o próximo
+    if (anterior === "erro") return false;
     return Boolean(anterior) || Boolean(resultados[idx]);
   }
 
@@ -49,7 +48,17 @@ export default function VerificacaoEtapaModal({
           </p>
         </div>
 
-        {/* 🆕 Aviso de erro que trava o checklist */}
+        {/* 🆕 Aviso de sessão não iniciada */}
+        {!sessaoIniciada && (
+          <div className="verificacao-alerta-erro">
+            <AlertTriangle size={16} />
+            <span>
+              Inicie a sessão de trabalho (tempo) antes de marcar a
+              verificação.
+            </span>
+          </div>
+        )}
+
         {temErro && (
           <div className="verificacao-alerta-erro">
             <AlertTriangle size={16} />
