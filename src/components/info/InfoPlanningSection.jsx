@@ -11,6 +11,7 @@ export default function InfoPlanningSection({
   onOperacaoChange,
   onTipoPainelChange,
   sessoes = [],
+  disabled = false,
 }) {
   const isEstrutura = String(ficha.operacao) === "10";
 
@@ -37,6 +38,7 @@ export default function InfoPlanningSection({
             <label>Data de Início</label>
             <input
               type="date"
+              disabled={disabled}
               value={ficha.dataInicio}
               onChange={handle("dataInicio")}
             />
@@ -46,6 +48,7 @@ export default function InfoPlanningSection({
             <label>Data de Término</label>
             <input
               type="date"
+              disabled={disabled}
               value={ficha.dataTermino}
               onChange={handle("dataTermino")}
             />
@@ -56,6 +59,7 @@ export default function InfoPlanningSection({
           <div className="field">
             <label>Tempo Previsto</label>
             <input
+              disabled={disabled}
               value={ficha.tempoPrevisto}
               onChange={handle("tempoPrevisto")}
               placeholder="7 Dias"
@@ -65,6 +69,7 @@ export default function InfoPlanningSection({
           <div className="field">
             <label>Recurso</label>
             <input
+              disabled={disabled}
               value={ficha.recurso}
               onChange={handle("recurso")}
               placeholder="2 Pessoas"
@@ -75,6 +80,7 @@ export default function InfoPlanningSection({
         <div className="field">
           <label>Operação</label>
           <select
+            disabled={disabled}
             value={ficha.operacao}
             onChange={(e) => onOperacaoChange(e.target.value)}
           >
@@ -90,6 +96,7 @@ export default function InfoPlanningSection({
           <div className="field">
             <label>Tipo de Painel</label>
             <select
+              disabled={disabled}
               value={ficha.tipoPainel || ""}
               onChange={(e) => onTipoPainelChange(e.target.value)}
             >

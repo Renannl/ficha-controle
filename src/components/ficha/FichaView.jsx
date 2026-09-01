@@ -141,6 +141,8 @@ export default function FichaView({
   );
 
   function handleTipoPainelChange(novoTipo) {
+    if (!ficha || !podeEditar()) return;
+    marcarReedicaoSeAprovada();
     atualizarFicha(fichaId, (prev) => ({
       ...prev,
       tipoPainel: novoTipo,
@@ -413,7 +415,8 @@ export default function FichaView({
   }
 
   function handleOperacaoChange(novoCodigo) {
-    if (!ficha) return;
+    if (!ficha || !podeEditar()) return; // 🆕 trava sem permissão
+    marcarReedicaoSeAprovada();
     atualizarFicha(fichaId, (prev) => ({ ...prev, operacao: novoCodigo }));
   }
 
@@ -757,7 +760,8 @@ export default function FichaView({
                 onChange={updateField}
                 onOperacaoChange={handleOperacaoChange}
                 onTipoPainelChange={handleTipoPainelChange}
-                sessoesTrabalho={sessoesTrabalho}
+                sessoesTrabalho={sessoes}
+                podeEditarFicha={podeEditar()}
               />
             ) : (
               <ConsideracoesPanel

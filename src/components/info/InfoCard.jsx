@@ -11,6 +11,7 @@ export default function InfoCard({
   onOperacaoChange,
   onTipoPainelChange,
   sessoesTrabalho,
+  podeEditarFicha,
 }) {
   const operacaoAtual = OPERACOES[ficha.operacao];
   const handle = (field) => (e) => onChange(field, e.target.value);
@@ -33,8 +34,8 @@ export default function InfoCard({
         operacaoAtual={operacaoAtual}
         onOperacaoChange={onOperacaoChange}
         onTipoPainelChange={onTipoPainelChange}
-        sessoes={sessoesTrabalho?.sessoes || []}
-        loadingSessoes={sessoesTrabalho?.loading}
+        sessoes={sessoesTrabalho}
+        disabled={!podeEditarFicha}
       />
 
       <OperationInfoBanner />
