@@ -1,5 +1,14 @@
+import { useState } from "react";
 import { getEtapaLabel } from "../../utils/etapas";
-import { X, Check, Minus, ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
+import { authFetch } from "../../services/apiClient";
+import {
+  X,
+  Check,
+  Minus,
+  ArrowLeft,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
 
 export default function VerificacaoEtapaModal({
   isOpen = false,
@@ -10,7 +19,11 @@ export default function VerificacaoEtapaModal({
   onClose,
   isAdmin = false,
   sessaoIniciada = false,
+  fichaId = null,
+  onSessoesParadas = null,
 }) {
+  const [finalizando, setFinalizando] = useState(false);
+
   if (!isOpen) return null;
 
   const total = itens.length;
@@ -32,6 +45,39 @@ export default function VerificacaoEtapaModal({
     return Boolean(anterior) || Boolean(resultados[idx]);
   }
 
+  // 🆕 Ao concluir, para todas as sessões ativas da ficha
+  async function handleConcluir() {
+    setFinalizando(true);
+    try {
+      if (fichaId) {
+        const res = await authFetch(`/fichas/${fichaId}/sessoes/parar-todas`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (res) {
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            console.warn(
+              "⚠️ Aviso ao parar sessões:",
+              data.error || data.message,
+            );
+          } else {
+            console.log(
+              `⏹️ ${data.paradas} sessão(ões) paradas ao concluir verificação.`,
+            );
+            // 🆕 Avisa o pai pra recarregar as sessões
+            onSessoesParadas?.();
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("⚠️ Erro ao parar sessões:", err.message);
+    } finally {
+      setFinalizando(false);
+      onClose();
+    }
+  }
+
   return (
     <div className="modal-overlay">
       <div className="verificacao-modal">
@@ -48,13 +94,11 @@ export default function VerificacaoEtapaModal({
           </p>
         </div>
 
-        {/* 🆕 Aviso de sessão não iniciada */}
         {!sessaoIniciada && (
           <div className="verificacao-alerta-erro">
             <AlertTriangle size={16} />
             <span>
-              Inicie a sessão de trabalho (tempo) antes de marcar a
-              verificação.
+              Inicie a sessão de trabalho (tempo) antes de marcar a verificação.
             </span>
           </div>
         )}
@@ -127,17 +171,22 @@ export default function VerificacaoEtapaModal({
         </div>
 
         <div className="verificacao-modal-footer">
-          <button type="button" className="verificacao-voltar" onClick={onClose}>
+          <button
+            type="button"
+            className="verificacao-voltar"
+            onClick={onClose}
+          >
             <ArrowLeft size={16} /> Voltar para a ficha
           </button>
 
           <button
             type="button"
             className="verificacao-concluir"
-            disabled={!concluido}
-            onClick={onClose}
+            disabled={!concluido || finalizando}
+            onClick={handleConcluir}
           >
-            <CheckCircle2 size={16} /> Concluir
+            <CheckCircle2 size={16} />{" "}
+            {finalizando ? "Finalizando..." : "Concluir"}
           </button>
         </div>
       </div>

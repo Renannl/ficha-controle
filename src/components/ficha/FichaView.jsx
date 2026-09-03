@@ -920,6 +920,8 @@ export default function FichaView({
         onClose={() => setVerificacaoEtapa(null)}
         isAdmin={user?.role === "admin"}
         sessaoIniciada={sessaoIniciada}
+        fichaId={ficha.dbId}
+        onSessoesParadas={loadSessoes}
       />
     </>
   );
