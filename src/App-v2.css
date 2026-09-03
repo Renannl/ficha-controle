@@ -9027,3 +9027,39 @@ svg {
   line-height: 1;
 }
 
+.qr-print svg,
+.qr-print svg * {
+  stroke: none !important;
+}
+
+@media print {
+  .qr-print {
+    display: block !important;
+    width: fit-content !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 10px !important;
+    margin: 20px 0 0 auto !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .qr-print svg {
+    display: block !important;
+    width: 150px !important;
+    height: 150px !important;
+    max-width: none !important;
+    max-height: none !important;
+    stroke: none !important;
+    fill: none !important;
+    shape-rendering: crispEdges !important;
+  }
+
+  .qr-print svg rect {
+    stroke: none !important;
+  }
+
+  .qr-print-label {
+    color: #000 !important;
+  }
+}

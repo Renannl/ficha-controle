@@ -50,6 +50,7 @@ export default function HomeScreen({
   const [pendingExport, setPendingExport] = useState(null);
   const [deleteColecaoId, setDeleteColecaoId] = useState(null);
   const [abaColecao, setAbaColecao] = useState("fichas");
+  const [bookReady, setBookReady] = useState(false);
 
   const navigate = useNavigate();
   const { colecaoId } = useParams();
@@ -177,24 +178,23 @@ export default function HomeScreen({
     return () => window.removeEventListener("abrir-book-pdf", handler);
   }, []);
 
+  // 🆕 Reseta o "pronto" sempre que começar uma nova exportação
   useEffect(() => {
-    if (!pendingExport) return;
-    const raf = requestAnimationFrame(() => {
-      requestAnimationFrame(async () => {
-        // Pega o IND completo (ex: "10066-01") em vez de só o número base
-        const numeroInd = bookFichas[0]?.numeroInd
-          ? String(bookFichas[0].numeroInd)
-          : "BOOK";
+    if (pendingExport) setBookReady(false);
+  }, [pendingExport]);
 
-        // "Book IND10066-01.pdf" — sem o "xx"
-        const filename = `Book IND${numeroInd}.pdf`;
-
-        await generateBookPdf(pendingExport, "book-print-root", filename);
-        setPendingExport(null);
-      });
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [bookFichas, pendingExport]);
+  // 🆕 Só gera o PDF depois que TODAS as fichas estiverem carregadas
+  useEffect(() => {
+    if (!pendingExport || !bookReady) return;
+    (async () => {
+      const numeroInd = bookFichas[0]?.numeroInd
+        ? String(bookFichas[0].numeroInd)
+        : "BOOK";
+      const filename = `Book IND${numeroInd}.pdf`;
+      await generateBookPdf(pendingExport, "book-print-root", filename);
+      setPendingExport(null);
+    })();
+  }, [bookReady, pendingExport, bookFichas]);
 
   // ── FILTERS ────────────────────────────────────
   const { filterStatus, setFilterStatus, filterType, setFilterType } =
@@ -433,7 +433,10 @@ export default function HomeScreen({
         }}
         aria-hidden="true"
       >
-        <BookPrintView fichas={bookFichas} />
+        <BookPrintView
+          fichas={bookFichas}
+          onAllReady={() => setBookReady(true)}
+        />
       </div>
 
       <HomeFab onClick={() => setShowNewMenu(true)} />

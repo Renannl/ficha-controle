@@ -1,12 +1,10 @@
 import { QRCodeSVG } from "qrcode.react";
 import { montarUrlPublica } from "./QrCodeDocumentacao";
 
-export default function QrCodePrint({ ficha, size = 64 }) {
+export default function QrCodePrint({ ficha, size = 150 }) {
   const token = ficha?.tokenPublico;
 
-  console.log("[QrCodePrint] renderizando com token:", token);
-
-  if (!token) return <div>SEM TOKEN</div>;
+  if (!token) return null;
 
   const url = montarUrlPublica(token);
 
@@ -15,12 +13,21 @@ export default function QrCodePrint({ ficha, size = 64 }) {
       <QRCodeSVG
         value={url}
         size={size}
-        level="H"
-        marginSize={1}
+        level="L"
+        marginSize={4}
         bgColor="#ffffff"
         fgColor="#000000"
+        shapeRendering="crispEdges"
+        style={{
+          display: "block",
+          width: `${size}px`,
+          height: `${size}px`,
+          maxWidth: "none",
+          maxHeight: "none",
+          overflow: "visible",
+          stroke: "none",
+        }}
       />
-      <div className="qr-print-label">Documentos do painel</div>
     </div>
   );
 }

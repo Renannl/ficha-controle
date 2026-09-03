@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { OPERACOES } from "../../data/fichaTemplate";
 import { authFetch } from "../../services/apiClient";
 import { useSessoesTrabalho } from "../../hooks/useSessoesTrabalho";
@@ -19,16 +19,21 @@ function getOperacao(operacoes, id) {
   return operacoes[id];
 }
 
-export default function PrintView({ ficha, isBook = false }) {
-  // 🆕 Resolve o ID correto (dbId preferencial, fallback pra id)
+export default function PrintView({ ficha, isBook, onDataReady }) {
+  const sinalizado = useRef(false);
   const fichaId = ficha?.dbId ?? ficha?.id;
 
-  const { sessoes } = useSessoesTrabalho(fichaId);
+  // 🆕 desestrutura o `loading` do hook (era o que faltava)
+  const { sessoes, loading: sessoesLoading } = useSessoesTrabalho(fichaId);
+
   const [logs, setLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(!!fichaId); // 🆕 estado de carregamento
 
   useEffect(() => {
     if (!fichaId) return;
     let cancelado = false;
+
+    setLogsLoading(true);
 
     (async () => {
       try {
@@ -38,6 +43,8 @@ export default function PrintView({ ficha, isBook = false }) {
         if (!cancelado) setLogs(Array.isArray(data) ? data : data.logs || []);
       } catch (err) {
         console.error("[PrintView] Erro ao buscar logs:", err);
+      } finally {
+        if (!cancelado) setLogsLoading(false);
       }
     })();
 
@@ -45,6 +52,14 @@ export default function PrintView({ ficha, isBook = false }) {
       cancelado = true;
     };
   }, [fichaId]);
+
+  // 🆕 avisa o pai quando sessões E logs terminarem de carregar
+  useEffect(() => {
+    if (sessoesLoading || logsLoading) return;
+    if (sinalizado.current) return;
+    sinalizado.current = true;
+    onDataReady?.();
+  }, [sessoesLoading, logsLoading, onDataReady]);
 
   const op = getOperacao(OPERACOES, ficha.operacao);
 

@@ -425,7 +425,7 @@ export default function PrintViewOperacao({
             <tr>
               <td
                 className="sig-box"
-                style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
+                style={{ width: "50%", padding: "5px", overflow: "hidden" }}
               >
                 <div className="sig-line">
                   {ficha.assinaturas.supervisor.dataUrl ? (
@@ -445,9 +445,10 @@ export default function PrintViewOperacao({
                   Data: {ficha.assinaturas.supervisor.data || "__/__/____"}
                 </div>
               </td>
+
               <td
                 className="sig-box"
-                style={{ width: "33.33%", padding: "5px", overflow: "hidden" }}
+                style={{ width: "50%", padding: "5px", overflow: "hidden" }}
               >
                 <div className="sig-line">
                   {ficha.assinaturas.qualidade.dataUrl ? (
@@ -467,22 +468,20 @@ export default function PrintViewOperacao({
                   Data: {ficha.assinaturas.qualidade.data || "__/__/____"}
                 </div>
               </td>
-
-              {/* 🆕 QR Code — documentação do painel */}
-              <td
-                className="sig-box"
-                style={{
-                  width: "33.33%",
-                  padding: "5px",
-                  verticalAlign: "middle",
-                  textAlign: "center",
-                }}
-              >
-                <QrCodePrint ficha={ficha} />
-              </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      {/* 🆕 QR Code no canto inferior direito (última página) */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: "20px",
+        }}
+      >
+        <QrCodePrint ficha={ficha} size={150} />
       </div>
     </div>
   );
