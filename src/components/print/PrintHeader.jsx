@@ -1,10 +1,21 @@
+import { LOGO_BASE64 } from "./logoBase64";
+
 export default function PrintHeader({ ficha }) {
   return (
     <table className="print-header-table">
       <tbody>
         <tr>
-          <td rowSpan="3" className="logo-cell">
-            <div className="brand-name">IndusPower</div>
+          <td className="logo-cell">
+            <img
+              src={LOGO_BASE64}
+              alt="IndusPower"
+              style={{
+                height: "70px",
+                width: "auto",
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
           </td>
           <td colSpan="3" className="title-cell">
             <h1>FICHA DE CONTROLE DE OPERAÇÃO</h1>
