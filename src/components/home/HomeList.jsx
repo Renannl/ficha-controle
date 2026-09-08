@@ -1,7 +1,7 @@
 import { useState } from "react";
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
-import { ImportarColecaoExcel } from "../excel/ImportarColecaoExcel";
+import CompletarColecaoModal from "../excel/ImportarColecaoExcel"; // 🆕 NOVO
 import {
   FolderOpen,
   Plus,
@@ -10,6 +10,7 @@ import {
   X,
   Trash2,
   ChevronDown,
+  FileSpreadsheet, // 🆕 NOVO
 } from "lucide-react";
 import { getFichaStatus } from "../../utils/fichaStatus";
 import { getColecaoStatus } from "../../utils/colecaoStatus";
@@ -21,7 +22,6 @@ function getStatusColor(status) {
     completa: "#22c55e",
     erro: "#ef4444",
   };
-
   return cores[status] || "var(--blue-accent)";
 }
 
@@ -66,17 +66,105 @@ export default function HomeList({
   fichaPodeSerSelecionada = () => true,
 }) {
   const [expandedColecaoId, setExpandedColecaoId] = useState(null);
+  const [rascunhoSelecionado, setRascunhoSelecionado] = useState(null); // 🆕 NOVO
+
+  const isAdmin = user?.role === "admin"; // 🆕 NOVO
 
   if (mode === "colecoes") {
     const LIMITE_PREVIEW = 3;
 
+    // 🆕 SEPARA rascunhos e completas
+    const rascunhos = colecoes.filter((col) => col.status === "rascunho");
+    const completas = colecoes.filter((col) => col.status !== "rascunho");
+
     return (
       <div className="home-list animate-scaleIn">
+        {isAdmin && rascunhos.length > 0 && (
+          <div className="secao-rascunhos">
+            <div className="home-list-header">
+              <h2 className="home-list-title">
+                Rascunhos
+              </h2>
+            </div>
+            <div className="colecoes-grid">
+              {rascunhos.map((col) => {
+                const dataCriacao = col.created_at
+                  ? new Date(col.created_at).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : null;
+
+                return (
+                  <div
+                    key={col.id}
+                    className="colecao-card rascunho"
+                    onClick={() => setRascunhoSelecionado(col)}
+                  >
+                    <div className="colecao-card-top">
+                      <div className="colecao-card-icon">
+                        <FileSpreadsheet size={18} />
+                      </div>
+                      <div className="colecao-card-info">
+                        <div className="colecao-card-title">
+                          {col.cliente ?? "Aguardando planilha"}
+                        </div>
+                        <div className="colecao-card-sub">
+                          {col.descricao ?? "Rascunho - aguardando Excel"}
+                        </div>
+                      </div>
+                      <div className="colecao-card-actions">
+                        <div
+                          className="colecao-card-badge rascunho-badge"
+                          style={{
+                            color: "#f59e0b",
+                            borderColor: "#f59e0b",
+                          }}
+                        >
+                          Rascunho
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="colecao-preview">
+                      <div className="colecao-card-empty">
+                        <FileSpreadsheet size={13} /> Aguardando planilha Excel
+                      </div>
+                    </div>
+
+                    {dataCriacao && (
+                      <div className="colecao-card-date">
+                        <Calendar size={11} />
+                        Criado em {dataCriacao}
+                      </div>
+                    )}
+
+                    <button
+                      className="btn btn-primary btn-completar-rascunho"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRascunhoSelecionado(col);
+                      }}
+                    >
+                      <FileSpreadsheet size={16} />
+                      Completar Coleção
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* SEÇÃO DE COLEÇÕES COMPLETAS */}
         <div className="home-list-header">
           <div className="flex items-center gap-2">
             {!showSearch && (
               <h2 className="home-list-title" style={{ marginBottom: 0 }}>
-                Coleções Recentes
+                {rascunhos.length > 0
+                  ? "Coleções Completas"
+                  : "Coleções Recentes"}
               </h2>
             )}
 
@@ -104,14 +192,15 @@ export default function HomeList({
             </div>
           </div>
         </div>
-        {colecoes.length === 0 ? (
+
+        {completas.length === 0 ? (
           <div className="colecoes-empty">
             <p>Nenhuma coleção encontrada.</p>
             <small>Use o botão + para criar uma coleção para um cliente.</small>
           </div>
         ) : (
           <div className="colecoes-grid">
-            {colecoes.map((col) => {
+            {completas.map((col) => {
               const fichasDaCol = fichas.filter((f) => f.colecao_id === col.id);
               const isExpanded = expandedColecaoId === col.id;
 
@@ -122,7 +211,6 @@ export default function HomeList({
               const resto = fichasDaCol.length - LIMITE_PREVIEW;
               const colecaoStatus = getColecaoStatus(fichasDaCol);
 
-              // 🆕 verifica se alguma ficha da coleção tem sessão ativa
               const temTrabalhoEmAndamento = fichasDaCol.some(
                 (f) => f.sessao_ativa,
               );
@@ -252,6 +340,19 @@ export default function HomeList({
               );
             })}
           </div>
+        )}
+
+        {/* 🆕 MODAL DE COMPLETAR COLEÇÃO */}
+        {rascunhoSelecionado && (
+          <CompletarColecaoModal
+            show={!!rascunhoSelecionado}
+            colecaoId={rascunhoSelecionado.id}
+            onClose={() => setRascunhoSelecionado(null)}
+            onCompletado={() => {
+              setRascunhoSelecionado(null);
+              onColecaoImportada?.(); // Recarrega as coleções
+            }}
+          />
         )}
       </div>
     );

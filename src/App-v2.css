@@ -9063,3 +9063,169 @@ svg {
     color: #000 !important;
   }
 }
+
+/* Rascunhos */
+.secao-rascunhos {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.colecao-card.rascunho {
+  border: 2px dashed #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.rascunho-badge {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.btn-completar-rascunho {
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ══════════════════════════════════════
+   RASCUNHOS
+   ══════════════════════════════════════ */
+
+.secao-rascunhos {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.colecao-card.rascunho {
+  border: 2px dashed #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+/* Badge "Rascunho" no card — ícone + texto com espaço */
+.rascunho-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;               /* ← espaço entre ícone e texto */
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rascunho-badge svg {
+  flex-shrink: 0;
+}
+
+.btn-completar-rascunho {
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ── Seção de arquivos do rascunho (dentro do modal) ── */
+.rascunho-arquivos-section {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rascunho-arquivos-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;               /* ← espaço entre o FileText e o texto */
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.rascunho-arquivos-title svg {
+  flex-shrink: 0;
+}
+
+.rascunho-loading,
+.rascunho-vazio {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.rascunho-arquivos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rascunho-tipo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rascunho-tipo-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rascunho-arquivo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;               /* ← espaço entre ícone, nome e olho */
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.rascunho-arquivo-item > svg:first-child {
+  flex-shrink: 0;
+}
+
+.rascunho-arquivo-item:hover {
+  border-color: var(--blue-accent);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.rascunho-arquivo-nome {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rascunho-arquivo-view,
+.rascunho-arquivo-download {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  color: var(--blue-accent);
+}
+
+.rascunho-arquivo-item:hover .rascunho-arquivo-view,
+.rascunho-arquivo-item:hover .rascunho-arquivo-download {
+  opacity: 0.6;
+}
+
+.rascunho-arquivo-item:hover .rascunho-arquivo-view:hover,
+.rascunho-arquivo-item:hover .rascunho-arquivo-download:hover {
+  opacity: 1;
+}
