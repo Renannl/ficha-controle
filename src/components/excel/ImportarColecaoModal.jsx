@@ -1,4 +1,3 @@
-// ImportarColecaoModal.jsx - MODIFICADO
 import { useRef, useState } from "react";
 import { X, Upload, FileText, Trash2 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
