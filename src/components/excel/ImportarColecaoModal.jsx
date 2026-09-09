@@ -7,8 +7,8 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const DOCUMENTOS = [
   { id: "proposta", label: "Proposta Técnica", obrigatorio: true },
   { id: "listaMaterial", label: "Lista de Material", obrigatorio: true },
-  { id: "docCliente", label: "Projetos e Documentos do Cliente", obrigatorio: false },
-  { id: "orcamentos", label: "Orçamentos de Fornecedores", obrigatorio: false },
+  { id: "docCliente", label: "Projetos e Documentos do Cliente", obrigatorio: true },
+  { id: "orcamentos", label: "Orçamentos de Fornecedores", obrigatorio: true },
 ];
 
 export default function ImportarColecaoModal({ show, onClose, onImportado }) {

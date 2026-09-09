@@ -9,8 +9,8 @@ export const INITIAL_USERS = [
   {
     username: "1",
     password: "23",
-    displayName: "Usuário Produção",
-    role: "producao",
+    displayName: "Usuário Montagem",
+    role: "montagem",
     permissions: ["taf", "controle", "fotos"],
   },
 ];

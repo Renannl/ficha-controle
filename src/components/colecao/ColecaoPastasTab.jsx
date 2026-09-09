@@ -10,10 +10,14 @@ import {
   ChevronRight,
   Home,
   Loader2,
+  Upload, // 🆕
 } from "lucide-react";
 import { useArquivosColecao } from "../../hooks/useArquivosColecao";
+import UploadArquivoModal from "./UploadArquivoModal"; // 🆕
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+// ... (funções corrigirAcentos, IconeArquivo, formatarTamanho permanecem iguais)
 
 function corrigirAcentos(str) {
   if (!str) return str;
@@ -48,6 +52,7 @@ export default function ColecaoPastasTab({ colecaoId }) {
     useArquivosColecao(colecaoId);
   const [caminhoAtual, setCaminhoAtual] = useState([]);
   const [processandoId, setProcessandoId] = useState(null);
+  const [showUploadModal, setShowUploadModal] = useState(false); // 🆕
 
   const { pastas, arquivosNaPasta } = useMemo(() => {
     const pastaMap = new Map();
@@ -74,7 +79,6 @@ export default function ColecaoPastasTab({ colecaoId }) {
         caminhoAcumulado.push(parte);
       });
 
-      // Associa arquivo ao caminho da pasta
       const chavePasta = caminhoPasta.join(" / ");
       if (!pastaMap.has(chavePasta)) {
         pastaMap.set(chavePasta, {
@@ -86,18 +90,15 @@ export default function ColecaoPastasTab({ colecaoId }) {
       }
     });
 
-    // Filtra só as pastas filhas do caminho atual
     const prefixo = caminhoAtual.join(" / ");
     const pastasFilhas = Array.from(pastaMap.values()).filter((p) => {
       if (prefixo === "") return p.profundidade === 0;
       const pChave = p.caminho.join(" / ");
       return (
-        pChave.startsWith(prefixo) &&
-        p.profundidade === caminhoAtual.length
+        pChave.startsWith(prefixo) && p.profundidade === caminhoAtual.length
       );
     });
 
-    // Arquivos exatamente nesta pasta
     const arquivosAqui = arquivos.filter((a) => {
       const partes = a.caminho
         ? a.caminho.split("/").map((p) => corrigirAcentos(p.trim()))
@@ -108,6 +109,8 @@ export default function ColecaoPastasTab({ colecaoId }) {
 
     return { pastas: pastasFilhas, arquivosNaPasta: arquivosAqui };
   }, [arquivos, caminhoAtual]);
+
+  // ... (funções obterBlob, verArquivo, baixarArquivo, entrarNaPasta, irParaPasta, irParaRaiz iguais)
 
   async function obterBlob(arquivo) {
     const token = localStorage.getItem("token");
@@ -182,6 +185,16 @@ export default function ColecaoPastasTab({ colecaoId }) {
             <button onClick={() => irParaPasta(i)}>{parte}</button>
           </span>
         ))}
+
+        {/* 🆕 Botão de upload */}
+        <button
+          className="pastas-upload-btn"
+          onClick={() => setShowUploadModal(true)}
+          title="Adicionar arquivos nesta pasta"
+        >
+          <Upload size={14} />
+          Adicionar
+        </button>
       </div>
 
       {erro && <div className="arq-erro">⚠️ {erro}</div>}
@@ -259,6 +272,18 @@ export default function ColecaoPastasTab({ colecaoId }) {
       {pastas.length === 0 && arquivosNaPasta.length === 0 && (
         <div className="arq-vazio">Pasta vazia.</div>
       )}
+
+      {/* 🆕 Modal de upload */}
+      <UploadArquivoModal
+        show={showUploadModal}
+        colecaoId={colecaoId}
+        caminhoAtual={caminhoAtual}
+        pastasExistentes={pastas}
+        onClose={() => setShowUploadModal(false)}
+        onEnviado={() => {
+          carregar(); // recarrega a lista de arquivos
+        }}
+      />
     </div>
   );
 }

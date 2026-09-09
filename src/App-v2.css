@@ -9246,3 +9246,106 @@ svg {
 .rascunho-arquivo-item:hover .rascunho-arquivo-download:hover {
   opacity: 1;
 }
+
+/* Botão "Adicionar" no breadcrumb */
+.pastas-upload-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--blue-accent, #3b82f6);
+  border-radius: 8px;
+  background: var(--blue-accent, #3b82f6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pastas-upload-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Select de pasta no modal */
+.upload-pasta-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border, #ccc);
+  border-radius: 8px;
+  background: var(--bg-card, #fff);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.upload-pasta-select:focus {
+  outline: none;
+  border-color: var(--blue-accent, #3b82f6);
+}
+
+.upload-pasta-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 6px 10px;
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 6px;
+}
+
+/* Lista de arquivos selecionados */
+.upload-arquivos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1.5px dashed var(--border, #ccc);
+  border-radius: 8px;
+  background: var(--bg-base, #f8fafc);
+}
+
+.upload-arquivo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.upload-arquivo-nome {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-arquivo-tamanho {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.upload-adicionar-mais {
+  margin-top: 4px;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: var(--blue-accent, #3b82f6);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+}
+
+.upload-adicionar-mais:hover {
+  text-decoration: underline;
+}

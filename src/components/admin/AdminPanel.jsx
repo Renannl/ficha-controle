@@ -13,14 +13,14 @@ export default function AdminPanel({ onBack, onUserUpdated }) {
   const [editingUser, setEditingUser] = useState(null);
 
   const [nome, setNome] = useState("");
-  const [role, setRole] = useState("producao");
+  const [role, setRole] = useState("montagem");
   const [permissoes, setPermissoes] = useState([]);
   const [active, setActive] = useState(true);
 
   function resetForm() {
     setEditingUser(null);
     setNome("");
-    setRole("producao");
+    setRole("montagem"); // ← novo usuário já nasce como Montagem
     setPermissoes([]);
     setActive(true);
   }
@@ -29,7 +29,7 @@ export default function AdminPanel({ onBack, onUserUpdated }) {
     setEditingUser(user);
 
     setNome(user.nome || "");
-    setRole(user.role || "producao");
+    setRole(user.role || "montagem");
     setPermissoes(user.permissoes || []);
     setActive(user.active);
   }

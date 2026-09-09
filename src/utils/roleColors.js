@@ -36,7 +36,7 @@ export function getRoleLabel(role) {
 export function agruparUsuariosPorCargo(listaUsuarios = []) {
   const grupos = {};
   listaUsuarios.forEach((usuario) => {
-    const role = usuario.role || "producao"; // 🆕 fallback para "producao"
+    const role = usuario.role || "montagem";
     if (!grupos[role]) {
       grupos[role] = {
         role,

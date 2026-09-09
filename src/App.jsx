@@ -122,7 +122,7 @@ export default function App() {
       ),
     );
   }, []);
-  
+
   const deveAssinarApr =
     SECTOR_ROLES.includes(user?.role) || user?.username === LIDER_USERNAME;
   // ─── LOADING ───
