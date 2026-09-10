@@ -1,5 +1,6 @@
 import { ROLES } from "../../data/users";
 import { getRoleColor } from "../../utils/roleColors";
+import NotificationBell from "./NotificationBell"; // 🆕 IMPORT
 import {
   Moon,
   Sun,
@@ -85,6 +86,8 @@ export default function HomeHeader({
         </div>
 
         <div className="user-actions">
+          <NotificationBell /> {/* 🆕 SINO AQUI */}
+
           <button
             className="icon-btn"
             onClick={onToggleTheme}

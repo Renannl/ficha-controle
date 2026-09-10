@@ -20,7 +20,7 @@ export default function AdminPanel({ onBack, onUserUpdated }) {
   function resetForm() {
     setEditingUser(null);
     setNome("");
-    setRole("montagem"); // ← novo usuário já nasce como Montagem
+    setRole("montagem");
     setPermissoes([]);
     setActive(true);
   }
