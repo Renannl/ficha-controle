@@ -34,54 +34,14 @@ export const EXECUTION_PERMISSIONS = [
 ];
 
 export const MANAGEMENT_PERMISSIONS = [
-  {
-    key: "ver_tudo",
-    label: "Ver todas as fichas",
-    icon: Eye,
-  },
-  {
-    key: "ver_enviadas",
-    label: "Ver concluídas",
-    icon: Mail,
-  },
-  {
-    key: "ver_aprovacao",
-    label: "Ver aprovação",
-    icon: Clock3,
-  },
-  {
-    key: "editar_ficha",
-    label: "Editar ficha",
-    icon: Pencil,
-  },
-  {
-    key: "excluir_ficha",
-    label: "Excluir ficha",
-    icon: Trash,
-  },
-  {
-    key: "aprovar",
-    label: "Aprovar fichas",
-    icon: ShieldCheck,
-  },
-  {
-    key: "rejeitar",
-    label: "Rejeitar fichas",
-    icon: ShieldX,
-  },
-  {
-    key: "alocar_usuario",
-    label: "Alocar usuários",
-    icon: UserPlus,
-  },
-  {
-    key: "gerar_pdf",
-    label: "Gerar PDF",
-    icon: FaFilePdf,
-  },
-  {
-    key: "ver_qrcode",
-    label: "Visualizar QR Code",
-    icon: QrCode,
-  },
+  { key: "ver_tudo", label: "Ver todas as fichas", icon: Eye },
+  { key: "ver_enviadas", label: "Ver fichas enviadas", icon: ClipboardList },
+  { key: "ver_aprovacao", label: "Ver fichas em aprovação", icon: Clock3 },
+  { key: "aprovar", label: "Aprovar fichas", icon: ShieldCheck },
+  { key: "rejeitar", label: "Rejeitar fichas", icon: ShieldX },
+  { key: "editar_ficha", label: "Editar fichas", icon: Pencil },
+  { key: "excluir_ficha", label: "Excluir fichas", icon: Trash },
+  { key: "gerar_pdf", label: "Gerar PDF", icon: FaFilePdf },
+  { key: "ver_qrcode", label: "Ver QR Code", icon: QrCode },
+  { key: "ver_historico", label: "Ver histórico/timeline", icon: Clock3 },
 ];

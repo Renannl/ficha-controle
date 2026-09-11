@@ -40,7 +40,12 @@ export default function HomeContent({
   if (viewMode === "dashboard") {
     return (
       <div style={{ padding: "16px", paddingBottom: "100px" }}>
-        <Dashboard fichas={fichas} user={user} onApprove={onApprove} />
+        <Dashboard
+          fichas={fichas}
+          user={user}
+          onApprove={onApprove}
+          usuarios={usuarios}
+        />
       </div>
     );
   }

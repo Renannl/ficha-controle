@@ -4,34 +4,30 @@ import DashboardKpis from "./DashboardKpis";
 import DashboardProgress from "./DashboardProgress";
 import DashboardDonut from "./DashboardDonut";
 import DashboardQualidade from "./DashboardQualidade";
-import DashboardWorkload from "./DashboardWorkload";
+import DashboardCapacity from "./DashboardCapacity";
 import DashboardProducaoMensal from "./DashboardProducaoMensal";
 import DashboardColaboradores from "./DashboardColaboradores";
 import DashboardClientes from "./DashboardClientes";
 import DashboardEmpty from "./DashboardEmpty";
 
-export default function Dashboard({ fichas, user, onApprove }) {
+export default function Dashboard({ fichas, user, onApprove, usuarios }) {
   const metrics = useDashboardMetrics(fichas);
 
   return (
     <div className="dashboard animate-scaleIn">
       <DashboardHeader total={metrics.total} />
 
-      {/* Visão instantânea */}
       <DashboardKpis metrics={metrics} />
-
-      {/* Progresso geral do checklist */}
       <DashboardProgress metrics={metrics} />
 
       <div className="dash-grid-2">
         <DashboardDonut metrics={metrics} />
         <DashboardQualidade metrics={metrics} />
+        {console.log("[DEBUG] usuarios:", usuarios)}{" "}
       </div>
 
-      {/* Gargalos e carga de trabalho */}
-      <DashboardWorkload metrics={metrics} />
+      <DashboardCapacity fichas={fichas} usuarios={usuarios} />
 
-      {/* Tendência de produção */}
       <DashboardProducaoMensal producaoMensal={metrics.producaoMensal} />
 
       <div className="dash-grid-2">

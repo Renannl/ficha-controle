@@ -30,6 +30,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getEtapaAtual, podeTrabalharNaEtapa } from "../../utils/etapas";
 import QrCodeModal from "../qrcode/QrCodeModal";
 import { montarUrlPublica } from "../qrcode/QrCodeDocumentacao";
+import TimelineFicha from "../sessions/TimelineFicha";
 import {
   Zap,
   ListChecks,
@@ -39,6 +40,7 @@ import {
   Camera,
   StickyNote,
   QrCode,
+  History,
 } from "lucide-react";
 
 export default function FichaView({
@@ -57,6 +59,8 @@ export default function FichaView({
   const sessoesTrabalho = useSessoesTrabalho(ficha?.dbId);
   const { sessoes, loading: sessoesLoading, loadSessoes } = sessoesTrabalho;
   const [qrOpen, setQrOpen] = useState(false);
+  const podeVerHistorico =
+    user?.role === "admin" || user?.permissoes?.includes("ver_historico");
 
   const [successModal, setSuccessModal] = useState({
     isOpen: false,
@@ -727,12 +731,18 @@ export default function FichaView({
         { id: "checklist", Icon: ListChecks, label: "Funcionais e Visuais" },
         { id: "sessions", Icon: Timer, label: "Sessões" },
         { id: "signatures", Icon: PenLine, label: "Assinaturas" },
+        ...(podeVerHistorico
+          ? [{ id: "historico", Icon: History, label: "Histórico" }]
+          : []),
       ]
     : isFoto
       ? [
           { id: "info", Icon: ClipboardList, label: "Dados" },
           { id: "fotos", Icon: Camera, label: "Fotos" },
           { id: "notes", Icon: StickyNote, label: "Notas" },
+          ...(podeVerHistorico
+            ? [{ id: "historico", Icon: History, label: "Histórico" }]
+            : []),
         ]
       : [
           { id: "info", Icon: ClipboardList, label: "Dados" },
@@ -740,6 +750,9 @@ export default function FichaView({
           { id: "sessions", Icon: Timer, label: "Sessões" },
           { id: "notes", Icon: StickyNote, label: "Notas" },
           { id: "signatures", Icon: PenLine, label: "Assinaturas" },
+          ...(podeVerHistorico
+            ? [{ id: "historico", Icon: History, label: "Histórico" }]
+            : []),
         ];
 
   return (
@@ -833,6 +846,8 @@ export default function FichaView({
               onFinalizar={handleFinalizar}
             />
           )}
+
+          {activeTab === "historico" && <TimelineFicha fichaId={ficha.dbId} />}
         </main>
 
         <nav className="tab-bar">

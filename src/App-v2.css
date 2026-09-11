@@ -9541,3 +9541,365 @@ svg {
   align-items: center;
   gap: 8px;
 }
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 8px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #2563eb;
+}
+
+/* linha vertical conectando os pontos */
+.timeline-item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 18px;
+  bottom: -18px;
+  width: 2px;
+  background: #dbeafe;
+}
+
+.timeline-descricao {
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+
+.timeline-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.timeline-usuario {
+  font-weight: 600;
+}
+
+.timeline-erro {
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.timeline-vazio {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════
+   DASHBOARD DE CAPACIDADE DA EQUIPE
+   ═══════════════════════════════════════════════ */
+
+/* ─── Card base ─── */
+.dash-card {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.dash-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.dash-card-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin: 0;
+}
+
+.dash-empty-text {
+  font-size: 13px;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ─── Resumo / KPIs ─── */
+.capacity-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.capacity-summary-item {
+  background: var(--bg-base, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.capacity-summary-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.capacity-summary-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.capacity-summary-gargalo .capacity-summary-value {
+  color: #dc2626;
+}
+
+/* ─── Tabela de cargos ─── */
+.capacity-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.capacity-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.capacity-table th {
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #64748b);
+  background: var(--bg-base, #f1f5f9);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  white-space: nowrap;
+}
+
+.capacity-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border, #eef2f7);
+  font-size: 13px;
+  vertical-align: middle;
+  color: var(--text-primary, #0f172a);
+}
+
+.capacity-table tr:last-child td {
+  border-bottom: none;
+}
+
+.capacity-row-gargalo {
+  background: rgba(220, 38, 38, 0.05);
+}
+
+.capacity-cell-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.capacity-negative {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.capacity-positive {
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Role badge (caso não tenha um global) */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.role-montagem {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.role-cabeamento {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.role-barramento {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.role-admin {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+/* Badges de status */
+.capacity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.capacity-badge-danger {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+}
+
+.capacity-badge-ok {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+}
+
+/* ─── ETA por ficha ─── */
+.capacity-eta-section {
+  margin-top: 8px;
+}
+
+.capacity-eta-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 12px;
+}
+
+.capacity-eta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.capacity-eta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--bg-base, #f8fafc);
+  transition: box-shadow 0.2s;
+}
+
+.capacity-eta-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.capacity-eta-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.capacity-eta-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.capacity-eta-meta {
+  font-size: 11px;
+  color: var(--text-secondary, #64748b);
+}
+
+.capacity-eta-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-accent, #2563eb);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.capacity-eta-undefined {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.capacity-eta-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  color: #b45309;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ─── Responsivo ─── */
+@media (max-width: 768px) {
+  .dash-card {
+    padding: 14px;
+  }
+
+  .capacity-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .capacity-table-wrap {
+    border-radius: 8px;
+  }
+
+  .capacity-eta-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .capacity-eta-value {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
