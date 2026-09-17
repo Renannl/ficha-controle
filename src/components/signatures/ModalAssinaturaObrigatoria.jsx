@@ -394,6 +394,7 @@ export default function ModalAssinaturaObrigatoria() {
           <div
             style={{
               display: "flex",
+              flexWrap: "wrap",
               gap: "8px",
               justifyContent: "center",
               padding: "12px",
@@ -448,7 +449,11 @@ export default function ModalAssinaturaObrigatoria() {
               <iframe
                 srcDoc={documentoHtml}
                 title="Documento APR"
-                style={{ width: "100%", height: "380px", border: "none" }}
+                style={{
+                  width: "100%",
+                  height: "min(380px, 55vh)",
+                  border: "none",
+                }}
               />
             ) : (
               <p

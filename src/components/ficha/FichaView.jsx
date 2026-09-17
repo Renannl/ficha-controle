@@ -260,7 +260,7 @@ export default function FichaView({
   function verificarFimEtapa(etapa, itemsAtuais) {
     // Pega só os itens da sequência (não verificação)
     const itensDaSequencia = activeChecklistItems.filter(
-      (ci) => ci.etapa === etapa && !ci.id.includes("-ver-"),
+      (ci) => ci.etapa === etapa && !String(ci.id ?? "").includes("-ver-"),
     );
     if (itensDaSequencia.length === 0) return;
 
@@ -483,7 +483,7 @@ export default function FichaView({
     if (!foto && f.items?.length > 0) {
       const itensSemResultado = f.items.filter((item) => {
         // 🆕 Pula itens de verificação — eles são validados em ficha.verificacoes
-        if (item.id?.includes("-ver-")) return false;
+        if (String(item.id ?? "").includes("-ver-")) return false;
         return !item?.resultado || String(item.resultado).trim() === "";
       });
 
@@ -659,7 +659,7 @@ export default function FichaView({
 
     const done = ficha.items.reduce((acc, item) => {
       // 🆕 Itens de verificação ficam em ficha.verificacoes, não em resultado
-      if (item.id?.includes("-ver-")) {
+      if (String(item.id ?? "").includes("-ver-")) {
         const etapa = getEtapaDeItemId(item.id);
         const idx = parseInt(String(item.id).split("-").pop(), 10);
         const v = ficha.verificacoes?.[etapa]?.[idx];

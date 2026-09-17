@@ -10,20 +10,40 @@ export default function SignatureCanvas({ dataUrl, onSave, onClear }) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return undefined;
 
-    const rect = canvas.getBoundingClientRect();
+    function ajustar() {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const escala = Math.max(2, window.devicePixelRatio || 1);
+      const largura = Math.round(rect.width * escala);
+      const altura = Math.round(rect.height * escala);
+      if (canvas.width === largura && canvas.height === altura) return;
 
-    canvas.width = rect.width * 2;
-    canvas.height = rect.height * 2;
+      let copia = null;
+      if (canvas.width && canvas.height) {
+        copia = document.createElement("canvas");
+        copia.width = canvas.width;
+        copia.height = canvas.height;
+        copia.getContext("2d").drawImage(canvas, 0, 0);
+      }
 
-    const ctx = canvas.getContext("2d");
+      canvas.width = largura;
+      canvas.height = altura;
 
-    ctx.scale(2, 2);
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
+      const ctx = canvas.getContext("2d");
+      if (copia) ctx.drawImage(copia, 0, 0, largura, altura);
+      ctx.setTransform(escala, 0, 0, escala, 0, 0);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+    }
+
+    ajustar();
+    const observador = new ResizeObserver(ajustar);
+    observador.observe(canvas);
+    return () => observador.disconnect();
   }, [dataUrl]);
 
   const getPos = useCallback((e) => {

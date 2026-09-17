@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { entregarDataUrl } from "../../native/arquivos";
 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -33,7 +34,8 @@ export function useQrDataUrl(url) {
 }
 
 // Baixa o PNG (pra imprimir e colar no painel)
-export function baixarQrCode(dataUrl, filename) {
+export async function baixarQrCode(dataUrl, filename) {
+  if (await entregarDataUrl(dataUrl, filename)) return;
   const a = document.createElement("a");
   a.href = dataUrl;
   a.download = filename;

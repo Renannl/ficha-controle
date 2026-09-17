@@ -53,6 +53,7 @@ export function useFichas(currentUser) {
   const saveTimeouts = useRef({});
   const fichasRef = useRef(fichas);
   const pendingIds = useRef(new Set());
+  const usuarioAtual = currentUser?.username || null;
 
   useEffect(() => {
     fichasRef.current = fichas;
@@ -73,8 +74,10 @@ export function useFichas(currentUser) {
   }, [authFetch]);
 
   useEffect(() => {
+    if (!usuarioAtual) return;
+    setIsLoaded(false);
     loadFichas();
-  }, [loadFichas]);
+  }, [usuarioAtual, loadFichas]);
 
   // ─── POLLING (não sobrescreve fichas com save pendente) ───
   useEffect(() => {
@@ -424,9 +427,11 @@ export function useFichas(currentUser) {
     [authFetch],
   );
 
+  const temSessao = !!usuarioAtual || !!localStorage.getItem("token");
+
   return {
     fichas: visibleFichas,
-    isLoading: !isLoaded,
+    isLoading: temSessao && !isLoaded,
     criarFicha,
     atualizarFicha,
     excluirFicha,

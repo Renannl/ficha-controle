@@ -27,7 +27,7 @@ export default function ChecklistTable({
     const template = checklistItems.find((c) => c.id === item.id);
 
     // Item de verificação → busca em ficha.verificacoes
-    if (template?.id?.includes("-ver-")) {
+    if (String(template?.id ?? "").includes("-ver-")) {
       const idxVer = parseInt(String(template.id).split("-").pop(), 10);
       const v = ficha.verificacoes?.[template.etapa]?.[idxVer];
       if (v === "ok" || v === "na") return acc + 1;
@@ -74,7 +74,7 @@ export default function ChecklistTable({
     if (!anterior) return false;
 
     const anteriorTemplate = checklistItems.find((c) => c.id === anterior.id);
-    if (anteriorTemplate?.id?.includes("-ver-")) {
+    if (String(anteriorTemplate?.id ?? "").includes("-ver-")) {
       const idxVer = parseInt(String(anteriorTemplate.id).split("-").pop(), 10);
       const valorVer = ficha.verificacoes?.[anteriorTemplate.etapa]?.[idxVer];
       return valorVer === "ok" || valorVer === "na";
@@ -115,7 +115,7 @@ export default function ChecklistTable({
         const categoria = templateOriginal?.categoria || null;
         const liberado = isItemLiberado(index);
 
-        if (isPainel && templateOriginal?.id?.includes("-ver-")) {
+        if (isPainel && String(templateOriginal?.id ?? "").includes("-ver-")) {
           return null;
         }
 

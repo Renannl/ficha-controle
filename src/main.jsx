@@ -5,23 +5,31 @@ import { registerSW } from "virtual:pwa-register";
 
 import "./index.css";
 import App from "./App.jsx";
+import ErroNaTela from "./components/ErroNaTela";
+import { isApp, iniciarApp } from "./native/nativeApp";
 
-const updateSW = registerSW({
-  onNeedRefresh() {
-    updateSW();
-  },
-  onOfflineReady() {
-    console.log("✅ App pronto para uso offline");
-  },
-  onRegistered(registration) {
-    setInterval(() => registration?.update(), 60000);
-  },
-});
+if (isApp) {
+  iniciarApp();
+} else {
+  const updateSW = registerSW({
+    onNeedRefresh() {
+      updateSW();
+    },
+    onOfflineReady() {
+      console.log("✅ App pronto para uso offline");
+    },
+    onRegistered(registration) {
+      setInterval(() => registration?.update(), 60000);
+    },
+  });
+}
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <ErroNaTela>
+        <App />
+      </ErroNaTela>
     </BrowserRouter>
   </StrictMode>,
 );

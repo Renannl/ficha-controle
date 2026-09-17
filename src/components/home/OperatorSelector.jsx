@@ -19,6 +19,7 @@ export default function OperatorSelector({
   return (
     <div style={{ position: "relative" }}>
       <button
+        className="op-add-btn"
         style={{
           width: "26px",
           height: "26px",
@@ -45,7 +46,7 @@ export default function OperatorSelector({
 
       {activeDropdownFichaId === ficha.dbId && (
         <div
-          className="animate-scaleIn"
+          className="animate-scaleIn op-dropdown"
           style={{
             position: "absolute",
             right: 0,
@@ -62,6 +63,7 @@ export default function OperatorSelector({
           }}
         >
           <div
+            className="op-dropdown-titulo"
             style={{
               padding: "4px 10px",
               fontSize: "10px",
@@ -78,6 +80,7 @@ export default function OperatorSelector({
             <div key={grupo.role}>
               {/* Cabeçalho do grupo com a cor do cargo */}
               <div
+                className="op-grupo-label"
                 style={{
                   padding: "5px 10px 3px",
                   fontSize: "9px",
@@ -98,6 +101,7 @@ export default function OperatorSelector({
                 return (
                   <button
                     key={u.id}
+                    className="op-item"
                     onClick={(e) => onToggleOperador(e, ficha, u)}
                     style={{
                       width: "100%",
@@ -144,7 +148,11 @@ export default function OperatorSelector({
                       </span>
                     </span>
 
-                    {ativo && <span style={{ fontSize: "9px" }}>✓</span>}
+                    {ativo && (
+                      <span className="op-check" style={{ fontSize: "9px" }}>
+                        ✓
+                      </span>
+                    )}
                   </button>
                 );
               })}

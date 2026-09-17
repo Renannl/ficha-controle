@@ -1,0 +1,84 @@
+img.marca-escura {
+  display: none;
+}
+html[data-theme="dark"] img.marca-clara {
+  display: none;
+}
+html[data-theme="dark"] img.marca-escura {
+  display: block;
+}
+
+.despedida {
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  animation: despedida-entra 260ms ease-out;
+  transition: opacity 400ms ease;
+}
+.despedida--saindo {
+  opacity: 0;
+}
+.despedida .welcome-logo {
+  width: 240px;
+  margin-bottom: 24px;
+}
+.despedida .welcome-text {
+  margin: 0 0 10px;
+  font-size: clamp(26px, 6vw, 34px);
+}
+.despedida-texto {
+  max-width: 420px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #475569;
+}
+.despedida-marca {
+  margin: 28px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #2d9ca3;
+}
+html[data-theme="dark"] .despedida-texto {
+  color: #cbd5e1;
+}
+html[data-theme="dark"] .despedida-marca {
+  color: #56c6ce;
+}
+.despedida-progresso {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #2d9ca3, #1a4b50);
+  transform-origin: left center;
+  animation-name: despedida-progresso;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+html[data-theme="dark"] .despedida-progresso {
+  background: linear-gradient(90deg, #56c6ce, #2d9ca3);
+}
+@keyframes despedida-progresso {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes despedida-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+html[data-theme="dark"] .home-logo-img {
+  background: #1a4b50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}

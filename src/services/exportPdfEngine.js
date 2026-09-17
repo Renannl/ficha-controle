@@ -1,3 +1,4 @@
+import { entregarArquivo } from "../native/arquivos";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 // ══════════════════════════════════════
@@ -157,6 +158,7 @@ export async function generateBookPdf(
       if (!downloadRes.ok) throw new Error("Falha ao baixar o PDF gerado.");
 
       const blob = await downloadRes.blob();
+      if (await entregarArquivo(blob, filename)) return true;
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -218,6 +220,7 @@ export async function generateFichaPdf(ficha, elementId = "print-view-root") {
       if (!downloadRes.ok) throw new Error("Falha ao baixar o PDF gerado.");
 
       const blob = await downloadRes.blob();
+      if (await entregarArquivo(blob, safeFilename)) return true;
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

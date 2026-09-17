@@ -9,7 +9,11 @@ import PainelPublicoView from "./components/publico/PainelPublicoView";
 import { useColecoes } from "./hooks/useColecoes";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import ModalAssinaturaObrigatoria from "./components/signatures/ModalAssinaturaObrigatoria";
+import PermissaoNotificacoes from "./native/PermissaoNotificacoes";
+import Despedida, { DURACAO_TELA_MS } from "./components/Despedida";
 import "./App-v2.css";
+import "./responsivo.css";
+import "./marca.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const SECTOR_ROLES = ["barramento", "montagem", "cabeamento"];
@@ -96,9 +100,18 @@ export default function App() {
     const t = setTimeout(() => {
       setShowWelcome(false);
       navigate("/dashboard");
-    }, 2000);
+    }, DURACAO_TELA_MS);
     return () => clearTimeout(t);
   }, [showWelcome]);
+
+  const [despedida, setDespedida] = useState(null);
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+  const finalizarSaida = useCallback(() => logoutRef.current(), []);
+  const handleLogout = useCallback(
+    () => setDespedida({ motivo: "saida", nome: user?.nome || "" }),
+    [user],
+  );
 
   function formatNome(username) {
     if (!username) return "";
@@ -126,7 +139,7 @@ export default function App() {
   const deveAssinarApr =
     SECTOR_ROLES.includes(user?.role) || user?.username === LIDER_USERNAME;
   // ─── LOADING ───
-  if (isLoading) {
+  if (isLoading && !showWelcome && !despedida) {
     return (
       <div
         className="loading-screen"
@@ -149,11 +162,16 @@ export default function App() {
     );
   }
 
+  if (despedida) {
+    return <Despedida dados={despedida} onFim={finalizarSaida} />;
+  }
+
   // ─── BOAS-VINDAS ───
   if (showWelcome) {
     return (
       <div className="welcome-screen">
-        <img src="/ip.png" className="welcome-logo" />
+        <img src="/brand/gestor-de-fichas-vertical.svg" alt="Gestor de Fichas" className="welcome-logo marca-clara" />
+        <img src="/brand/gestor-de-fichas-vertical-negativo.svg" alt="" aria-hidden="true" className="welcome-logo marca-escura" />
         <h1 className="welcome-text">Bem-vindo, {welcomeUser}</h1>
       </div>
     );
@@ -246,6 +264,7 @@ export default function App() {
   return (
     <>
       {deveAssinarApr && <ModalAssinaturaObrigatoria />}
+      <PermissaoNotificacoes />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" />} />
 
@@ -265,7 +284,7 @@ export default function App() {
                 onAtualizarFicha={atualizarFicha}
                 onAtualizarOperadores={atualizarOperadores}
                 user={user}
-                onLogout={logout}
+                onLogout={handleLogout}
                 theme={theme}
                 onToggleTheme={toggleTheme}
                 onOpenAdmin={() => navigate("/admin")}
@@ -287,7 +306,7 @@ export default function App() {
                 onDelete={handleDelete}
                 onAtualizarOperadores={atualizarOperadores}
                 user={user}
-                onLogout={logout}
+                onLogout={handleLogout}
                 theme={theme}
                 onToggleTheme={toggleTheme}
                 onOpenAdmin={() => navigate("/admin")}

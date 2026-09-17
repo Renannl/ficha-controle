@@ -14,7 +14,7 @@ export default function ApproveModal({ isOpen, onClose, onConfirm }) {
     <div className="modal-overlay animate-fadeIn">
       <div
         className="confirm-modal card-glow animate-popIn"
-        style={{ minWidth: "400px" }}
+        style={{ minWidth: "min(400px, 100%)" }}
       >
         <div
           className="confirm-modal-icon"

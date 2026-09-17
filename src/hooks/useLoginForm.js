@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { isApp } from "../native/nativeApp";
+import { registrarPerfilDoLogin } from "../native/perfis";
 
 export default function useLoginForm(onLogin) {
   const navigate = useNavigate();
@@ -27,6 +29,8 @@ export default function useLoginForm(onLogin) {
       if (!success) {
         setErro("Usuário inválido");
       } else {
+        setSenha("");
+        if (isApp) registrarPerfilDoLogin().catch(() => {});
         navigate("/dashboard");
       }
     } catch (err) {

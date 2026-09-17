@@ -1,9 +1,12 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import legacy from "@vitejs/plugin-legacy";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+
+  const isApp = mode === "app";
 
   const HOST = env.VITE_APP_HOST || "0.0.0.0";
   const PORT = parseInt(env.VITE_APP_PORT || "5173", 10);
@@ -30,6 +33,12 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      isApp &&
+        legacy({
+          modernTargets: ["chrome >= 64", "android >= 7"],
+          modernPolyfills: true,
+          renderLegacyChunks: false,
+        }),
       VitePWA({
         registerType: "autoUpdate",
         workbox: {
@@ -58,8 +67,8 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: {
-          name: env.VITE_APP_NAME || "Ficha de Controle – IndusPower",
-          short_name: "Ficha Controle",
+          name: env.VITE_APP_NAME || "Gestor de Fichas – IndusPower",
+          short_name: "Gestor de Fichas",
           description: "Sistema de fichas de inspeção e controle IndusPower",
           theme_color: "#1565C0",
           background_color: "#0a0f1e",

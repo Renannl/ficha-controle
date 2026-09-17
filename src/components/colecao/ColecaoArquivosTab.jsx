@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useArquivosColecao } from "../../hooks/useArquivosColecao";
 
+import { entregarArquivo } from "../../native/arquivos";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 function formatarTamanho(bytes) {
@@ -50,6 +51,7 @@ export default function ColecaoArquivosTab({ colecaoId }) {
     setProcessandoId(arquivo.id);
     try {
       const blob = await obterBlob(arquivo);
+      if (await entregarArquivo(blob, arquivo.nome)) return;
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
       setTimeout(() => URL.revokeObjectURL(url), 60000);
@@ -74,6 +76,7 @@ export default function ColecaoArquivosTab({ colecaoId }) {
     setProcessandoId(arquivo.id);
     try {
       const blob = await obterBlob(arquivo);
+      if (await entregarArquivo(blob, arquivo.nome)) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

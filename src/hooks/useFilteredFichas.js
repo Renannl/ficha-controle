@@ -8,7 +8,7 @@ export default function useFilteredFichas(fichaProgress, searchTerm) {
 
     return fichaProgress.filter(
       (f) =>
-        f.id.toLowerCase().includes(lower) ||
+        String(f.id ?? "").toLowerCase().includes(lower) ||
         f.numeroInd.toLowerCase().includes(lower) ||
         f.nome.toLowerCase().includes(lower),
     );

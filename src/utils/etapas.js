@@ -33,7 +33,7 @@ export function getEtapaAtual(items, checklistItems, verificacoes = {}) {
 
     const todosConcluidos = itensDaEtapa.every((ci) => {
       // 🆕 Itens de verificação ficam em ficha.verificacoes[etapa], não em ficha.items
-      if (ci.id?.includes("-ver-")) {
+      if (String(ci.id ?? "").includes("-ver-")) {
         const idx = parseInt(String(ci.id).split("-").pop(), 10);
         const v = verificacoes?.[etapa]?.[idx];
         return v === "ok" || v === "na";

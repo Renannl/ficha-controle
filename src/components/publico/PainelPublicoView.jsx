@@ -10,6 +10,7 @@ import {
   Loader2,
 } from "lucide-react";
 
+import { entregarArquivo } from "../../native/arquivos";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 function formatarTamanho(bytes) {
@@ -71,6 +72,7 @@ export default function PainelPublicoView() {
       );
       if (!res.ok) throw new Error("Falha ao baixar o arquivo.");
       const blob = await res.blob();
+      if (await entregarArquivo(blob, corrigirAcentos(arquivo.nome))) return;
 
       if (forcarDownload) {
         const url = URL.createObjectURL(blob);

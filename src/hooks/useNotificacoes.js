@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "./useAuth";
+import { avisarNovas } from "../native/notificacoes";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -18,6 +19,7 @@ export function useNotificacoes() {
       const data = await res.json();
       setNotificacoes(data.notificacoes || []);
       setNaoLidas(data.naoLidas || 0);
+      avisarNovas(data.notificacoes || []).catch(() => {});
     } catch (err) {
       console.error("[notificacoes]", err);
     }

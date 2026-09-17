@@ -387,7 +387,7 @@ export function getPainelChecklistItems(tipoPainel, options = {}) {
 export function getPainelVerificacaoItems(tipoPainel) {
   return getPainelChecklistItems(tipoPainel, {
     incluirVerificacao: true,
-  }).filter((item) => item.id.includes("-ver-"));
+  }).filter((item) => String(item.id ?? "").includes("-ver-"));
 }
 
 // ────────────────────────────────────────────────

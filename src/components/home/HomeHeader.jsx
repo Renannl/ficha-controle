@@ -116,7 +116,8 @@ export default function HomeHeader({
       <div className="home-header">
         <div className="home-header-left">
           <div className="home-brand">
-            <img src="/ip.png" alt="Logo" className="home-logo-img" />
+            <img src="/brand/gestor-de-fichas-simbolo.svg" alt="Gestor de Fichas" className="home-logo-img marca-clara" />
+            <img src="/brand/gestor-de-fichas-simbolo-negativo.svg" alt="" aria-hidden="true" className="home-logo-img marca-escura" />
             <h1>Ficha de Controle</h1>
           </div>
 

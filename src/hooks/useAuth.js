@@ -100,14 +100,29 @@ export function useAuth() {
     }
   }
 
-  function logout(showAlert = false) {
+  function logout(sessaoExpirou = false) {
+    const expirou = sessaoExpirou === true;
+
+    let nome = "";
+    try {
+      nome = JSON.parse(localStorage.getItem("user") || "{}").nome || "";
+    } catch {
+      nome = "";
+    }
+
     isManualLogoutRef.current = true;
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
 
-    if (showAlert) {
-      alert("Sessão expirada");
+    if (expirou) {
+      try {
+        sessionStorage.setItem(
+          "despedida",
+          JSON.stringify({ motivo: "expirou", nome }),
+        );
+      } catch {
+      }
     }
 
     window.location.href = "/login";

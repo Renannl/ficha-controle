@@ -5,7 +5,8 @@ export default function HeaderInfo({ ficha }) {
 
   return (
     <div className="header-info-wrap">
-      <img src="/ip.png" alt="Logo" className="header-logo" />
+      <img src="/brand/gestor-de-fichas-simbolo.svg" alt="Gestor de Fichas" className="header-logo marca-clara" />
+      <img src="/brand/gestor-de-fichas-simbolo-negativo.svg" alt="" aria-hidden="true" className="header-logo marca-escura" />
 
       <div className="header-info">
         <div className="header-title">

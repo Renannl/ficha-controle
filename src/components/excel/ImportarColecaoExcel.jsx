@@ -13,6 +13,7 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { PAINEL_LABELS } from "../../data/painelTemplates";
 
+import { entregarArquivo } from "../../native/arquivos";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 const LABEL_PARA_TIPO = Object.fromEntries(
@@ -136,6 +137,7 @@ async function abrirArquivoAutenticado(arquivoId, nome, authFetch) {
     if (!res || !res.ok) throw new Error("Falha ao baixar arquivo");
 
     const blob = await res.blob();
+    if (await entregarArquivo(blob, nome)) return;
     const url = URL.createObjectURL(blob);
 
     const extensao = nome.split(".").pop().toLowerCase();

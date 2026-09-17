@@ -23,7 +23,7 @@ export default function PrintViewTAF({ ficha, op, isBook = false }) {
           <h1>FORMULÁRIO</h1>
         </div>
         <div className="taf-pdf-id">
-          ( ID: <span>{ficha.id.slice(0, 8).toUpperCase()}</span> )
+          ( ID: <span>{String(ficha.id ?? "").slice(0, 8).toUpperCase()}</span> )
         </div>
       </div>
 

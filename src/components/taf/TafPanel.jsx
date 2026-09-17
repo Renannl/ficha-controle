@@ -11,7 +11,10 @@ export default function TafPanel({ ficha, onUpdate }) {
 
   const handleChange = (path, value) => {
     const keys = path.split(".");
-    const newData = structuredClone(tafData);
+    const newData =
+      typeof structuredClone === "function"
+        ? structuredClone(tafData)
+        : JSON.parse(JSON.stringify(tafData));
 
     let current = newData;
 
@@ -19,7 +22,7 @@ export default function TafPanel({ ficha, onUpdate }) {
       current = current[keys[i]];
     }
 
-    current[keys.at(-1)] = value;
+    current[keys[keys.length - 1]] = value;
 
     onUpdate({
       tafData: newData,
