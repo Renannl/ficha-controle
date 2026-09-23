@@ -5,7 +5,6 @@ export const ROLE_COLORS = {
   montagem: "#f8bc5a", // amarelo
   barramento: "#5969f3", // azul-violeta
   cabeamento: "#4e944e", // verde
-  producao: "#8a8f98", // cinza (cargo legado)
 };
 
 export const ROLE_LABELS = {
@@ -13,7 +12,6 @@ export const ROLE_LABELS = {
   montagem: "Montagem",
   barramento: "Barramento",
   cabeamento: "Cabeamento",
-  producao: "Produção",
 };
 
 // 🆕 Ordem do fluxo de produção (Montagem → Barramento → Cabeamento)
@@ -22,7 +20,6 @@ const ROLE_ORDER = [
   "barramento",
   "cabeamento",
   "admin",
-  "producao",
 ];
 
 export function getRoleColor(role) {

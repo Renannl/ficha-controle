@@ -9903,3 +9903,842 @@ svg {
     justify-content: flex-end;
   }
 }
+
+.importar-flow-modal {
+  max-width: 720px;
+  width: 90vw;
+}
+
+.flow-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.flow-progress-step {
+  display: flex;
+  align-items: center;
+}
+
+.flow-progress-step:not(:last-child)::after {
+  content: "";
+  width: 40px;
+  height: 2px;
+  background: var(--border-color, #e5e7eb);
+  margin-left: 8px;
+}
+
+.flow-progress-step.done:not(:last-child)::after {
+  background: var(--success-color, #22c55e);
+}
+
+.flow-progress-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-muted, #f3f4f6);
+  color: var(--text-muted, #6b7280);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.flow-progress-step.active .flow-progress-dot {
+  background: var(--blue-accent, #2563eb);
+  color: white;
+}
+
+.flow-progress-step.done .flow-progress-dot {
+  background: var(--success-color, #22c55e);
+  color: white;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.flow-step-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.flow-step-subtitle {
+  margin: 0;
+  color: var(--text-muted, #6b7280);
+  font-size: 0.875rem;
+}
+
+.flow-documentos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.flow-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.flow-erro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.flow-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  background: var(--bg-muted, #f9fafb);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.flow-resumo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.flow-resumo-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, #6b7280);
+  text-transform: uppercase;
+}
+
+.flow-resumo-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.flow-preview-tabela {
+  max-height: 240px;
+  overflow: auto;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.flow-preview-tabela table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.flow-preview-tabela th,
+.flow-preview-tabela td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  white-space: nowrap;
+}
+
+.flow-preview-tabela th {
+  background: var(--bg-muted, #f9fafb);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.flow-preview-tabela tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Modal Completar Manual ── */
+.completar-manual-modal {
+  max-width: 1100px;
+  width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.completar-manual-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Campos cliente/descrição */
+.completar-manual-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.completar-manual-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.completar-manual-campo label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--text-secondary, #374151);
+}
+
+.completar-manual-campo input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #111);
+  transition: border-color 0.15s;
+}
+
+.completar-manual-campo input:focus {
+  outline: none;
+  border-color: var(--blue-accent, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Tabela */
+.completar-manual-tabela-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.completar-manual-tabela-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.completar-manual-tabela-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.completar-manual-tabela-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.completar-manual-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  min-width: 800px;
+}
+
+.completar-manual-tabela th {
+  padding: 0.6rem 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted, #6b7280);
+  background: var(--bg-muted, #f9fafb);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  white-space: nowrap;
+}
+
+.completar-manual-tabela td {
+  padding: 0.35rem 0.35rem;
+  border-bottom: 1px solid var(--border-color, #f3f4f6);
+  vertical-align: middle;
+}
+
+.completar-manual-tabela tr:last-child td {
+  border-bottom: none;
+}
+
+.completar-manual-tabela input,
+.completar-manual-tabela select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: transparent;
+  color: var(--text-primary, #111);
+  transition: all 0.15s;
+}
+
+.completar-manual-tabela input:hover,
+.completar-manual-tabela select:hover {
+  border-color: var(--border-color, #e5e7eb);
+  background: var(--bg-muted, #f9fafb);
+}
+
+.completar-manual-tabela input:focus,
+.completar-manual-tabela select:focus {
+  outline: none;
+  border-color: var(--blue-accent, #2563eb);
+  background: var(--bg-primary, #fff);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.completar-manual-tabela input[type="date"] {
+  cursor: text;
+}
+
+.completar-manual-remover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.completar-manual-remover:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.completar-manual-contagem {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted, #6b7280);
+}
+
+/* Botão outline pequeno */
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color, #e5e7eb);
+  color: var(--text-primary, #111);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-outline:hover {
+  background: var(--bg-muted, #f9fafb);
+  border-color: var(--blue-accent, #2563eb);
+  color: var(--blue-accent, #2563eb);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .completar-manual-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Indicador de passos ── */
+.iflow-progress {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-muted, #f9fafb);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.iflow-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--text-muted, #9ca3af);
+}
+
+.iflow-progress-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #d1d5db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.iflow-progress-step.active .iflow-progress-dot {
+  background: var(--blue-accent, #2563eb);
+}
+
+.iflow-progress-step.done .iflow-progress-dot {
+  background: #10b981;
+}
+
+.iflow-progress-step.active {
+  color: var(--text-primary, #111);
+  font-weight: 600;
+}
+
+/* ── Bloco de erro ── */
+.iflow-erro {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+.iflow-erro svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Lista de documentos (passo 1) ── */
+.iflow-docs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.iflow-doc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.iflow-doc-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary, #111);
+}
+
+/* ── Revisão (passo 3) ── */
+.iflow-revisao {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.iflow-revisao-dados {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.9rem 1rem;
+  background: var(--bg-muted, #f9fafb);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+/* ─────────────────────────────────────────────
+   CORREÇÕES: arquivo com nome longo + tamanho
+   ───────────────────────────────────────────── */
+
+/* 1. Modal maior e com altura confortável */
+.importar-colecao-modal {
+  max-width: 1100px !important;
+  width: 95vw !important;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.importar-colecao-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1.75rem !important;
+  font-size: 0.95rem;
+}
+
+/* 2. Campo de arquivo selecionado — NÃO deixa o nome estourar */
+.importar-campo-arquivo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;          /* ← permite encolher */
+  flex: 1;               /* ← ocupa o espaço restante da linha */
+  max-width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  background: var(--bg-muted, #f9fafb);
+  overflow: hidden;
+}
+
+.importar-campo-arquivo > svg {
+  flex-shrink: 0;
+}
+
+/* 3. Nome do arquivo: trunca com "..." */
+.importar-campo-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  color: var(--text-primary, #111);
+}
+
+/* 4. Botão de remover SEMPRE visível */
+.importar-campo-remover {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.importar-campo-remover:hover {
+  background: #fee2e2;
+}
+
+/* 5. Botão "Selecionar arquivo" não encolhe nem quebra */
+.importar-campo-selecionar {
+  flex-shrink: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px dashed var(--blue-accent, #2563eb);
+  border-radius: 8px;
+  background: #eff6ff;
+  color: var(--blue-accent, #2563eb);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.importar-campo-selecionar:hover {
+  background: #dbeafe;
+}
+
+/* 6. Linha do documento (passo 1) — label fixo + campo flexível */
+.iflow-doc-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+}
+
+.iflow-doc-info {
+  flex-shrink: 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary, #111);
+}
+
+.iflow-doc-info > svg {
+  flex-shrink: 0;
+}
+
+.iflow-doc-info span {
+  /* permite quebra de linha em rótulos longos como
+     "Projetos e Documentos do Cliente" */
+  white-space: normal;
+}
+
+/* 7. Documentos do rascunho (CompletarColecaoModal) — mesmo problema */
+.rascunho-arquivo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.rascunho-arquivo-item > svg {
+  flex-shrink: 0;
+}
+
+.rascunho-arquivo-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.rascunho-arquivo-item .rascunho-arquivo-view,
+.rascunho-arquivo-item .rascunho-arquivo-download {
+  flex-shrink: 0;
+}
+
+/* 8. Aumentar o corpo da tabela manual (inputs maiores) */
+.completar-manual-tabela input,
+.completar-manual-tabela select {
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.6rem !important;
+}
+
+.completar-manual-tabela th {
+  font-size: 0.75rem !important;
+  padding: 0.7rem 0.6rem !important;
+}
+
+.completar-manual-tabela td {
+  padding: 0.45rem 0.45rem !important;
+}
+
+/* 9. Campos cliente/descrição maiores */
+.completar-manual-campo label {
+  font-size: 0.875rem !important;
+}
+
+.completar-manual-campo input {
+  font-size: 0.95rem !important;
+  padding: 0.6rem 0.8rem !important;
+}
+
+/* 10. Responsivo: empilha rótulo e campo no celular */
+@media (max-width: 640px) {
+  .iflow-doc-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .importar-campo-arquivo,
+  .importar-campo-selecionar {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* 6. Linha do documento (passo 1) — QUEBRA em vez de estourar */
+.iflow-doc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;        /* ← a chave: quebra pra linha de baixo */
+  padding: 0.9rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  min-width: 0;
+}
+
+.iflow-doc-info {
+  flex: 1 1 200px;        /* rótulo ocupa o espaço e pode encolher */
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary, #111);
+}
+
+.iflow-doc-info > svg {
+  flex-shrink: 0;
+}
+
+.iflow-doc-info span {
+  white-space: normal;    /* rótulo longo pode quebrar linha */
+}
+
+/* 5. Botão "Selecionar arquivo" — fica limitado à largura da linha */
+.importar-campo-selecionar {
+  flex-shrink: 1;
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px dashed var(--blue-accent, #2563eb);
+  border-radius: 8px;
+  background: #eff6ff;
+  color: var(--blue-accent, #2563eb);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.importar-destino {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.importar-destino-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary, #111);
+}
+
+.importar-destino-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.importar-destino-botoes button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.importar-destino-botoes button.ativo {
+  border-color: var(--blue-accent, #2563eb);
+  background: #eff6ff;
+  color: var(--blue-accent, #2563eb);
+  font-weight: 600;
+}
+
+.importar-destino-pasta {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.importar-pasta-escolhida {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.75rem;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.importar-pasta-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.importar-pasta-ind {
+  font-weight: 700;
+  color: var(--blue-accent, #2563eb);
+  white-space: nowrap;
+}
+
+.importar-pasta-vazio {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted, #6b7280);
+}
+
+.seletor-pasta-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  padding: 0.5rem;
+  background: #fff;
+}
+
+.seletor-pasta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.6rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.seletor-pasta-item:hover {
+  background: #eff6ff;
+}
+
+.seletor-pasta-ind {
+  font-weight: 600;
+  color: var(--blue-accent, #2563eb);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.importar-campo-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted, #6b7280);
+}
+
+/* spinner */
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

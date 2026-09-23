@@ -9,7 +9,7 @@ import {
   Upload,
   ArrowLeft,
 } from "lucide-react";
-import ImportarColecaoModal from "../excel/ImportarColecaoModal";
+import ImportarColecaoFlow from "../excel/ImportarColecaoFlow";
 
 const CODIGO_OPERACAO_FOTOS = "80";
 
@@ -356,7 +356,7 @@ export default function NewFichaMenu({
                 <div className="new-ficha-opt-info">
                   <span className="new-ficha-opt-title">Importar Coleção</span>
                   <span className="new-ficha-opt-desc">
-                    Criar a partir de planilha Excel + documentos
+                    Preencher dados manualmente + documentos
                   </span>
                 </div>
               </button>
@@ -368,7 +368,7 @@ export default function NewFichaMenu({
           </button>
         </div>
       </div>
-      <ImportarColecaoModal
+      <ImportarColecaoFlow
         show={mostrarImportar}
         onClose={() => setMostrarImportar(false)}
         onImportado={(resultado) => {

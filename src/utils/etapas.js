@@ -54,6 +54,6 @@ export function podeTrabalharNaEtapa(user, etapa) {
   if (!user) return false;
   if (user.role === "admin") return true;
   const etapaDoCargo = getEtapaDoCargo(user.role);
-  if (!etapaDoCargo) return true; // role antigo (ex: "producao") = sem restrição
+  if (!etapaDoCargo) return true;
   return etapaDoCargo === etapa;
 }

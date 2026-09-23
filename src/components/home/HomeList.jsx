@@ -1,7 +1,6 @@
 import { useState } from "react";
 import HomeFilters from "./HomeFilters";
 import FichaCard from "./FichaCard";
-import CompletarColecaoModal from "../excel/ImportarColecaoExcel"; // 🆕 NOVO
 import {
   FolderOpen,
   Plus,
@@ -10,7 +9,7 @@ import {
   X,
   Trash2,
   ChevronDown,
-  FileSpreadsheet, // 🆕 NOVO
+  FileSpreadsheet,
 } from "lucide-react";
 import { getFichaStatus } from "../../utils/fichaStatus";
 import { getColecaoStatus } from "../../utils/colecaoStatus";
