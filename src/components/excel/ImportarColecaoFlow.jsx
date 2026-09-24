@@ -47,6 +47,7 @@ function linhaVazia() {
     recurso: "",
     tipoPainel: "",
     revisao: "01",
+    sufixo: "",
   };
 }
 
@@ -103,6 +104,7 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
       setCarregandoPastas(false); // 🔧 reset do loader
     }
   }, [show]);
+  const mostrarSufixo = usarPastaExistente && !!pastaSelecionada;
 
   if (!show) return null;
 
@@ -147,19 +149,25 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
   }
 
   function avancar() {
-    const faltando = DOCUMENTOS.filter((d) => d.obrigatorio && !arquivos[d.id]);
-    if (faltando.length > 0) {
-      setErro(
-        `Arquivos obrigatórios faltando:\n• ${faltando
-          .map((f) => f.label)
-          .join("\n• ")}`,
+    if (!usarPastaExistente) {
+      const faltando = DOCUMENTOS.filter(
+        (d) => d.obrigatorio && !arquivos[d.id],
       );
-      return;
+      if (faltando.length > 0) {
+        setErro(
+          `Arquivos obrigatórios faltando:\n• ${faltando
+            .map((f) => f.label)
+            .join("\n• ")}`,
+        );
+        return;
+      }
     }
+
     if (usarPastaExistente && !pastaSelecionada) {
       setErro("Selecione uma pasta existente para continuar.");
       return;
     }
+
     setErro(null);
     setPasso(2);
   }
@@ -209,6 +217,16 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
         return;
       }
     }
+
+    if (mostrarSufixo) {
+      const sufixos = preenchidas.map((l) => l.sufixo).filter((s) => s !== "");
+      const temDuplicado = sufixos.some((s, i) => sufixos.indexOf(s) !== i);
+      if (temDuplicado) {
+        setErro("Existem fichas com o mesmo número. Ajuste os números.");
+        return;
+      }
+    }
+
     setErro(null);
     setPasso(3);
   }
@@ -217,15 +235,33 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
     setCarregando(true);
     setErro(null);
     try {
-      const form = new FormData();
-      Object.entries(arquivos).forEach(([k, v]) => form.append(k, v));
-      const res = await authFetch(`${API_URL}/colecoes/importar-documentos`, {
-        method: "POST",
-        body: form,
-      });
-      if (!res?.ok) throw new Error("Falha ao salvar documentos");
-      const rascunho = await res.json();
+      // ─── 1) Criar rascunho ───
+      let rascunho;
 
+      if (usarPastaExistente && pastaSelecionada) {
+        // Modo pasta existente → envia JSON puro
+        const res = await authFetch(`${API_URL}/colecoes/importar-documentos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pastaExistente: pastaSelecionada.nome,
+          }),
+        });
+        if (!res?.ok) throw new Error("Falha ao salvar rascunho");
+        rascunho = await res.json();
+      } else {
+        // Modo pasta nova → envia FormData com arquivos
+        const form = new FormData();
+        Object.entries(arquivos).forEach(([k, v]) => form.append(k, v));
+        const res = await authFetch(`${API_URL}/colecoes/importar-documentos`, {
+          method: "POST",
+          body: form,
+        });
+        if (!res?.ok) throw new Error("Falha ao salvar documentos");
+        rascunho = await res.json();
+      }
+
+      // ─── 2) Completar coleção ───
       const preenchidas = linhasPreenchidas();
       const resFinal = await authFetch(
         `${API_URL}/colecoes/${rascunho.colecao.id}/completar`,
@@ -245,10 +281,9 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
               recurso: l.recurso,
               tipoPainel: l.tipoPainel,
               revisao: l.revisao || "01",
+              sufixoFicha:
+                mostrarSufixo && l.sufixo ? Number(l.sufixo) : undefined, // ←
             })),
-            usarPastaExistente,
-            pastaExistente: usarPastaExistente ? pastaSelecionada?.nome : null,
-            numeroIndBase: usarPastaExistente ? pastaSelecionada?.ind : null,
           }),
         },
       );
@@ -310,56 +345,61 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
           {/* ── PASSO 1: DOCUMENTOS ── */}
           {passo === 1 && (
             <>
-              <div className="iflow-docs">
-                {DOCUMENTOS.map((d) => (
-                  <div key={d.id} className="iflow-doc-row">
-                    <div className="iflow-doc-info">
-                      <FileText size={16} />
-                      <span>
-                        {d.label}
-                        {d.obrigatorio && (
-                          <span className="importar-obrigatorio"> *</span>
+              {/* Documentos: SÓ no modo "criar pasta nova" */}
+              {!usarPastaExistente && (
+                <>
+                  <div className="iflow-docs">
+                    {DOCUMENTOS.map((d) => (
+                      <div key={d.id} className="iflow-doc-row">
+                        <div className="iflow-doc-info">
+                          <FileText size={16} />
+                          <span>
+                            {d.label}
+                            {d.obrigatorio && (
+                              <span className="importar-obrigatorio"> *</span>
+                            )}
+                          </span>
+                        </div>
+                        {arquivos[d.id] ? (
+                          <div className="importar-campo-arquivo">
+                            <FileText size={16} />
+                            <span className="importar-campo-nome">
+                              {arquivos[d.id].name}
+                            </span>
+                            <button
+                              type="button"
+                              className="importar-campo-remover"
+                              onClick={() => removerArquivo(d.id)}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="importar-campo-selecionar"
+                            onClick={() => fileInputs.current[d.id]?.click()}
+                          >
+                            <Upload size={16} />
+                            Selecionar arquivo
+                          </button>
                         )}
-                      </span>
-                    </div>
-                    {arquivos[d.id] ? (
-                      <div className="importar-campo-arquivo">
-                        <FileText size={16} />
-                        <span className="importar-campo-nome">
-                          {arquivos[d.id].name}
-                        </span>
-                        <button
-                          type="button"
-                          className="importar-campo-remover"
-                          onClick={() => removerArquivo(d.id)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <input
+                          ref={(el) => (fileInputs.current[d.id] = el)}
+                          type="file"
+                          accept=".pdf,.xls,.xlsx"
+                          style={{ display: "none" }}
+                          onChange={(e) => handleArquivo(d.id, e)}
+                        />
                       </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className="importar-campo-selecionar"
-                        onClick={() => fileInputs.current[d.id]?.click()}
-                      >
-                        <Upload size={16} />
-                        Selecionar arquivo
-                      </button>
-                    )}
-                    <input
-                      ref={(el) => (fileInputs.current[d.id] = el)}
-                      type="file"
-                      accept=".pdf,.xls,.xlsx"
-                      style={{ display: "none" }}
-                      onChange={(e) => handleArquivo(d.id, e)}
-                    />
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              <div className="importar-divider" />
+                  <div className="importar-divider" />
+                </>
+              )}
 
-              {/* ESCOLHA DE DESTINO */}
+              {/* ESCOLHA DE DESTINO (sempre visível) */}
               <div className="importar-destino">
                 <div className="importar-destino-label">
                   Para onde vão os arquivos?
@@ -464,6 +504,13 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
                         )}
                       </>
                     )}
+
+                    {pastaSelecionada && (
+                      <p className="importar-campo-hint">
+                        Os documentos já estão na pasta existente — não é
+                        preciso enviar novamente.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -522,20 +569,46 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
                   <table className="completar-manual-tabela">
                     <thead>
                       <tr>
-                        <th style={{ width: "22%" }}>Nome Equipamento *</th>
+                        {mostrarSufixo && (
+                          <th style={{ width: "7%" }}>Nº Ficha</th>
+                        )}
+                        <th style={{ width: mostrarSufixo ? "17%" : "22%" }}>
+                          Nome Equipamento *
+                        </th>
                         <th style={{ width: "12%" }}>Obra</th>
                         <th style={{ width: "8%" }}>Tag</th>
                         <th style={{ width: "12%" }}>Tipo Painel *</th>
                         <th style={{ width: "11%" }}>Data Início</th>
                         <th style={{ width: "11%" }}>Data Término</th>
                         <th style={{ width: "9%" }}>Tempo Prev.</th>
-                        <th style={{ width: "10%" }}>Recurso</th>
-                        <th style={{ width: "5%" }}></th>
+                        <th style={{ width: mostrarSufixo ? "9%" : "10%" }}>
+                          Recurso
+                        </th>
+                        <th style={{ width: mostrarSufixo ? "4%" : "5%" }}></th>
                       </tr>
                     </thead>
                     <tbody>
                       {linhas.map((linha, i) => (
                         <tr key={i}>
+                          {mostrarSufixo && (
+                            <td>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={3}
+                                placeholder="Auto"
+                                value={linha.sufixo}
+                                onChange={(e) =>
+                                  atualizarLinha(
+                                    i,
+                                    "sufixo",
+                                    e.target.value.replace(/\D/g, ""),
+                                  )
+                                }
+                                title="Deixe vazio para gerar automaticamente"
+                              />
+                            </td>
+                          )}
                           <td>
                             <input
                               type="text"
@@ -647,6 +720,12 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
                   </table>
                 </div>
 
+                {mostrarSufixo && (
+                  <p className="importar-campo-hint">
+                    Deixe "Nº Ficha" vazio para o sistema gerar automaticamente.
+                  </p>
+                )}
+
                 {linhasPreenchidas().length > 0 && (
                   <p className="completar-manual-contagem">
                     {linhasPreenchidas().length}{" "}
@@ -681,10 +760,12 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
                     </div>
                   </>
                 )}
-                <div>
-                  <strong>Documentos:</strong> {Object.keys(arquivos).length}{" "}
-                  enviado(s)
-                </div>
+                {!usarPastaExistente && (
+                  <div>
+                    <strong>Documentos:</strong> {Object.keys(arquivos).length}{" "}
+                    enviado(s)
+                  </div>
+                )}
                 <div>
                   <strong>Equipamentos:</strong> {linhasPreenchidas().length}
                 </div>
@@ -694,6 +775,7 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
                 <table className="completar-manual-tabela">
                   <thead>
                     <tr>
+                      {mostrarSufixo && <th>Nº Ficha</th>}
                       <th>Equipamento</th>
                       <th>Obra</th>
                       <th>Tag</th>
@@ -702,9 +784,11 @@ export default function ImportarColecaoFlow({ show, onClose, onImportado }) {
                       <th>Término</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {linhasPreenchidas().map((l, i) => (
                       <tr key={i}>
+                        {mostrarSufixo && <td>{l.sufixo || "Auto"}</td>}
                         <td>{l.nomeEquipamento}</td>
                         <td>{l.obra}</td>
                         <td>{l.tag}</td>

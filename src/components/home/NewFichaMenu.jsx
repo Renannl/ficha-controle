@@ -57,22 +57,9 @@ export default function NewFichaMenu({
     return !jaTemTaf;
   });
 
-  // ── Fichas disponíveis para Relatório Fotográfico ──
-  // Agora filtra pelo tipo específico: permite uma geral E uma técnica
   const fichasProducaoFotos = fichasDaColecao.filter((f) => {
     if (String(f.operacao) !== "10") return false;
     if (f.statusAprovacao !== "aprovado") return false;
-
-    // 🆕 A TAF vinculada à produção precisa estar aprovada
-    const tafDaProducao = fichasDaColecao.find(
-      (t) =>
-        String(t.operacao) === "50" &&
-        String(t.ficha_producao_id) === String(f.dbId),
-    );
-
-    if (!tafDaProducao || tafDaProducao.statusAprovacao !== "aprovado") {
-      return false;
-    }
 
     const jaTemEsseTipo = fichasDaColecao.some(
       (t) =>
@@ -254,8 +241,8 @@ export default function NewFichaMenu({
                   Nenhuma ficha de produção disponível.
                   <br />
                   <br />
-                  Verifique se a ficha de produção já possui uma{" "}
-                  <b>TAF aprovada</b>.
+                  Verifique se a ficha de produção já foi <b>aprovada</b> e se
+                  ainda não possui este tipo de relatório.
                 </div>
               ) : (
                 fichasProducaoFotos.map((f) => (
